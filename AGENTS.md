@@ -58,7 +58,10 @@ runtime code.
   conversion. Update the runbook in the same PR that changes the procedure.
 - **Issues** — development specs and in-flight decisions. Transient by nature;
   closed when done. Only promote to markdown when a decision becomes durable
-  policy (here) or a repeatable procedure (runbook).
+  policy (here) or a repeatable procedure (runbook). Labels: `type:epic` /
+  `type:task` (one-off) / `type:spec` (implementable design), `area:site` /
+  `area:app` / `area:both` / `area:meta`, and `status:future` for parking-lot
+  items.
 
 ## Conventions
 
