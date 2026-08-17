@@ -44,6 +44,11 @@ runtime code.
    convention, update AGENTS.md/README in the same PR.
 ## Tooling
 
+- **All dev commands go through the root `package.json` npm scripts**
+  (`npm run dev:site`, `lint`, `format`, `check:assets`, ...). That file is the
+  single place commands are defined — CI calls the same scripts. No Makefile or
+  parallel interface.
+
 - **JavaScript is linted and formatted with [Biome](https://biomejs.dev/)**
   (root `biome.json`). Run `npx biome check --write` before pushing; CI fails
   on violations. Biome does not lint Liquid/EJS/Markdown — format those
