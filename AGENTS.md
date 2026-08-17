@@ -35,7 +35,9 @@ runtime code.
    `Co-Authored-By:` trailer; the human stays the author.
 2. **No direct pushes to `main`.** Work on a branch, open a PR, reference its
    issue (`Refs #N`). No force-pushes, no history rewrites — the sole exception
-   is maintainer-only media pruning documented above.
+   is maintainer-only media pruning documented above. (Convention only while
+   the repo is private — GitHub Free can't enforce branch protection on private
+   repos; it gets enabled at cutover when the repo goes public, see #7.)
 3. **CI must pass** (Biome + asset policy) before merge.
 4. **Squash-merge always.** Every PR lands as one commit on `main` (enforced in
    repo settings — merge commits and rebase merges are disabled). Write the PR
