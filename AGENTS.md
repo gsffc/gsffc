@@ -21,8 +21,10 @@ runtime code.
    - PNG only for graphics with transparency/flat color.
    - ≤ ~10 MB total media per post; beyond that, host externally and link.
    - Convert with `scripts/` helpers — do not hand-roll encoder flags.
-2. **Do not refactor `app/`** unless the issue explicitly asks for it — it is
-   maintained by its original author.
+2. **`app/` is owned by @Dongminator.** He has full latitude there — this rule
+   governs everyone else: make only issue-scoped changes to `app/`, and
+   coordinate with the owner before anything beyond that. Same courtesy in
+   reverse for `site/` (@aenon).
 3. Secrets stay out of git (`.env` is ignored; document new variables in
    `.env.example`).
 4. Site UI text is primarily Chinese; code comments and docs are English.
