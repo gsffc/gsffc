@@ -1,0 +1,103 @@
+---
+layout: default
+---
+
+<article class="post">
+<div class="post-content">
+<h1>
+    <img width="20%" class="team-page-logo" src='{{site.baseurl_root}}/assets/img/{{page.team.logo}}'/>
+    {% include i18n_display_name.html entity=page.team %}
+</h1>
+
+<p>{{ page.team.description }}</p>
+<br/>
+
+<div class="row">
+    <table>
+    <thead>
+        <tr>
+            <th>{% t season %}</th>
+            <th>{% t table.played %}</th>
+            <th>{% t table.win %}</th>
+            <th>{% t table.tie %}</th>
+            <th>{% t table.lose %}</th>
+            <th>{% t table.goals_for %}</th>
+            <th>{% t table.goals_against %}</th>
+            <th>{% t table.avg %}</th>
+        </tr>
+    </thead>
+    {% for pair in page.history_stats %}
+    {% assign stats=pair[1] %}
+    {% if pair[0] == page.season_key %}
+    <tbody class="cur-season-line">
+    {% else %}
+    <tbody>
+    {% endif %}
+        <td>{%if stats.is_winner == true %}🏆{%endif%} <a href="../../{{ stats.season_key }}/{{page.team_key}}">{% include i18n_display_name.html entity=stats %}</a></td>
+        <td>{{ stats.games_played }}</td>
+        <td>{{ stats.wins }}</td>
+        <td>{{ stats.draws }}</td>
+        <td>{{ stats.loses }}</td>
+        <td>{{ stats.goals_for }}</td>
+        <td>{{ stats.goals_against }}</td>
+        <td>+{{ stats.avg_gf }} / -{{ stats.avg_ga }}</td>
+    </tbody>
+    {% endfor %}
+    </table>
+</div>
+
+<div class="row">
+
+
+    <div class="column">
+        <table class="playerlist">
+        <thead>
+            <tr>
+            <th>{% translate player.number %}</th>
+            <th>{% translate player.photo %}</th>
+            <th>{% translate player.name %}</th>
+            <th>{% translate player.position %}</th>
+            <th>{% translate player.goals %}</th>
+            <th>{% translate player.assists %}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in page.team.players.starting %}
+            {% include player_table_line.html player=player %}
+            {% endfor %}
+
+            {% for player in page.team.players.subs %}
+            {% include player_table_line.html player=player %}
+            {% endfor %}
+        </tbody>
+        </table>
+
+    </div>
+
+
+<!-- Starting squad -->
+<!-- <div class="column team-page-squad" >
+    {% include squad.html squad=page.team.players.starting %}
+</div> -->
+
+</div>
+
+<div>
+{% for game in page.team.games %}
+{% assign gk = game[0] %}
+{% assign g = game[1] %}
+{% include game_lines.html game_key=gk game=g season_base_url="../" %}
+{% endfor %}
+</div>
+
+
+{% if page.team.image %}
+<br/>
+<div>
+    <img src="{{site.baseurl_root}}/assets/img/{{page.team.image}}" />
+</div>
+<br/>
+{% endif %}
+
+</div>
+</article>

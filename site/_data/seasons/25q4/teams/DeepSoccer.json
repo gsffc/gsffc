@@ -1,0 +1,11 @@
+{
+    "display_name": "Deep Soccer",
+    "description": "",
+    "logo": "teams/DeepSoccer/logo.png",
+    "players": {
+        "starting": [
+        ],
+        "subs": [
+        ]
+    }
+}

@@ -1,0 +1,53 @@
+{
+    "date": "2023-02-04 16:00",
+    "type": "#1",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/OcsUmMXNEb0\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<a href=\"https://app.veo.co/matches/20230205-155649-c42000e6\"><img src=\"/assets/img/games/23q1/veo-u-bd.jpg\"></img></a>"
+    ],
+    "home": {
+        "key": "BD",
+        "score": 4,
+        "events": [
+            {"type": "goal", "time": 3, "player": "??"}
+            ,{"type": "penalty-miss", "time": 31, "player": "??"}
+            ,{"type": "goal", "time": 31, "player": "??"}
+            ,{"type": "goal", "time": 34, "player": "??"}
+            ,{"type": "goal", "time": 51, "player": "??"}
+        ],
+        "squad": [
+        ]
+    },
+    "away": {
+        "key": "GSF-U",
+        "score": 4,
+        "events": [
+            {"type": "penalty", "time": 41, "player": "蒋小神", "assist": "张稞雨"}
+            ,{"type": "goal", "time": 50, "player": "张稞雨"}
+            ,{"type": "penalty", "time": 69, "player": "蒋小神", "assist": "张稞雨"}
+            ,{"type": "goal", "time": 85, "player": "Colin", "assist": "张稞雨"}
+        ],
+        "squad": [
+            {"name": "Alpha", "locator": "GK"}
+            ,{"name": "王政", "locator": "LB"}
+            ,{"name": "孟祥宇", "locator": "LCB"}
+            ,{"name": "Colin", "locator": "RCB"}
+            ,{"name": "荆安东", "locator": "RB"}
+            ,{"name": "狄克", "locator": "CDM"}
+            ,{"name": "单思远", "locator": "LCM"}
+            ,{"name": "杜若衡", "locator": "RCM"}
+            ,{"name": "小唐", "locator": "RM"}
+            ,{"name": "杨帆", "locator": "LM"}
+            ,{"name": "东林", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "蒋小神"}
+            ,{"name": "Xuan"}
+            ,{"name": "宁广涵"}
+            ,{"name": "张一宁"}
+            ,{"name": "张稞雨"}
+            ,{"name": "陈晨"}
+            ,{"name": "庭朝"}
+        ]
+    }
+}

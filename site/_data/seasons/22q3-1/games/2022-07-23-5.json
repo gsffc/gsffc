@@ -1,0 +1,47 @@
+{
+    "date": "2022-07-23 04:00PM",
+    "type": "#4",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/vf22hsRLZ7w\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF",
+        "score": 0,
+        "events": [
+        ],
+        "squad": [
+            {"name": "Alpha", "locator": "GK"}
+            ,{"name": "洪泽", "locator": "LCB"}
+            ,{"name": "刘喆", "locator": "RCB"}
+            ,{"name": "文韬", "locator": "LM"}
+            ,{"name": "李峰", "locator": "CDM"}
+            ,{"name": "狄克", "locator": "RM"}
+            ,{"name": "杨帆", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "Xuan"}
+            ,{"name": "庭朝"}
+            ,{"name": "元健"}
+            ,{"name": "胡智宇"}
+            ,{"name": "文韬"}
+            ,{"name": "刘喆"}
+            ,{"name": "Colin"}
+            ,{"name": "锡麟"}
+            ,{"name": "Max"}
+            ,{"name": "王琛"}
+            ,{"name": "王政"}
+            ,{"name": "孟祥宇"}
+            ,{"name": "Bruce"}
+            ,{"name": "王金鹏"}
+            ,{"name": "张谌"}
+        ]
+    },
+    "away": {
+        "key": "BIT",
+        "score": 0,
+        "events": [
+            {"type": "yellow", "time": 50, "player": "??"}
+        ],
+        "squad": []
+    }
+}

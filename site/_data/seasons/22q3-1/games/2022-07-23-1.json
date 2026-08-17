@@ -1,0 +1,47 @@
+{
+    "date": "2022-07-23 10:00AM",
+    "type": "#3",
+    "videos": [
+        "<a href=\"https://app.veo.co/matches/20220723-knights-vs-gsf/\"><img src=\"/assets/img/games/sbk-screenshot.jpg\"></img></a>"
+    ],
+    "home": {
+        "key": "GSF",
+        "score": 3,
+        "events": [
+            {"type": "goal", "time": 17, "player": "Kevin", "assist": "Xuan"}
+            ,{"type": "goal", "time": 67, "player": "李峰", "assist": "Xuan"}
+            ,{"type": "goal", "time": 90, "player": "Xuan", "assist": "狄克"}
+        ],
+        "squad": [
+            {"name": "锡麟", "locator": "GK"}
+            ,{"name": "Colin", "locator": "LCB"}
+            ,{"name": "张自然", "locator": "RCB"}
+            ,{"name": "王政", "locator": "LM"}
+            ,{"name": "张一宁", "locator": "CDM"}
+            ,{"name": "Xuan", "locator": "RM"}
+            ,{"name": "Kevin", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "Ted"}
+            ,{"name": "狄克"}
+            ,{"name": "庭朝"}
+            ,{"name": "杨帆"}
+            ,{"name": "元健"}
+            ,{"name": "胡智宇"}
+            ,{"name": "文韬"}
+            ,{"name": "刘喆"}
+            ,{"name": "Alpha"}
+            ,{"name": "李峰"}
+            ,{"name": "王琛"}
+        ]
+    },
+    "away": {
+        "key": "SouthBayKnight",
+        "score": 2,
+        "events": [
+            {"type": "goal", "time": 11, "player": "??"},
+            {"type": "penalty", "time": 36, "player": "??"}
+        ],
+        "squad": []
+    }
+}
