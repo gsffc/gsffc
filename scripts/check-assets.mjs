@@ -27,7 +27,9 @@ const LIMITS = {
 };
 
 const violations = [];
+const warnings = [];
 const fail = (file, msg) => violations.push(`${relative(ROOT, file)}: ${msg}`);
+const warn = (file, msg) => warnings.push(`${relative(ROOT, file)}: ${msg}`);
 
 async function* walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
@@ -116,9 +118,10 @@ async function checkPosts() {
       }
     }
     if (total > LIMITS.postMediaBytes)
-      fail(
+      // Per-post total is a soft ("~") limit in AGENTS.md — warn, don't fail.
+      warn(
         join(postsDir, postFile),
-        `post references ${(total / 1048576).toFixed(1)} MB of media > ~10 MB; host externally and link`,
+        `post references ${(total / 1048576).toFixed(1)} MB of media > ~10 MB; consider hosting externally and linking`,
       );
   }
 }
@@ -146,6 +149,10 @@ const media = files.filter((f) => /\.(gif|webm|jpe?g|png)$/i.test(f));
 await mapPool(media, 8, checkFile);
 await checkPosts();
 
+if (warnings.length > 0) {
+  console.log(`Asset policy warnings (${warnings.length}):`);
+  for (const w of warnings) console.log(`  ${w}`);
+}
 if (violations.length > 0) {
   console.error(`Asset policy violations (${violations.length}):`);
   for (const v of violations) console.error(`  ${v}`);

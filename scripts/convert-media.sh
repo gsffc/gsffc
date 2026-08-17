@@ -28,8 +28,10 @@ case "$mode" in
   photo)
     output="${3:-${input%.*}.jpg}"
     [ ! -e "$output" ] || die "output exists: $output"
-    # ffmpeg strips metadata by default and auto-applies EXIF orientation
-    ffmpeg -v error -y -i "$input" -vf "scale='min(1600,iw)':-2" -q:v 3 "$output"
+    # Box-scale (limits width AND height — portrait photos too).
+    # ffmpeg strips metadata by default and auto-applies EXIF orientation.
+    ffmpeg -v error -y -i "$input" \
+      -vf "scale=1600:1600:force_original_aspect_ratio=decrease" -q:v 3 "$output"
     ;;
   *) die "unknown mode: $mode (want video|photo)" ;;
 esac

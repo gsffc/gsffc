@@ -37,10 +37,10 @@ Only needed for converting/checking media — not for `npm run dev:site`.
 ## Policy recap (enforced by `check:assets` and CI)
 
 - No GIFs. Motion is WebM, ≤ 640 px wide, ≤ 2 MB per clip.
-- Photos are JPG, ≤ 1600 px, ≤ 400 KB each.
+- Photos are JPG, ≤ 1600 px max dimension (portrait included), ≤ 400 KB each.
 - PNG only for graphics (transparency/flat color), ≤ 400 KB.
 - ≤ ~10 MB total media referenced by one post; beyond that, host externally
-  and link.
+  and link. This one is soft — `check:assets` warns but does not fail.
 
 ## If something slips through
 
