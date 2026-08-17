@@ -26,6 +26,13 @@ runtime code.
    `.env.example`).
 4. Site UI text is primarily Chinese; code comments and docs are English.
 
+## Tooling
+
+- **JavaScript is linted and formatted with [Biome](https://biomejs.dev/)**
+  (root `biome.json`). Run `npx biome check --write` before pushing; CI fails
+  on violations. Biome does not lint Liquid/EJS/Markdown — format those
+  templates by hand, matching surrounding style.
+
 ## Conventions
 
 - Keep the two halves independently deployable: site work must not require
