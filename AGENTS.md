@@ -20,7 +20,8 @@ runtime code.
      ≤ 400 KB each.
    - PNG only for graphics with transparency/flat color.
    - ≤ ~10 MB total media per post; beyond that, host externally and link.
-   - Convert with `scripts/` helpers — do not hand-roll encoder flags.
+   - Convert with `npm run convert:media` (see `docs/runbooks/media.md`) —
+     do not hand-roll encoder flags. Verify with `npm run check:assets`.
 2. **`app/` is owned by @Dongminator.** He has full latitude there — this rule
    governs everyone else: make only issue-scoped changes to `app/`, and
    coordinate with the owner before anything beyond that. Same courtesy in
