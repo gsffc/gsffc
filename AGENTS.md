@@ -44,6 +44,7 @@ runtime code.
    title as the commit message you want to see on `main`.
 5. **Docs travel with behavior**: if your change alters a command, env var, or
    convention, update AGENTS.md/README in the same PR.
+
 ## Tooling
 
 - **All dev commands go through the root `package.json` npm scripts**
