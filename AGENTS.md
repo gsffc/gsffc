@@ -37,9 +37,11 @@ runtime code.
    issue (`Refs #N`). No force-pushes, no history rewrites — the sole exception
    is maintainer-only media pruning documented above.
 3. **CI must pass** (Biome + asset policy) before merge.
-4. **Docs travel with behavior**: if your change alters a command, env var, or
+4. **Squash-merge always.** Every PR lands as one commit on `main` (enforced in
+   repo settings — merge commits and rebase merges are disabled). Write the PR
+   title as the commit message you want to see on `main`.
+5. **Docs travel with behavior**: if your change alters a command, env var, or
    convention, update AGENTS.md/README in the same PR.
-
 ## Tooling
 
 - **JavaScript is linted and formatted with [Biome](https://biomejs.dev/)**
