@@ -49,6 +49,17 @@ runtime code.
   on violations. Biome does not lint Liquid/EJS/Markdown — format those
   templates by hand, matching surrounding style.
 
+## Where documentation lives
+
+- **AGENTS.md (this file)** — durable rules and policies only. If it's not
+  expected to be true a year from now, it doesn't belong here.
+- **`docs/runbooks/`** — operational how-tos, one file per procedure: local dev
+  setup, Netlify setup, deployments, routing/redirect updates, media
+  conversion. Update the runbook in the same PR that changes the procedure.
+- **Issues** — development specs and in-flight decisions. Transient by nature;
+  closed when done. Only promote to markdown when a decision becomes durable
+  policy (here) or a repeatable procedure (runbook).
+
 ## Conventions
 
 - Keep the two halves independently deployable: site work must not require
