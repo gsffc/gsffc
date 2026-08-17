@@ -1,8 +1,9 @@
-# AGENTS.md — guidance for AI coding agents
+# AGENTS.md — contributor guide (humans and AI agents)
 
-This repo welcomes AI-assisted contributions with **any tool and any model**.
-No specific assistant, vendor, or configuration is required. Everything below is
-plain repo documentation — read it before making changes.
+This is the repo's single canonical contributor document. It is written for AI
+coding agents (**any tool, any model** — no specific assistant, vendor, or
+configuration is required) and is equally the contributor guide for humans.
+Read it before making changes.
 
 ## What this repo is
 
@@ -25,6 +26,19 @@ runtime code.
 3. Secrets stay out of git (`.env` is ignored; document new variables in
    `.env.example`).
 4. Site UI text is primarily Chinese; code comments and docs are English.
+
+## Standardized behaviors (whoever or whatever writes the code)
+
+1. **Commit identity**: real name + real email in `git config user.name` /
+   `user.email` (set per-clone, matching your GitHub account). Never commit as a
+   bot or placeholder identity. AI assistance may be credited with a
+   `Co-Authored-By:` trailer; the human stays the author.
+2. **No direct pushes to `main`.** Work on a branch, open a PR, reference its
+   issue (`Refs #N`). No force-pushes, no history rewrites — the sole exception
+   is maintainer-only media pruning documented above.
+3. **CI must pass** (Biome + asset policy) before merge.
+4. **Docs travel with behavior**: if your change alters a command, env var, or
+   convention, update AGENTS.md/README in the same PR.
 
 ## Tooling
 

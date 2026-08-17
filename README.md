@@ -23,6 +23,6 @@ sequencing. This repo supersedes:
 
 ## Contributing
 
-See `CONTRIBUTING.md` (humans) and `AGENTS.md` (AI coding agents — any tool,
-any model). Media assets must follow the
+See `AGENTS.md` — the single canonical contributor doc, written for humans
+and AI coding agents alike (any tool, any model). Media assets must follow the
 [asset policy](https://github.com/gsffc/gsffc.github.io/blob/asset-conversion/docs/asset-conversion-spec.md#enforcement-policy-for-future-contributions-human-or-ai-agent).
