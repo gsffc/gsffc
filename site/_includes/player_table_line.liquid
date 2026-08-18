@@ -1,0 +1,12 @@
+<tr>
+  <td>{{ player.number }}</td>
+  <td>
+    <div class="player static">
+      <img src="/assets/img/{{ player.img | default: 'placeholder-player.jpg' }}" />
+    </div>
+  </td>
+  <td>{{ player.name }}</td>
+  <td>{{ player.position | t }}</td>
+  <td>{{ player.goals }}</td>
+  <td>{{ player.assists }}</td>
+</tr>

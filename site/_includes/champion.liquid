@@ -1,0 +1,5 @@
+{% if winnerTeam %}
+<h3>🏆 {{ "champion" | t }}</h3>
+{% include "team_link", team: winnerTeam, seasonKey: seasonKey %}
+<div class="row">&nbsp;</div>
+{% endif %}

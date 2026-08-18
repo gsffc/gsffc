@@ -1,0 +1,26 @@
+---
+layout: default
+---
+<article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">{{ title | escape }}</h1>
+    <p class="post-meta">
+      <time class="dt-published" datetime="{{ page.date | date: "%Y-%m-%dT%H:%M:%S%z" }}" itemprop="datePublished">
+        {{ page.date | date: meta.dateFormat }}
+      </time>
+      {%- if author -%}
+        • <span itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <span class="p-author h-card" itemprop="name">{{ author }}</span></span>
+      {%- endif -%}</p>
+
+      {%- include "tags", tags: postTags -%}
+
+  </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    {{ content }}
+  </div>
+
+  <a class="u-url" href="{{ page.url | langUrl }}" hidden></a>
+</article>

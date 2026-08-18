@@ -9,16 +9,16 @@ author: 狄克
 ---
 
 {% assign gk = "2022-07-16-1" %}
-{% assign g = site.data.seasons[page.season_key].games[gk] %}
-{% include game_lines.md game_key=gk game=g season_key=page.season_key %}
+{% assign g = site.data.seasons[season_key].games[gk] %}
+{% include game_lines.md game_key=gk game=g season_key=season_key %}
 
 {% assign gk = "2022-07-17-1" %}
-{% assign g = site.data.seasons[page.season_key].games[gk] %}
-{% include game_lines.md game_key=gk game=g season_key=page.season_key %}
+{% assign g = site.data.seasons[season_key].games[gk] %}
+{% include game_lines.md game_key=gk game=g season_key=season_key %}
 
 {% assign gk = "2022-07-23-1" %}
-{% assign g = site.data.seasons[page.season_key].games[gk] %}
-{% include game_lines.md game_key=gk game=g season_key=page.season_key %}
+{% assign g = site.data.seasons[season_key].games[gk] %}
+{% include game_lines.md game_key=gk game=g season_key=season_key %}
 
 2022校联杯，GSF前三战全胜。末战对阵三场仅积1分的BIT打平即可确保夺冠。
 
@@ -27,8 +27,8 @@ author: 狄克
 最终经过90分钟鏖战，GSF 0:0 艰难闷平对手。不过GSF四战积10分，领先少赛一场的直接竞争对手南湾骑士Southbay Knight 4分，已经确保将校联杯社区盾奖杯收入囊中。众球星心情愉快，纷纷开始寻找终止连胜的“毒瘤”。充当摄影师临时提鞋登场的金球王和隔离转阴火线驰援的Bruce成为头号嫌疑人。
 
 {% assign gk = "2022-07-23-5" %}
-{% assign g = site.data.seasons[page.season_key].games[gk] %}
-{% include game_lines.md game_key=gk game=g season_key=page.season_key %}
+{% assign g = site.data.seasons[season_key].games[gk] %}
+{% include game_lines.md game_key=gk game=g season_key=season_key %}
 
 ![](/assets/img/news/first-champion/cup.jpg)
 

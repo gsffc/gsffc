@@ -1,0 +1,12 @@
+<a href="{{ "/seasons/" | append: seasonKey | append: "/games/" | append: game.slug | append: "/" | langUrl }}" class="game-line">
+<span>{{ game.date }}</span>
+<span>{{ game.type | prepend: "games." | t }}</span>
+{% if game.penalty != nil %}<span>（{{ "penalty" | t }} {{ game.penalty[0] }}:{{ game.penalty[1] }}）</span>{% endif %}
+{% if game.extra != nil %}<span>{{ game.extra }}</span>{% endif %}
+{{ game.home | dname }}
+<img class="team-logo" src="{{ game.home.logo | assetImg }}" />
+{% if game.schedule %}&nbsp;VS&nbsp;{% else %}{{ game.home.score }} : {{ game.away.score }}{% endif %}
+<img class="team-logo" src="{{ game.away.logo | assetImg }}" />
+{{ game.away | dname }}
+</a>
+<br/>

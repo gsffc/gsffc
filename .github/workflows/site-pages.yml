@@ -25,13 +25,11 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: site/.nvmrc
           cache: npm
           cache-dependency-path: site/package-lock.json
       - run: npm ci
-      - run: npx @11ty/eleventy
-        env:
-          NODE_ENV: production
+      - run: npm run build
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site/_site

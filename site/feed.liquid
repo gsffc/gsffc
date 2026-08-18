@@ -1,0 +1,25 @@
+---
+permalink: "feed.xml"
+eleventyExcludeFromCollections: true
+---
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="{{ lang }}">
+  <title>{{ meta | ifield: "title" | escape }}</title>
+  <subtitle>{{ meta | ifield: "description" | escape }}</subtitle>
+  <link href="{{ meta.url }}{{ "/feed.xml" | langUrl }}" rel="self" />
+  <link href="{{ meta.url }}{{ "/" | langUrl }}" />
+  <updated>{{ collections.posts[0].date | date: "%Y-%m-%dT%H:%M:%S+00:00" }}</updated>
+  <id>{{ meta.url }}{{ "/" | langUrl }}</id>
+  {%- for post in collections.posts limit: 10 %}
+  <entry>
+    <title>{{ post.data.title | escape }}</title>
+    <link href="{{ meta.url }}{{ post.url | langUrl }}" />
+    <id>{{ meta.url }}{{ post.url | langUrl }}</id>
+    <updated>{{ post.date | date: "%Y-%m-%dT%H:%M:%S+00:00" }}</updated>
+    {%- if post.data.author %}
+    <author><name>{{ post.data.author }}</name></author>
+    {%- endif %}
+    <summary>{{ post.data.excerptHtml | strip_html | escape }}</summary>
+  </entry>
+  {%- endfor %}
+</feed>

@@ -1,0 +1,50 @@
+---
+pagination:
+  data: statsSeasons
+  size: 1
+  alias: s
+permalink: "/seasons/{{ s.key }}/goal_scorers.html"
+layout: default
+---
+{% include "season_tabs", s: s %}
+<div class="row">&nbsp;</div>
+
+<h3>{{ "goal_scorers" | t }}</h3>
+
+<table class="playerlist">
+  <thead>
+    <tr>
+      <th>{{ "player.photo" | t }}</th>
+      <th>{{ "player.name" | t }}</th>
+      <th>{{ "player.team" | t }}</th>
+      <th>{{ "player.goals_penalty" | t | newline_to_br }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for player in s.scorers %}
+    <tr>
+      <td>
+        <div class="player static">
+          <img src="/assets/img/{{ player.img | default: 'placeholder-player.jpg' }}" />
+        </div>
+      </td>
+      <td>
+        {% case forloop.index %}
+        {% when 1 %}🥇
+        {% when 2 %}🥈
+        {% when 3 %}🥉
+        {% endcase %}
+        {{ player.name }}
+      </td>
+      <td>
+        {% assign team = s.teams[player.teamkey] %}
+        {% include "team_link", team: team, seasonKey: s.key %}
+      </td>
+      <td>
+        {{ player.goals }}
+        {% if player.penalty > 0 %}({{ player.penalty }}){% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

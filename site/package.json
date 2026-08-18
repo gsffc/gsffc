@@ -1,0 +1,23 @@
+{
+  "name": "gsffc-site",
+  "private": true,
+  "description": "GSF Football Club static site (Eleventy) -> GitHub Pages -> www.gsffc.org",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "serve": "eleventy --serve",
+    "build": "npm run build:zh && npm run build:en",
+    "build:zh": "eleventy",
+    "build:en": "LANG=en eleventy --output=_site/en"
+  },
+  "devDependencies": {
+    "@11ty/eleventy": "^3.1.2",
+    "js-yaml": "^4.1.0",
+    "liquidjs": "^10.23.0",
+    "markdown-it": "^14.1.0",
+    "markdown-it-attrs": "^4.3.1",
+    "sass": "^1.89.0"
+  }
+}

@@ -1,0 +1,93 @@
+---
+pagination:
+  data: teamsFlat
+  size: 1
+  alias: t
+permalink: "/seasons/{{ t.seasonKey }}/{{ t.key }}/"
+layout: default
+---
+<article class="post">
+<div class="post-content">
+<h1>
+    <img width="20%" class="team-page-logo" src="{{ t.logo | assetImg }}"/>
+    {{ t | dname }}
+</h1>
+
+<p>{{ t.description }}</p>
+<br/>
+
+<div class="row">
+    <table>
+    <thead>
+        <tr>
+            <th>{{ "season" | t }}</th>
+            <th>{{ "table.played" | t }}</th>
+            <th>{{ "table.win" | t }}</th>
+            <th>{{ "table.tie" | t }}</th>
+            <th>{{ "table.lose" | t }}</th>
+            <th>{{ "table.goals_for" | t }}</th>
+            <th>{{ "table.goals_against" | t }}</th>
+            <th>{{ "table.avg" | t }}</th>
+        </tr>
+    </thead>
+    {% for stats in t.historyStats %}
+    {% if stats.season_key == t.seasonKey %}
+    <tbody class="cur-season-line">
+    {% else %}
+    <tbody>
+    {% endif %}
+        <td>{% if stats.is_winner == true %}🏆{% endif %} <a href="{{ "/seasons/" | append: stats.season_key | append: "/" | append: t.key | append: "/" | langUrl }}">{{ stats | dname }}</a></td>
+        <td>{{ stats.games_played }}</td>
+        <td>{{ stats.wins }}</td>
+        <td>{{ stats.draws }}</td>
+        <td>{{ stats.loses }}</td>
+        <td>{{ stats.goals_for }}</td>
+        <td>{{ stats.goals_against }}</td>
+        <td>+{{ stats.avg_gf }} / -{{ stats.avg_ga }}</td>
+    </tbody>
+    {% endfor %}
+    </table>
+</div>
+
+<div class="row">
+    <div class="column">
+        <table class="playerlist">
+        <thead>
+            <tr>
+            <th>{{ "player.number" | t }}</th>
+            <th>{{ "player.photo" | t }}</th>
+            <th>{{ "player.name" | t }}</th>
+            <th>{{ "player.position" | t }}</th>
+            <th>{{ "player.goals" | t }}</th>
+            <th>{{ "player.assists" | t }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for player in t.players.starting %}
+            {% include "player_table_line", player: player %}
+            {% endfor %}
+
+            {% for player in t.players.subs %}
+            {% include "player_table_line", player: player %}
+            {% endfor %}
+        </tbody>
+        </table>
+    </div>
+</div>
+
+<div>
+{% for g in t.seasonGames %}
+{% include "game_lines", game: g, seasonKey: t.seasonKey %}
+{% endfor %}
+</div>
+
+{% if t.image %}
+<br/>
+<div>
+    <img src="{{ t.image | assetImg }}" />
+</div>
+<br/>
+{% endif %}
+
+</div>
+</article>
