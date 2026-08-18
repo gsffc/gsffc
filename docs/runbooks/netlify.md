@@ -21,10 +21,13 @@ How `app/` (GSFFC App) deploys to Netlify → https://app.gsffc.org.
 4. Point `app.gsffc.org` at the site (Domain settings → add custom domain;
    DNS record per the domain registrar).
 
-> **Open decision (needs @Dongminator, tracked in #9):** whether the Netlify
-> site and Supabase database live under Donglin's personal accounts (he
-> invites @aenon to the team) or under a fresh org-owned Netlify team.
-> Repo-side config is identical either way.
+> **Hosting decision (2026-08-18):** the site lives on @Dongminator's
+> personal Netlify (Free) — no migration from the existing
+> `gsffc-test.netlify.app` deployment. He owns the dashboard (env vars,
+> settings, rollback); everyone else deploys by git push. A club-owned team
+> costs $20/month (Netlify Pro — Free is individual-only); revisit if shared
+> dashboard access becomes necessary. Supabase unchanged (free tier allows
+> unlimited org members if shared ownership is wanted later).
 
 ## How the pieces map (base dir `app/`)
 
