@@ -11,8 +11,4 @@ export default {
   url: "https://www.gsffc.org",
   languages: ["zh", "en"],
   dateFormat: "%Y-%m-%d",
-  banners: [
-    { img: "/assets/img/banners/zhangfei.jpg", link: "https://www.zhangfeihotpot.com/zh" },
-    { img: "/assets/img/banners/guanggaowei.jpg", link: "#" },
-  ],
 };
