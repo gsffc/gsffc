@@ -72,7 +72,7 @@ export default function (eleventyConfig) {
   eleventyConfig.addWatchTarget("_sass/");
   eleventyConfig.on("eleventy.before", ({ dir }) => {
     if (LANG !== "zh") return;
-    const compiled = sass.compile(path.join(ROOT, "assets", "main.scss"), {
+    const compiled = sass.compile(path.join(ROOT, "_sass", "main.scss"), {
       loadPaths: [path.join(ROOT, "_sass")],
     });
     fs.mkdirSync(path.join(dir.output, "assets"), { recursive: true });

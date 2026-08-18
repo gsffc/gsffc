@@ -1,3 +1,5 @@
+{% comment %}Legacy posts pass season_key; ported templates pass seasonKey.{% endcomment %}
+{% assign seasonKey = seasonKey | default: season_key %}
 <a href="{{ "/seasons/" | append: seasonKey | append: "/games/" | append: game.slug | append: "/" | langUrl }}" class="game-line">
 <span>{{ game.date }}</span>
 <span>{{ game.type | prepend: "games." | t }}</span>

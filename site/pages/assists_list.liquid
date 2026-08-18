@@ -5,6 +5,8 @@ pagination:
   alias: s
 permalink: "/seasons/{{ s.key }}/assists_list.html"
 layout: default
+eleventyComputed:
+  title: '{{ s | dname }} {{ "assist_list" | t }}'
 ---
 {% include "season_tabs", s: s %}
 <div class="row">&nbsp;</div>

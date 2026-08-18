@@ -5,6 +5,8 @@ pagination:
   alias: s
 permalink: "/seasons/{{ s.key }}/goal_scorers.html"
 layout: default
+eleventyComputed:
+  title: '{{ s | dname }} {{ "goal_scorers" | t }}'
 ---
 {% include "season_tabs", s: s %}
 <div class="row">&nbsp;</div>

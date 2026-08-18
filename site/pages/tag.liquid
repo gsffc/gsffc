@@ -5,6 +5,8 @@ pagination:
   alias: tp
 permalink: "/tag/{{ tp.tag | tagSlug }}/"
 layout: default
+eleventyComputed:
+  title: "{{ tp.tag }}"
 ---
 <div class="wrapper">
   <a href="{{ meta.banners[0].link }}">

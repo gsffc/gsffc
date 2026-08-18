@@ -126,7 +126,7 @@ function enrichSide(season, side) {
   if (team) {
     side.display_name = team.display_name;
     side.display_name_zh = team.display_name_zh;
-    side.logo = team.logo;
+    side.logo = team.logo ?? "question-mark.png";
     team.games.push(side.__game);
   } else {
     side.display_name = side.display_name ?? side.key;
@@ -140,7 +140,9 @@ function buildPlayerStats(season) {
   for (const [teamKey, team] of Object.entries(season.teams)) {
     playerHash[teamKey] = {};
     for (const p of [...team.players.starting, ...team.players.subs]) {
-      playerHash[teamKey][p.name] = { ...blankPlayer(p.name), ...p };
+      // Mutate the roster objects (not copies) so team pages show the
+      // season's goals/assists, and re-zero stale stats like the Ruby did.
+      playerHash[teamKey][p.name] = Object.assign(p, blankPlayer(p.name));
     }
   }
   const ensure = (teamKey, name) => {
@@ -158,12 +160,12 @@ function buildPlayerStats(season) {
       for (const e of game[side]?.events ?? []) {
         const sideKey = game[side].key;
         if (e.type === "goal" || e.type === "penalty") {
-          if (e.player !== "??") {
-            const { teamKey, name } = resolve(sideKey, e.player);
-            const p = ensure(teamKey, name);
-            p.goals += 1;
-            if (e.type === "penalty") p.penalty += 1;
-          }
+          // Ruby skips the whole event (assist included) for unknown scorers.
+          if (e.player === "??") continue;
+          const { teamKey, name } = resolve(sideKey, e.player);
+          const p = ensure(teamKey, name);
+          p.goals += 1;
+          if (e.type === "penalty") p.penalty += 1;
         }
         if (
           e.assist != null &&

@@ -38,6 +38,7 @@ export const engine = new Liquid({
 engine.registerTag("include", {
   parse(token) {
     const m = /^["']?([\w./-]+)["']?[\s,]*([\s\S]*)$/.exec(token.args.trim());
+    if (!m) throw new Error(`{% include %} requires a partial name: "${token.args}"`);
     this.name = m[1].replace(/\.(html|md|liquid)$/, "");
     this.assigns = [];
     // Accept both Jekyll (k=v) and liquidjs (k: v) argument styles.

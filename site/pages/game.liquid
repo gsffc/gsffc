@@ -5,6 +5,8 @@ pagination:
   alias: g
 permalink: "/seasons/{{ g.seasonKey }}/games/{{ g.slug }}/"
 layout: default
+eleventyComputed:
+  title: "{{ g.home | dname }} vs {{ g.away | dname }} ({{ g.date }})"
 ---
 <article class="post">
 <div class="post-content">

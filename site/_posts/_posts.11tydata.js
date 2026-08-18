@@ -36,7 +36,12 @@ export default {
     },
     excerptHtml: async (data) => {
       const body = (data.page.rawInput ?? "").replace(/^---[\s\S]*?---\s*/, "");
-      const cut = body.split("<!--more-->")[0].trim();
+      // Jekyll excerpt: up to <!--more-->, else the first paragraph.
+      const cut = (
+        body.includes("<!--more-->")
+          ? body.split("<!--more-->")[0]
+          : body.split(/\n\s*\n/)[0]
+      ).trim();
       if (!cut) return "";
       const liquidRendered = await engine.parseAndRender(cut, { ...data });
       return md.render(liquidRendered);
