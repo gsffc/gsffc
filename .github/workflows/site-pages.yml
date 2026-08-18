@@ -36,6 +36,9 @@ jobs:
 
   deploy:
     needs: build
+    # GitHub Free doesn't offer Pages on private repos — the job 404s until
+    # the repo goes public at cutover (#7). Skip instead of failing red.
+    if: github.event.repository.private == false
     runs-on: ubuntu-latest
     environment:
       name: github-pages
