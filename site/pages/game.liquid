@@ -1,0 +1,126 @@
+---
+pagination:
+  data: gamesFlat
+  size: 1
+  alias: g
+permalink: "/seasons/{{ g.seasonKey }}/games/{{ g.slug }}/"
+layout: default
+eleventyComputed:
+  title: "{{ g.home | dname }} vs {{ g.away | dname }} ({{ g.date }})"
+---
+<article class="post">
+<div class="post-content">
+<div class="row-game">
+    <div class="column align-right">
+
+        <img class="team-logo-large" src="{{ g.home.logo | assetImg }}"/>
+        <h2>
+            <a href="{{ "/seasons/" | append: g.seasonKey | append: "/" | append: g.home.key | append: "/" | langUrl }}">
+                {{ g.home | dname }}
+            </a>
+        </h2>
+        <br/>
+        <br/>
+
+        {% for event in g.home.events %}
+            {% include "game_event", event: event, season: seasonPages[g.seasonKey], seasonKey: g.seasonKey %}
+        {% endfor %}
+    </div>
+
+    <div class="column align-center">
+        <p>{{ g.type | prepend: "games." | t }}</p>
+        <p>{{ g.date }}</p>
+        {% if g.schedule %}
+        <h2>&nbsp;VS&nbsp;</h2>
+        {% else %}
+        <h2> {{ g.home.score }} : {{ g.away.score }} </h2>
+        {% endif %}
+        {% if g.penalty != nil %}
+        <p>（{{ "penalty" | t }} {{ g.penalty[0] }}:{{ g.penalty[1] }}）</p>
+        {% endif %}
+        {% if g.extra %}
+        <p>{{ g.extra }}</p>
+        {% endif %}
+    </div>
+
+    <div class="column align-left">
+        <img class="team-logo-large" src="{{ g.away.logo | assetImg }}"/>
+        <h2>
+            <a href="{{ "/seasons/" | append: g.seasonKey | append: "/" | append: g.away.key | append: "/" | langUrl }}">
+                {{ g.away | dname }}
+            </a>
+        </h2>
+        <br/>
+        <br/>
+
+        {% for event in g.away.events %}
+            {% include "game_event", event: event, season: seasonPages[g.seasonKey], seasonKey: g.seasonKey %}
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row-game">
+    <div class="column game-page-squad align-right">
+        {% if g.home.squad != nil %}
+        {% include "squad", squad: g.home.squad %}
+        {% endif %}
+
+        {% if g.home.bench != nil %}
+        <div class="row align-left">
+        {% for player in g.home.bench %}
+        <div class="player sub">
+            <img src="/assets/img/{{ player.img | default: 'placeholder-player.jpg' }}" />
+            <p>{{ player.number }} {{ player.name }}</p>
+        </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="column game-page-squad align-left">
+        {% if g.away.squad != nil %}
+        {% include "squad", squad: g.away.squad %}
+        {% endif %}
+
+        {% if g.away.bench != nil %}
+        <div class="row align-left">
+        {% for player in g.away.bench %}
+        <div class="player sub">
+            <img src="/assets/img/{{ player.img | default: 'placeholder-player.jpg' }}" />
+            <p>{{ player.number }} {{ player.name }}</p>
+        </div>
+        {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% if g.video %}
+<div class="row-game">
+    <div class="column align-center">
+        {{ g.video }}
+    </div>
+</div>
+{% endif %}
+{% if g.videos %}
+{% for v in g.videos %}
+<div class="row-game">
+    <div class="column align-center">
+        {{ v }}
+    </div>
+</div>
+{% endfor %}
+{% endif %}
+
+{% if g.images %}
+<div class="row-game">
+    <div class="column align-center">
+        {% for imgUrl in g.images %}
+        <img src="/assets/img/games/{{ imgUrl }}" />
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+</div>
+</article>

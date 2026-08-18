@@ -1,0 +1,6 @@
+{% if team %}
+<img class="team-logo" src="{{ team.logo | default: "question-mark.png" | assetImg }}" />
+<a href="{{ "/seasons/" | append: seasonKey | append: "/" | append: team.key | append: "/" | langUrl }}">{{ team | dname }}</a>
+{% else %}
+&nbsp;
+{% endif %}

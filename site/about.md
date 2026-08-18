@@ -1,6 +1,7 @@
 ---
 layout: page
 title:  "我想加入GSF！"
+permalink: /about.html
 ---
 
 GSF足球俱乐部 (Google Soccer Field, 简称“GSF”, 昵称“高帅富”)，最初由FAANG (Facebook, Apple, Amazon, Netflix, Google) 等硅谷高科技公司的工程狮、程序猿组成，发起于2012年盛夏，活跃在Google Athletic Recreational Field Park，每个周末固定在GSF娱乐野球，故此得名。

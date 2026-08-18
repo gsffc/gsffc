@@ -1,0 +1,34 @@
+<div style="overflow:auto; width: auto;">
+  <table>
+    <thead>
+      <tr>
+        <th>{{ groupName }}</th>
+        <th>{{ "table.team_name" | t }}</th>
+        <th><b>{{ "table.points" | t }}</b></th>
+        <th>{{ "table.played" | t }}</th>
+        <th>{{ "table.win" | t }}</th>
+        <th>{{ "table.tie" | t }}</th>
+        <th>{{ "table.lose" | t }}</th>
+        <th>{{ "table.goals_for" | t }}</th>
+        <th>{{ "table.goals_against" | t }}</th>
+        <th>{{ "table.goals_diff" | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in table %}
+      <tr>
+        <td>{{ forloop.index }}</td>
+        <td>{% include "team_link", team: row.team, seasonKey: seasonKey %}</td>
+        <td><b>{{ row.points }}</b></td>
+        <td>{{ row.games_played }}</td>
+        <td>{{ row.wins }}</td>
+        <td>{{ row.draws }}</td>
+        <td>{{ row.loses }}</td>
+        <td>{{ row.goals_for }}</td>
+        <td>{{ row.goals_against }}</td>
+        <td>{{ row.goals_diff }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

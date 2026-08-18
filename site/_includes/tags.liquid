@@ -1,0 +1,8 @@
+{%- if tags -%}
+  <ul class="tags">
+    {%- for tag in tags -%}
+    {%- assign slug = tag | tagSlug -%}
+    <li><a href="{{ "/tag/" | append: slug | append: "/" | langUrl }}" class="tag">{{ tag }}</a></li>
+    {%- endfor -%}
+  </ul>
+{%- endif -%}

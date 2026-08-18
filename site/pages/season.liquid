@@ -1,0 +1,160 @@
+---
+pagination:
+  data: seasonsList
+  size: 1
+  alias: s
+permalink: "/seasons/{{ s.key }}/"
+layout: default
+eleventyComputed:
+  title: "{{ s | dname }}"
+---
+{% include "season_tabs", s: s %}
+<div class="row">&nbsp;</div>
+
+{% if s.contest %}
+  <link rel="stylesheet" href="/assets/css/knockout-bracket.css">
+  {% include "champion", winnerTeam: s.winnerTeam, seasonKey: s.key %}
+
+  {% if s.contest.knockoutRounds.size > 0 %}
+  <h3>{{ "knockout_stage" | t }}</h3>
+  <div class="tournament">
+    {% for round in s.contest.knockoutRounds %}
+    <ul class="round">
+      <li class="spacer">&nbsp;</li>
+      {% for tie in round %}
+        {% if tie %}
+        <li class="game game-top">
+          <div class="player static">
+            <img src="/assets/img/placeholder-player.jpg" />
+            <span class="align-center">{{ tie.name0 }}</span>
+          </div>
+        </li>
+        <li class="game game-spacer"></li>
+        <li class="game game-spacer-text">
+          <div>
+            {% if tie.score.size > 0 %}{{ tie.score[0] }} : {{ tie.score[1] }}{% else %}VS{% endif %}
+          </div>
+        </li>
+        <li class="game game-spacer"></li>
+        <li class="game game-bottom">
+          <div class="player static">
+            <img src="/assets/img/placeholder-player.jpg" />
+            <span class="align-center">{{ tie.name1 }}</span>
+          </div>
+        </li>
+        <li class="spacer">&nbsp;</li>
+        {% endif %}
+      {% endfor %}
+    </ul>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <h3>{{ "group_stage" | t }}</h3>
+  {% for pair in s.contest.groupTables %}
+  {% assign groupKey = pair[0] %}
+  {% assign groupTable = pair[1] %}
+  <table class="small">
+    <thead>
+      <tr>
+        <th></th>
+        <th>{{ groupKey }}</th>
+        <th>{{ "table.played" | t }}</th>
+        <th>{{ "table.win" | t }}</th>
+        <th>{{ "table.tie" | t }}</th>
+        <th>{{ "table.lose" | t }}</th>
+        <th>颠球数</th>
+        <th>{{ "table.points" | t }}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for player in groupTable %}
+      <tr>
+        <td>{{ forloop.index }}</td>
+        <td class="player-td">
+          <div class="player static">
+            <img src="/assets/img/placeholder-player.jpg" />
+          </div>
+          <span>{{ player.name }}</span>
+        </td>
+        <td>{{ player.games_played }}</td>
+        <td>{{ player.wins }}</td>
+        <td>{{ player.draws }}</td>
+        <td>{{ player.loses }}</td>
+        <td>{{ player.scores }}</td>
+        <td>{{ player.points }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% for game in s.contest.groupGames[groupKey] %}
+  <div class="player-game-result">
+  <span>{{ game.name0 }}</span>
+  <span class="align-center">
+    {% if game.score.size > 0 %}{{ game.score[0] }} : {{ game.score[1] }}{% else %}VS{% endif %}
+  </span>
+  <span>{{ game.name1 }}</span>
+  </div>
+  {% endfor %}
+  <br/>
+  <br/>
+  {% endfor %}
+
+{% else %}
+  {% include "champion", winnerTeam: s.winnerTeam, seasonKey: s.key %}
+
+  {% for trophy in s.trophies %}
+  <h3>{{ trophy.name }}</h3>
+  <div class="tournament">
+    {% for round in trophy.rounds %}
+    <ul class="round">
+      <li class="spacer">&nbsp;</li>
+      {% for tie in round %}
+      <li class="game game-top">{% include "team_link", team: tie.team0, seasonKey: s.key %}</li>
+      <li class="game game-spacer"></li>
+      <li class="game game-spacer-text">
+        <div>
+        {% if tie.game %}
+          <a href="{{ "/seasons/" | append: s.key | append: "/games/" | append: tie.game.slug | append: "/" | langUrl }}">
+            {% if tie.game.schedule %}&nbsp;VS&nbsp;{% else %}{{ tie.game.home.score }} : {{ tie.game.away.score }}{% endif %}
+            {% if tie.game.penalty != nil %}&nbsp;（{{ "penalty" | t }} {{ tie.game.penalty[0] }}:{{ tie.game.penalty[1] }}）{% endif %}
+          </a>
+        {% else %}
+          &nbsp;
+        {% endif %}
+        </div>
+      </li>
+      <li class="game game-spacer"></li>
+      <li class="game game-bottom">{% include "team_link", team: tie.team1, seasonKey: s.key %}</li>
+      <li class="spacer">&nbsp;</li>
+      {% endfor %}
+    </ul>
+    {% endfor %}
+
+    <ul class="round" style="width: 50px">
+      {% if trophy.winner != "" %}
+        {% assign w = s.teams[trophy.winner] %}
+        {% include "team_link", team: w, seasonKey: s.key %}
+      {% else %}
+        &nbsp;
+      {% endif %}
+    </ul>
+  </div>
+  {% endfor %}
+
+  {% if s.table %}
+  {% include "team_table", table: s.table, seasonKey: s.key %}
+  {% endif %}
+
+  <h3>{{ "games_list" | t }}</h3>
+
+  {% for g in s.games %}
+  {% include "game_lines", game: g, seasonKey: s.key %}
+  {% endfor %}
+{% endif %}
+
+{% if s.config.rules != nil %}
+&nbsp;
+<p style="font-size:12px;">{{ s.config.rules | newline_to_br }}</p>
+{% endif %}

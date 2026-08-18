@@ -1,0 +1,39 @@
+---
+pagination:
+  data: collections.tagPages
+  size: 1
+  alias: tp
+permalink: "/tag/{{ tp.tag | tagSlug }}/"
+layout: default
+eleventyComputed:
+  title: "{{ tp.tag }}"
+---
+<div class="wrapper">
+  <a href="{{ meta.banners[0].link }}">
+    <img class="banner" src="{{ meta.banners[0].img | asset }}">
+    </img>
+  </a>
+</div>
+
+<div class="home">
+  <h2 class="page-heading">{{ tp.tag }}</h2>
+
+  <ul class="post-list">
+    {%- for post in tp.posts -%}
+    <li>
+      <span class="post-meta">
+        {{ post.date | date: meta.dateFormat }}
+        {%- include "tags", tags: post.data.postTags -%}
+      </span>
+      <h3>
+        <a class="post-link" href="{{ post.url | langUrl }}">
+          {{ post.data.title | escape }}
+        </a>
+      </h3>
+      {%- if post.data.show_excerpts -%}
+        {{ post.data.excerptHtml }}
+      {%- endif -%}
+    </li>
+    {%- endfor -%}
+  </ul>
+</div>

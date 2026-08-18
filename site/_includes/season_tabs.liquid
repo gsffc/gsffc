@@ -1,0 +1,22 @@
+<h2>
+  {{ s | dname }}
+  {% if s.config.link != nil %}
+  &nbsp;[
+  <a href="{{ s.config.link }}">{{ "league_website" | t }}</a>
+  ]
+  {% endif %}
+</h2>
+
+{% if s.config.description != nil %}
+<p>{{ s.config.description | newline_to_br }}</p>
+{% endif %}
+
+{% unless s.contest %}
+<div class="row">
+  <a href="{{ "/seasons/" | append: s.key | append: "/" | langUrl }}">{{ "schedule" | t }}</a>
+  &nbsp;|&nbsp;
+  <a href="{{ "/seasons/" | append: s.key | append: "/goal_scorers.html" | langUrl }}">{{ "goal_scorers" | t }}</a>
+  &nbsp;|&nbsp;
+  <a href="{{ "/seasons/" | append: s.key | append: "/assists_list.html" | langUrl }}">{{ "assist_list" | t }}</a>
+</div>
+{% endunless %}

@@ -1,0 +1,6 @@
+<figure class="image">
+  <video class="centered" autoplay loop muted playsinline{% if description %} aria-label="{{ description | strip_html | escape }}"{% endif %}>
+    <source src="{{ url | asset }}" type="video/webm">
+  </video>
+  {% if description %}<figcaption>{{ description }}</figcaption>{% endif %}
+</figure>

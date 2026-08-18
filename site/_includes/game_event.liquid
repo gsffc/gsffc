@@ -1,0 +1,28 @@
+{% if event.link != nil %}
+<a href="{{ event.link }}" target="_blank" rel="noopener noreferrer">
+{% endif %}
+<p>
+    <img width="30px" src="/assets/img/icon/{{ event.type }}.png" />
+    {{ event.time }}'
+    {% if event.player.team != nil %}
+    {% assign eventTeam = season.teams[event.player.team] %}
+    {{ event.player.player }} {% if eventTeam %}<a href="{{ "/seasons/" | append: seasonKey | append: "/" | append: eventTeam.key | append: "/" | langUrl }}"><img class="team-logo" src="{{ eventTeam.logo | assetImg }}" /></a>{% endif %}
+    {% else %}
+    {{ event.player }}
+    {% endif %}
+    {% if event.assist %}
+        <img width="30px" src="/assets/img/icon/assist.png" />
+        {% if event.assist.team != nil %}
+        {% assign assistTeam = season.teams[event.assist.team] %}
+        {{ event.assist.player }} {% if assistTeam %}<a href="{{ "/seasons/" | append: seasonKey | append: "/" | append: assistTeam.key | append: "/" | langUrl }}"><img class="team-logo" src="{{ assistTeam.logo | assetImg }}" /></a>{% endif %}
+        {% else %}
+        {{ event.assist }}
+        {% endif %}
+    {% elsif event.sub %}
+        <img width="30px" src="/assets/img/icon/sub.png" />
+        {{ event.sub }}
+    {% endif %}
+</p>
+{% if event.link != nil %}
+</a>
+{% endif %}

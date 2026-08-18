@@ -1,0 +1,12 @@
+---
+layout: post
+---
+{% if season_key != nil and game_key != nil %}
+{% assign g = game_key | findGame: season_key %}
+{% if g %}
+{% include "game_lines", game: g, seasonKey: season_key %}
+{% endif %}
+{% endif %}
+
+<br/>
+{{ content }}

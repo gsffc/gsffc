@@ -1,0 +1,28 @@
+{% assign siteTitle = meta | ifield: "title" %}
+{% assign siteDesc = meta | ifield: "description" %}
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% if title %}{{ title | escape }} | {{ siteTitle }}{% else %}{{ siteTitle }} | {{ siteDesc }}{% endif %}</title>
+  <meta name="author" content="{{ meta.author }}" />
+  <meta property="og:title" content="{% if title %}{{ title | escape }}{% else %}{{ siteTitle }}{% endif %}" />
+  <meta property="og:locale" content="{{ lang }}" />
+  <meta name="description" content="{{ description | default: siteDesc | escape }}" />
+  <meta property="og:description" content="{{ description | default: siteDesc | escape }}" />
+  <link rel="canonical" href="{{ meta.url }}{{ page.url | langUrl }}" />
+  <meta property="og:url" content="{{ meta.url }}{{ page.url | langUrl }}" />
+  <meta property="og:site_name" content="{{ siteTitle }}" />
+  <meta property="og:type" content="{% if author %}article{% else %}website{% endif %}" />
+  <meta name="twitter:card" content="summary" />
+  {% if author %}
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"BlogPosting","headline":{{ title | json }},"author":{"@type":"Person","name":{{ author | json }}},"datePublished":"{{ page.date | date: "%Y-%m-%d" }}","url":"{{ meta.url }}{{ page.url | langUrl }}"}
+  </script>
+  {% endif %}
+  <link rel="stylesheet" href="{{ "/assets/main.css" | asset }}">
+  <link rel="shortcut icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css" integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link type="application/atom+xml" rel="alternate" href="{{ "/feed.xml" | langUrl }}" title="{{ siteTitle }}" />
+  <link rel="stylesheet" type="text/css" href="{{ "/assets/css/custom-football-squad.css" | asset }}">
+</head>
