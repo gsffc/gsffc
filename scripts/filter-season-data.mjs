@@ -4,7 +4,7 @@
 //
 // Keep rules:
 //   1. GSF-internal events (season key matches weeklycup/juggle, or
-//      config.team_info/display_name says GSF) — keep the season wholly.
+//      config.team_info says GSF) — keep the season wholly.
 //   2. Otherwise keep a game if home.key or away.key mentions "GSF".
 //   3. For cups GSF contested (a knockout bracket containing a GSF team),
 //      also keep every game referenced by that bracket (the knockout path).
@@ -43,18 +43,39 @@ function isInternalEvent(seasonKey, config) {
   return false;
 }
 
-// Game ids referenced by any knockout bracket containing a GSF team.
-function gsfKnockoutGameIds(config) {
+// Game ids referenced by any knockout bracket GSF contested. Two tie shapes
+// exist in the data: [teamA, teamB, gameId] arrays (22q2) and bare game-id
+// strings (23q2-cup). A bracket counts as GSF-contested if any tie names a
+// GSF team or any referenced game involves one.
+async function gsfKnockoutGameIds(config, gamesDir) {
   const ids = new Set();
   for (const knockout of Object.values(config.knockouts ?? {})) {
-    const flat = JSON.stringify(knockout.bracket ?? []);
-    if (!flat.includes("GSF")) continue;
+    const gameIds = [];
+    let contested = false;
     for (const round of knockout.bracket ?? []) {
       for (const tie of round) {
-        const gameId = Array.isArray(tie) ? tie[2] : null;
-        if (typeof gameId === "string") ids.add(`${gameId}.json`);
+        if (Array.isArray(tie)) {
+          if (isGsf(tie[0]) || isGsf(tie[1])) contested = true;
+          if (typeof tie[2] === "string") gameIds.push(tie[2]);
+        } else if (typeof tie === "string") {
+          gameIds.push(tie);
+        }
       }
     }
+    if (!contested) {
+      for (const gameId of gameIds) {
+        try {
+          const game = await readJson(join(gamesDir, `${gameId}.json`));
+          if (isGsf(game.home?.key) || isGsf(game.away?.key)) {
+            contested = true;
+            break;
+          }
+        } catch {
+          // Bracket references a game file that doesn't exist — ignore.
+        }
+      }
+    }
+    if (contested) for (const gameId of gameIds) ids.add(`${gameId}.json`);
   }
   return ids;
 }
@@ -69,7 +90,7 @@ for (const season of (await readdir(seasonsDir)).sort()) {
 
   const gamesDir = join(dir, "games");
   const gameFiles = await listJson(gamesDir);
-  const knockoutIds = gsfKnockoutGameIds(config);
+  const knockoutIds = await gsfKnockoutGameIds(config, gamesDir);
 
   const keptTeams = new Set();
   let kept = 0;
