@@ -35,8 +35,6 @@ Hunters利用GSF角球机会中圈抢断成功，GSF前场多次角球回撤不�
 
 下半场开场不久GSF即打入一球，Hunters后卫解围失误，皮球落在了小明脚下，抱着“xb蒙一脚远射”的心态突施冷箭，突然的远射造成了门将反应不及时，脱手的皮球依然在往球门滚动，GSF前锋轩总突然钻出一脚将球捅射入网为GSF U扳回一分。（有人说这球是远射进的，有人说这球是前锋补射进的，其实也无所谓了，~~关键是拿分了~~ 关键是有人写战报了）
 
-<video class="centered" autoplay loop muted playsinline><source src="/assets/img/news/season-22/r8-u-hunters/1-2.webm" type="video/webm"></video>
-
 Hunters两球上半场在手，此时又被扳回一球，扎紧篱笆防守反击的战术贯彻得更为坚定和彻底。9人制任何球队面对收缩防守其实都有些攻门乏术。GSF的变阵虽然效果明显，频频获得良机，但都没能转化为进球。Hunters依靠前场外援的各人能力，也保持着对GSF球门的十足威胁。
 
 {% include viddesc.html url="/assets/img/news/season-22/r8-u-hunters/2.webm" description="GSF流畅运动战，玄宗展现出色的背身能力" %}
