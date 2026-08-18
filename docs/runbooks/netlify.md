@@ -12,6 +12,12 @@ How `app/` (GSFFC App) deploys to Netlify → https://app.gsffc.org.
 3. Set environment variables (**Site settings → Environment variables**):
    - `DATABASE_URL` — PostgreSQL connection string
    - `SESSION_SECRET` — random string
+   - `NODE_VERSION` = `22` — Netlify does **not** read `engines` from
+     package.json; this (or an `.nvmrc` in `app/`) is what pins Node.
+   - Optional: `CLUB_TIMEZONE` (default `America/Los_Angeles`; governs the
+     check-in window). If the site is created via Netlify's Supabase
+     integration, `SUPABASE_DATABASE_URL` is set automatically and the app
+     accepts it as a `DATABASE_URL` fallback.
 4. Point `app.gsffc.org` at the site (Domain settings → add custom domain;
    DNS record per the domain registrar).
 
@@ -28,12 +34,14 @@ The app's `netlify.toml` (arrives with #2, from the author's original repo):
 |---|---|---|
 | `publish` | `public` | Static assets in `app/public/` served from the CDN |
 | `functions` | `netlify/functions` | Function sources in `app/netlify/functions/` |
+| `node_bundler` | `esbuild` | Required for the two settings below; the default zisi tracing can't follow the dynamic `require('ejs')` |
 | `external_node_modules` | `["ejs"]` | EJS is loaded via dynamic `require`; shipped in `node_modules`, not bundled |
 | `included_files` | `["views/**"]` | EJS templates read from disk at runtime |
 | redirect | `/* → /.netlify/functions/server` (200) | Everything that isn't a static file hits the Express app |
 
 The whole Express app runs as one function via `serverless-http`. Node 22 is
-pinned by `app/package.json` `engines`.
+pinned via the `NODE_VERSION` env var (see setup above); `engines` in
+package.json is advisory only on Netlify.
 
 ## Deploy triggers
 
@@ -41,6 +49,14 @@ pinned by `app/package.json` `engines`.
 - Pull requests → deploy previews (once the site is connected).
 - Pre-#2, deploys fail (empty `app/`) — expected; the connection is proven
   when the first real deploy succeeds at #2.
+
+## App CI
+
+`.github/workflows/app-ci.yml` is path-filtered to `app/**` and runs
+`npm ci` + `node --check` on the app's JS. It is intentionally standalone —
+`app/` is excluded from the root Biome/tooling until @Dongminator opts in
+(AGENTS.md hard rule 2), so the root npm-scripts interface does not cover it
+yet. Pre-#2 (no `app/package.json`) the job skips cleanly.
 
 ## Database
 

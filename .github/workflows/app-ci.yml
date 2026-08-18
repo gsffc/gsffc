@@ -15,17 +15,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      # Pre-#2 the directory holds only a README; nothing to build yet.
+      # setup-node's npm cache needs the lockfile, so gate everything below.
+      - id: onboarded
+        run: |
+          if [ -f app/package.json ]; then echo "present=true" >> "$GITHUB_OUTPUT"
+          else echo "app/ not onboarded yet (#2) — skipping"; echo "present=false" >> "$GITHUB_OUTPUT"; fi
       - uses: actions/setup-node@v4
+        if: steps.onboarded.outputs.present == 'true'
         with:
           node-version: 22
-      # Pre-#2 the directory holds only a README; nothing to build yet.
+          cache: npm
+          cache-dependency-path: app/package-lock.json
       - name: Install and check app
+        if: steps.onboarded.outputs.present == 'true'
         working-directory: app
         run: |
-          if [ ! -f package.json ]; then
-            echo "app/ not onboarded yet (#2) — skipping"
-            exit 0
-          fi
           npm ci
           find . -name node_modules -prune -o -name '*.js' -print0 \
             | xargs -0 -n1 node --check
