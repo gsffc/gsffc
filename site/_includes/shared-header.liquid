@@ -1,16 +1,9 @@
-<!-- Shared header shell — source of truth. Do NOT edit generated copies
-     (site/_includes/shared-header.liquid, app/views/partials/shared-header.ejs).
-     Regenerate with: npm run ui:build
-
-     Markers substituted per target by ui/build.mjs:
-       /favicon.png and /assets/ui (written here without braces):
-       logo URL and ui-asset prefix for the target host.
-       Slot comment (at-sign slot : site-nav): per-site internal nav (ui/slots/). -->
+<!-- GENERATED from ui/header.html — do not edit; run `npm run ui:build` -->
 <header class="gsf-header">
   <div class="gsf-header-inner">
-    <a class="gsf-brand" href="https://www.gsffc.org/">
+    <a class="gsf-brand" href="{{ "/" | langUrl }}">
       <img class="gsf-brand-logo" src="/favicon.png" alt="GSF" />
-      <span class="gsf-brand-name-full">GSF足球俱乐部</span><span class="gsf-brand-name-short">GSF</span>
+      <span class="gsf-brand-name-full">{{ meta | ifield: "title" }}</span><span class="gsf-brand-name-short">GSF</span>
     </a>
     <!-- www's internal nav slot: seasons dropdown (data-driven via Liquid) and
      the zh/en language switcher. Rendered by Eleventy; navLists/meta come

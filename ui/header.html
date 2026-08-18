@@ -2,15 +2,16 @@
      (site/_includes/shared-header.liquid, app/views/partials/shared-header.ejs).
      Regenerate with: npm run ui:build
 
-     Markers substituted per target by ui/build.mjs:
-       {{LOGO_URL}} and {{UI_ASSET_PREFIX}} (written here without braces):
-       logo URL and ui-asset prefix for the target host.
-       Slot comment (at-sign slot : site-nav): per-site internal nav (ui/slots/). -->
+     Markers substituted per target by ui/build.mjs (written brace-less here
+     so the generator doesn't eat this comment):
+       BRAND_HREF / BRAND_NAME — brand link target and name per site
+       LOGO_URL / UI_ASSET_PREFIX — logo URL and ui-asset prefix per host
+       slot comment (at-sign slot : site-nav) — per-site internal nav -->
 <header class="gsf-header">
   <div class="gsf-header-inner">
-    <a class="gsf-brand" href="https://www.gsffc.org/">
+    <a class="gsf-brand" href="{{BRAND_HREF}}">
       <img class="gsf-brand-logo" src="{{LOGO_URL}}" alt="GSF" />
-      <span class="gsf-brand-name-full">GSF足球俱乐部</span><span class="gsf-brand-name-short">GSF</span>
+      <span class="gsf-brand-name-full">{{BRAND_NAME}}</span><span class="gsf-brand-name-short">GSF</span>
     </a>
     <!-- @slot:site-nav -->
     <nav class="gsf-cross-nav">

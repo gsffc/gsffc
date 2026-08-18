@@ -45,4 +45,5 @@ jobs:
         with:
           node-version: 22
       - run: npm run ui:build
-      - run: git diff --exit-code -- site app
+      # Catches stale AND missing (untracked) generated outputs.
+      - run: test -z "$(git status --porcelain -- site app)"
