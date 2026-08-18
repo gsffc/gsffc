@@ -26,6 +26,23 @@ Notes:
   config. The GSF-centric filter (`scripts/filter-season-data.mjs` at root)
   documents what's kept; new seasons are added by hand now.
 
+## Shared UI (`ui/`)
+
+The header and design tokens shared by www and the app live in `ui/` —
+single source of truth. After editing anything there:
+
+```bash
+npm run ui:build
+```
+
+This regenerates the committed per-site outputs (`site/_includes/
+shared-header.liquid`, `site/assets/ui/*`, and — once #2 lands —
+`app/views/partials/shared-header.ejs`, `app/public/css/ui/*`). Never edit
+the generated files; CI fails PRs whose generated outputs are stale. Per-site
+internal nav lives in `ui/slots/` (www's seasons/language dropdowns; the
+app's nav is #10's). The login corner script's session-endpoint contract is
+provisional until #10 defines it — it degrades to a plain 登录 link.
+
 ## App (`app/`)
 
 Not onboarded yet — see #2 and `netlify.md`.

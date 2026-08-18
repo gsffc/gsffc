@@ -1,0 +1,25 @@
+<!-- www's internal nav slot: seasons dropdown (data-driven via Liquid) and
+     the zh/en language switcher. Rendered by Eleventy; navLists/meta come
+     from site data. -->
+<div class="gsf-dropdown">
+  <button class="gsf-dropbtn">{{ "season_list" | t }} ▾</button>
+  <div class="gsf-dropdown-content" style="min-width: 120px;">
+    {%- for s in navLists -%}
+    <a href="{{ "/seasons/" | append: s.key | append: "/" | langUrl }}">{{ s | dname }}</a>
+    {%- endfor -%}
+  </div>
+</div>
+
+<div class="gsf-dropdown">
+  <button class="gsf-dropbtn"><img src="/assets/img/lang.svg" alt="language"> ▾</button>
+  <div class="gsf-dropdown-content">
+    {%- for s in meta.languages -%}
+    {%- assign langLabelKey = "global." | append: s -%}
+    {%- if s == "zh" -%}
+    <a href="{{ page.url }}">{{ langLabelKey | t }}</a>
+    {%- else -%}
+    <a href="/{{ s }}{{ page.url }}">{{ langLabelKey | t }}</a>
+    {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>

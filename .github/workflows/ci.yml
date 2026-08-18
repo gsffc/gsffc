@@ -34,3 +34,15 @@ jobs:
       - name: Install ffmpeg (ffprobe)
         run: sudo apt-get update && sudo apt-get install -y --no-install-recommends ffmpeg
       - run: npm run check:assets
+
+  # ui/ is the source of truth for the shared header/CSS; the per-site
+  # partials are committed. Fail if a PR edits ui/ without regenerating.
+  ui-freshness:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm run ui:build
+      - run: git diff --exit-code -- site app
