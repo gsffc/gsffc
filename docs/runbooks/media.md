@@ -10,7 +10,8 @@ itself lives in AGENTS.md hard rule 1; this is the how-to.
 - Debian/Ubuntu: `sudo apt install ffmpeg`
 - macOS: `brew install ffmpeg`
 
-Only needed for converting/checking media — not for `npm run dev:site`.
+Only needed for converting/checking media — not for `npm run dev:site`. CI
+installs ffmpeg itself (ubuntu-latest no longer ships it).
 
 ## Adding new media
 
