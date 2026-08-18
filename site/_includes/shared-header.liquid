@@ -1,0 +1,42 @@
+<!-- GENERATED from ui/header.html — do not edit; run `npm run ui:build` -->
+<header class="gsf-header">
+  <div class="gsf-header-inner">
+    <a class="gsf-brand" href="{{ "/" | langUrl }}">
+      <img class="gsf-brand-logo" src="/favicon.png" alt="GSF" />
+      <span class="gsf-brand-name-full">{{ meta | ifield: "title" }}</span><span class="gsf-brand-name-short">GSF</span>
+    </a>
+    <!-- www's internal nav slot: seasons dropdown (data-driven via Liquid) and
+     the zh/en language switcher. Rendered by Eleventy; navLists/meta come
+     from site data. -->
+<div class="gsf-dropdown">
+  <button class="gsf-dropbtn">{{ "season_list" | t }} ▾</button>
+  <div class="gsf-dropdown-content" style="min-width: 120px;">
+    {%- for s in navLists -%}
+    <a href="{{ "/seasons/" | append: s.key | append: "/" | langUrl }}">{{ s | dname }}</a>
+    {%- endfor -%}
+  </div>
+</div>
+
+<div class="gsf-dropdown">
+  <button class="gsf-dropbtn"><img src="/assets/img/lang.svg" alt="language"> ▾</button>
+  <div class="gsf-dropdown-content">
+    {%- for s in meta.languages -%}
+    {%- assign langLabelKey = "global." | append: s -%}
+    {%- if s == "zh" -%}
+    <a href="{{ page.url }}">{{ langLabelKey | t }}</a>
+    {%- else -%}
+    <a href="/{{ s }}{{ page.url }}">{{ langLabelKey | t }}</a>
+    {%- endif -%}
+    {%- endfor -%}
+  </div>
+</div>
+    <nav class="gsf-cross-nav">
+      <a href="https://www.gsffc.org/">战报</a>
+      <a href="https://app.gsffc.org/">活动报名</a>
+    </nav>
+    <div class="gsf-login-corner" data-login-corner>
+      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
+    </div>
+  </div>
+  <script src="/assets/ui/login-corner.js" defer></script>
+</header>

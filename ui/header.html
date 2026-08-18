@@ -1,0 +1,26 @@
+<!-- Shared header shell — source of truth. Do NOT edit generated copies
+     (site/_includes/shared-header.liquid, app/views/partials/shared-header.ejs).
+     Regenerate with: npm run ui:build
+
+     Markers substituted per target by ui/build.mjs (written brace-less here
+     so the generator doesn't eat this comment):
+       BRAND_HREF / BRAND_NAME — brand link target and name per site
+       LOGO_URL / UI_ASSET_PREFIX — logo URL and ui-asset prefix per host
+       slot comment (at-sign slot : site-nav) — per-site internal nav -->
+<header class="gsf-header">
+  <div class="gsf-header-inner">
+    <a class="gsf-brand" href="{{BRAND_HREF}}">
+      <img class="gsf-brand-logo" src="{{LOGO_URL}}" alt="GSF" />
+      <span class="gsf-brand-name-full">{{BRAND_NAME}}</span><span class="gsf-brand-name-short">GSF</span>
+    </a>
+    <!-- @slot:site-nav -->
+    <nav class="gsf-cross-nav">
+      <a href="https://www.gsffc.org/">战报</a>
+      <a href="https://app.gsffc.org/">活动报名</a>
+    </nav>
+    <div class="gsf-login-corner" data-login-corner>
+      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
+    </div>
+  </div>
+  <script src="{{UI_ASSET_PREFIX}}/login-corner.js" defer></script>
+</header>
