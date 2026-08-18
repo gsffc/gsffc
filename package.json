@@ -1,0 +1,22 @@
+{
+  "name": "gsffc",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Monorepo for GSF Football Club web properties (site/, app/, ui/)",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev:site": "npm --prefix site run serve",
+    "build:site": "npm --prefix site run build",
+    "lint": "biome check .",
+    "format": "biome check --write .",
+    "check:assets": "node scripts/check-assets.mjs",
+    "convert:media": "bash scripts/convert-media.sh",
+    "ui:build": "node scripts/ui-build.mjs"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.9"
+  }
+}
