@@ -21,7 +21,9 @@ import { basename, join, resolve } from "node:path";
 
 const args = process.argv.slice(2);
 const dryRun = args.includes("--dry-run");
-const seasonsDir = resolve(args.find((a) => !a.startsWith("--")) ?? "site/_data/seasons");
+const seasonsDir = resolve(
+  args.find((a) => !a.startsWith("--")) ?? "site/_data/seasons",
+);
 
 const isGsf = (key) => typeof key === "string" && key.includes("GSF");
 
