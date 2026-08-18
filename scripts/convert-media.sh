@@ -36,8 +36,9 @@ case "$mode" in
   *) die "unknown mode: $mode (want video|photo)" ;;
 esac
 
-in_bytes=$(stat -c%s "$input")
-out_bytes=$(stat -c%s "$output")
+# wc -c is portable across GNU/BSD (stat -c is GNU-only).
+in_bytes=$(wc -c < "$input")
+out_bytes=$(wc -c < "$output")
 printf '%s -> %s: %d KB -> %d KB\n' "$input" "$output" \
   $((in_bytes / 1024)) $((out_bytes / 1024))
 echo "Run 'npm run check:assets' to verify the result against the policy."

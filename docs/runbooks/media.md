@@ -24,7 +24,13 @@ installs ffmpeg itself (ubuntu-latest no longer ships it).
 
    `video` accepts any input ffmpeg reads (GIF, MP4, MOV, ...) and produces
    WebM VP9, max width 640 px, no audio. `photo` produces JPG, max dimension
-   1600 px, metadata stripped. Both refuse to overwrite an existing file.
+   1600 px (portrait included), metadata stripped. Both refuse to overwrite
+   an existing file — so for an already-JPG photo, pass the output name
+   explicitly to a new path, then replace the original if satisfied:
+
+   ```bash
+   npm run convert:media -- photo IMG_1234.jpg site/assets/img/news/25-26/my-post/photo.jpg
+   ```
 
 2. Reference it from the post: `<video>` tags or the `viddesc.html` include
    for motion, plain markdown images for photos. Match existing posts.

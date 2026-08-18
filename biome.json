@@ -6,7 +6,19 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["**", "!**/node_modules", "!**/_site", "!site/assets", "!app"]
+    "includes": [
+      "**",
+      "!**/node_modules",
+      "!**/_site",
+      "!**/*.html",
+      "!site/assets",
+      "!site/_data",
+      "!app"
+    ]
+  },
+  "html": {
+    "linter": { "enabled": false },
+    "formatter": { "enabled": false }
   },
   "formatter": {
     "enabled": true,

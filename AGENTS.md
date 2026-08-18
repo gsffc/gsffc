@@ -18,7 +18,7 @@ runtime code.
    - No GIFs. Motion content is WebM (VP9), max width 640 px, ≤ 2 MB per clip.
    - Photos are JPG, max dimension 1600 px, quality ≈ 82, metadata stripped,
      ≤ 400 KB each.
-   - PNG only for graphics with transparency/flat color.
+   - PNG only for graphics with transparency/flat color, ≤ 400 KB.
    - ≤ ~10 MB total media per post; beyond that, host externally and link.
    - Convert with `npm run convert:media` (see `docs/runbooks/media.md`) —
      do not hand-roll encoder flags. Verify with `npm run check:assets`.
@@ -56,9 +56,9 @@ runtime code.
   parallel interface.
 
 - **JavaScript is linted and formatted with [Biome](https://biomejs.dev/)**
-  (root `biome.json`). Run `npx biome check --write` before pushing; CI fails
-  on violations. Biome does not lint Liquid/EJS/Markdown — format those
-  templates by hand, matching surrounding style.
+  (root `biome.json`). Run `npm run format` before pushing; CI fails on
+  violations. HTML templates (Liquid/EJS) and Markdown are excluded from
+  Biome — format those by hand, matching surrounding style.
 
 ## Where documentation lives
 

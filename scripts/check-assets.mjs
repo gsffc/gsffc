@@ -11,10 +11,11 @@
 import { execFile } from "node:child_process";
 import { readdir, readFile, stat } from "node:fs/promises";
 import { join, relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
-const ROOT = resolve(new URL("..", import.meta.url).pathname);
+const ROOT = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const SKIP_DIRS = new Set([".git", "node_modules", "_site", ".cache"]);
 
 const LIMITS = {
@@ -41,19 +42,24 @@ async function* walk(dir) {
 }
 
 async function probeSize(file) {
-  const { stdout } = await execFileAsync("ffprobe", [
-    "-v",
-    "error",
-    "-select_streams",
-    "v:0",
-    "-show_entries",
-    "stream=width,height",
-    "-of",
-    "csv=p=0",
-    file,
-  ]);
-  const [w, h] = stdout.trim().split(",").map(Number);
-  return { width: w || 0, height: h || 0 };
+  try {
+    const { stdout } = await execFileAsync("ffprobe", [
+      "-v",
+      "error",
+      "-select_streams",
+      "v:0",
+      "-show_entries",
+      "stream=width,height",
+      "-of",
+      "csv=p=0",
+      file,
+    ]);
+    const [w, h] = stdout.trim().split(",").map(Number);
+    return { width: w || 0, height: h || 0 };
+  } catch {
+    fail(file, "ffprobe could not read this file (corrupt media?)");
+    return { width: 0, height: 0 };
+  }
 }
 
 // Run ffprobe with bounded concurrency.
