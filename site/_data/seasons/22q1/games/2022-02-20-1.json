@@ -1,0 +1,61 @@
+{
+    "date": "2022-02-20 04:00PM",
+    "type": "#3",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/2W-3V58arts\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/tIBIIGnfmbo\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/5Hvsmgg6s2o\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/Um8zUo9kbBY\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/Jbe7_E2UAGU\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/9JHTepgvo4o\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF",
+        "score": 1,
+        "events": [
+            {"type": "off", "time": 21, "player": "杨帆", "sub": "东林"}
+            ,{"type": "off", "time": 24, "player": "王金鹏", "sub": "狄克"}
+            ,{"type": "off", "time": 34, "player": "狄克", "sub": "王金鹏"}
+            ,{"type": "off", "time": 40, "player": "东林", "sub": "杨帆"}
+            ,{"type": "off", "time": 40, "player": "杜若衡", "sub": "狄克"}
+            ,{"type": "off", "time": 43, "player": "张一宁", "sub": "东林"}
+            ,{"type": "off", "time": 55, "player": "一鸣", "sub": "Kevin"}
+            ,{"type": "off", "time": 60, "player": "狄克", "sub": "Ted"}
+            ,{"type": "off", "time": 65, "player": "杨帆", "sub": "张一宁"}
+            ,{"type": "off", "time": 70, "player": "王金鹏", "sub": "狄克"}
+            ,{"type": "off", "time": 77, "player": "杜若衡", "sub": "王金鹏"}
+            ,{"type": "goal", "time": 79, "player": "Kevin"}
+            ,{"type": "off", "time": 80, "player": "Kevin", "sub": "haolan"}
+            ,{"type": "off", "time": 87, "player": "狄克", "sub": "杨帆"}
+            ,{"type": "off", "time": 89, "player": "Ted", "sub": "狄克"}
+            ,{"type": "off", "time": 89, "player": "张一宁", "sub": "Kevin"}
+        ],
+        "squad": [
+            {"name": "小丁（租借）", "locator": "GK"}
+            ,{"name": "杨谱", "locator": "LB"}
+            ,{"name": "一鸣", "locator": "CB"}
+            ,{"name": "Ted", "locator": "RB"}
+            ,{"name": "杨帆", "locator": "LM"}
+            ,{"name": "王钊", "locator": "LDM"}
+            ,{"name": "杜若衡", "locator": "RDM"}
+            ,{"name": "张一宁", "locator": "RM"}
+            ,{"name": "王金鹏", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "haolan"}
+            ,{"name": "Kevin"}
+            ,{"name": "Evan"}
+            ,{"name": "狄克"}
+            ,{"name": "东林"}
+        ]
+    },
+    "away": {
+        "key": "CalBlue",
+        "score": 2,
+        "events": [
+            {"type": "goal", "time": 25, "player": "??"},
+            {"type": "goal", "time": 46, "player": "??"}
+        ],
+        "squad": []
+    }
+}

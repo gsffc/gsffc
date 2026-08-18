@@ -1,0 +1,18 @@
+{
+    "date": "2022-05-28 10:30AM",
+    "type": "semi-final",
+    "home": {
+        "key": "GSF",
+        "score": 1,
+        "events": [
+            {"type": "goal", "time": 60, "player": "Xuan", "assist": "Pedro"}
+        ]
+    },
+    "away": {
+        "key": "DeepSoccer",
+        "score": 1,
+        "events": [
+        ]
+    },
+    "penalty": [4, 5]
+}

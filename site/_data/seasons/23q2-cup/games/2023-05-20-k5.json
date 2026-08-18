@@ -1,0 +1,44 @@
+{
+    "date": "2023-05-20 05:50PM",
+    "type": "rank-r1",
+    "penalty": [3, 1],
+    "videos": [
+        "<a href=\"https://app.veo.co/matches/20230521-4c953ede-1155-4f6f-ac9c-8bc43b355c43-7bb078d2/\"><img src=\"/assets/img/games/23q2cup/veo-c-cb.jpg\"></img></a>"
+    ],
+    "home": {
+        "key": "CalBlue",
+        "score": 2,
+        "events": [
+            {"type": "goal", "time": 55, "player": "??"}
+            ,{"type": "goal", "time": 57, "player": "??"}
+        ]
+    },
+    "away": {
+        "key": "GSF",
+        "score": 2,
+        "events": [
+            {"type": "goal", "time": 80, "player": "东林"}
+            ,{"type": "goal", "time": 90, "player": "MJ", "assist": "小唐"}
+          ],
+          "squad": [
+            {"name": "锡麟", "locator": "GK"}
+            ,{"name": "张子豪", "locator": "LWB"}
+            ,{"name": "陈晨", "locator": "LCB2"}
+            ,{"name": "Colin", "locator": "CB"}
+            ,{"name": "荆安东", "locator": "RCB2"}
+            ,{"name": "王政", "locator": "RWB"}
+            ,{"name": "狄克", "locator": "LDM"}
+            ,{"name": "杨谱", "locator": "RDM"}
+            ,{"name": "杜若衡", "locator": "RM"}
+            ,{"name": "小唐", "locator": "LM"}
+            ,{"name": "Casper", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "MJ"}
+            ,{"name": "东林"}
+            ,{"name": "刘喆"}
+            ,{"name": "王琛"}
+            ,{"name": "杜雨琛"}
+        ]
+    }
+}

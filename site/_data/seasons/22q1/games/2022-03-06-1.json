@@ -1,0 +1,51 @@
+{
+    "date": "2022-03-06 04:00PM",
+    "type": "#5",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/0rubWdHGSBU\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/zsolbOC06iw\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/PpSagANV03g\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<iframe src=\"https://www.youtube.com/embed/OnpW_jXccXc\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF",
+        "score": 4,
+        "events": [
+            {"type": "owngoal", "time": 5, "player": "（乌龙）", "assist": "张一宁"}
+            ,{"type": "goal", "time": 8, "player": "杨帆", "assist": "老于"}
+            ,{"type": "goal", "time": 25, "player": "马超"}
+            ,{"type": "goal", "time": 30, "player": "狄克", "assist": "彭亮"}
+        ],
+        "squad": [
+            {"name": "王钊", "locator": "GK"}
+            ,{"name": "Ted", "locator": "LB"}
+            ,{"name": "Marshall", "locator": "CB"}
+            ,{"name": "彭亮", "locator": "RB"}
+            ,{"name": "老于", "locator": "LM"}
+            ,{"name": "王金鹏", "locator": "LDM"}
+            ,{"name": "黄中焱", "locator": "RDM"}
+            ,{"name": "张一宁", "locator": "RM"}
+            ,{"name": "杨帆", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "狄克"}
+            ,{"name": "庭朝"}
+            ,{"name": "Kevin"}
+            ,{"name": "马超"}
+            ,{"name": "杜若衡"}
+        ]
+    },
+    "away": {
+        "key": "OverPower",
+        "score": 6,
+        "events": [
+            {"type": "goal", "time": 19, "player": "??"}
+            ,{"type": "goal", "time": 38, "player": "??"}
+            ,{"type": "goal", "time": 47, "player": "??"}
+            ,{"type": "penalty", "time": 70, "player": "玄宗（租借）"}
+            ,{"type": "goal", "time": 75, "player": "玄宗（租借）"}
+            ,{"type": "goal", "time": 80, "player": "??"}
+        ],
+        "squad": []
+    }
+}

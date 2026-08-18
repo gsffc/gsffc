@@ -1,0 +1,11 @@
+{
+    "display_name": "Hunters",
+    "description": "",
+    "logo": "teams/Hunters/logo.png",
+    "players": {
+        "starting": [
+        ],
+        "subs": [
+        ]
+    }
+}

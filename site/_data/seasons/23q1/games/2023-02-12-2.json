@@ -1,0 +1,73 @@
+{
+  "date": "2023-02-22 16:00",
+  "type": "#2",
+  "videos": [
+    "<iframe src=\"https://www.youtube.com/embed/DwYaW0CtcL0\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ,"<iframe src=\"https://www.youtube.com/embed/SciT6xLO9R8\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+  ],
+  "home": {
+      "key": "GSF-U",
+      "score": 2,
+      "events": [
+        {"type": "goal", "time": 3, "player": "东林", "assist": "张一宁", "link": "https://youtu.be/DwYaW0CtcL0?t=681"}
+        ,{"type": "goal", "time": 38, "player": "Xuan", "assist": "狄克", "link": "https://youtu.be/DwYaW0CtcL0?t=2823"}
+    ],
+    "squad": [
+        {"name": "锡麟", "locator": "GK"}
+        ,{"name": "庭朝", "locator": "LB"}
+        ,{"name": "陈晨", "locator": "LCB"}
+        ,{"name": "Colin", "locator": "RCB"}
+        ,{"name": "王琛", "locator": "RB"}
+        ,{"name": "张一宁", "locator": "LDM"}
+        ,{"name": "杜若衡", "locator": "RDM"}
+        ,{"name": "宁广涵", "locator": "LM"}
+        ,{"name": "东林", "locator": "RM"}
+        ,{"name": "杨帆", "locator": "LAM"}
+        ,{"name": "Alpha", "locator": "RAM"}
+    ]
+    ,"bench": [
+        {"name": "蒋小神"}
+        ,{"name": "Xuan"}
+        ,{"name": "狄克"}
+        ,{"name": "张稞雨"}
+        ,{"name": "小唐"}
+        ,{"name": "孟祥宇"}
+        ,{"name": "王政"}
+        ,{"name": "荆安东"}
+        ,{"name": "单思远"}
+    ]
+  },
+  "away": {
+      "key": "GSF-L",
+      "score": 1,
+      "events": [
+        {"type": "goal", "time": 19, "player": "王欢", "assist": "王英汉", "link": "https://youtu.be/DwYaW0CtcL0?t=1679"}
+    ],
+    "squad": [
+      {"name": "程攻", "locator": "GK"}
+      ,{"name": "则博", "locator": "LB"}
+      ,{"name": "兰帕德", "locator": "LCB"}
+      ,{"name": "何思哲", "locator": "RCB"}
+      ,{"name": "张昀", "locator": "RB"}
+      ,{"name": "胡智宇", "locator": "CDM"}
+      ,{"name": "任佳恩", "locator": "LCM"}
+      ,{"name": "王英汉", "locator": "RCM"}
+      ,{"name": "王欢", "locator": "LM"}
+      ,{"name": "于根伟", "locator": "RM"}
+      ,{"name": "郝宇", "locator": "CAM"}
+    ]
+    ,"bench": [
+      {"name": "汪星人"}
+      ,{"name": "吴骏"}
+      ,{"name": "Peter"}
+      ,{"name": "洪泽"}
+      ,{"name": "Gary"}
+      ,{"name": "张谌"}
+      ,{"name": "Cedar"}
+      ,{"name": "Kevin"}
+      ,{"name": "Han"}
+      ,{"name": "李峰"}
+    ]
+  }
+}
+    

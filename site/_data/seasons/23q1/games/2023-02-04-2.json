@@ -1,0 +1,21 @@
+{
+    "date": "2023-02-04 14:00",
+    "type": "#1",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/QyN3MkAoypc\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+        ,"<a href=\"https://app.veo.co/matches/20230205-155649-c42000e6\"><img src=\"/assets/img/games/23q1/veo-l-op.jpg\"></img></a>"
+    ],
+    "home": {
+        "key": "GSF-L",
+        "score": 1,
+        "events": [
+            {"type": "goal", "time": 10, "player": "于根伟"}
+        ]
+    },
+    "away": {
+        "key": "OverPower",
+        "score": 4,
+        "events": [
+        ]
+    }
+}

@@ -1,0 +1,47 @@
+{
+    "date": "2022-10-16 04:00PM",
+    "type": "#10",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/UfWBRMMeOxA\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF-U",
+        "score": 5,
+        "events": [
+            {"type": "goal", "time": 5, "player": "张稞雨", "assist": "Ricky"}
+            ,{"type": "goal", "time": 36, "player": "Colin", "assist": "厚汝轩"}
+            ,{"type": "goal", "time": 70, "player": "张稞雨", "assist": "厚汝轩"}
+            ,{"type": "penalty", "time": 78, "player": "张稞雨", "assist": "Ricky"}
+            ,{"type": "goal", "time": 90, "player": "Kevin", "assist": "Xuan"}
+        ],
+        "squad": [
+            {"name": "锡麟", "locator": "GK"}
+            ,{"name": "王政", "locator": "LWB"}
+            ,{"name": "狄克", "locator": "LCB"}
+            ,{"name": "Colin", "locator": "RCB"}
+            ,{"name": "Ricky", "locator": "RWB"}
+            ,{"name": "Bruce", "locator": "CDM"}
+            ,{"name": "Xuan", "locator": "LCM"}
+            ,{"name": "云帆", "locator": "RCM"}
+            ,{"name": "张稞雨", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "厚汝轩"}
+            ,{"name": "单思远"}
+            ,{"name": "张子豪"}
+            ,{"name": "Kevin"}
+            ,{"name": "张一宁"}
+        ]
+    },
+    "away": {
+        "key": "WU",
+        "score": 3,
+        "events": [
+            {"type": "goal", "time": 23, "player": "??"}
+            ,{"type": "yellow", "time": 30, "player": "??"}
+            ,{"type": "goal", "time": 39, "player": "??"}
+            ,{"type": "goal", "time": 53, "player": "??"}
+        ],
+        "squad": []
+    }
+}

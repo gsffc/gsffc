@@ -1,0 +1,23 @@
+{
+  "date": "2023-11-04 20:00",
+  "type": "#8",
+  "videos": [
+    "<iframe src=\"https://www.youtube.com/embed/zBMviOosz-w\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+  ],
+  "home": {
+    "key": "GSF-L",
+    "score": 3,
+    "events": [
+      {"type": "penalty", "time": 8, "player": "Kevin"}
+      ,{"type": "goal", "time": 18, "player": "云帆", "assist": "智班"}
+      ,{"type": "goal", "time": 34, "player": "Kevin", "assist": "Kento"}
+    ]
+  },
+  "away": {
+    "key": "Wolf",
+    "score": 1,
+    "events": [
+      {"type": "owngoal", "time": 75, "player": "狄克"}
+    ]
+  }
+}

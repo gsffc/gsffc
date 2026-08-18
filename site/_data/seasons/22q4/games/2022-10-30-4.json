@@ -1,0 +1,45 @@
+{
+    "date": "2022-10-30 06:00PM",
+    "type": "#12",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/zlSlN39Tf54\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF-U",
+        "score": 3,
+        "events": [
+            {"type": "goal", "time": 78, "player": "Xuan", "assist": "Casper"}
+            ,{"type": "goal", "time": 89, "player": "Ricky"}
+            ,{"type": "goal", "time": 90, "player": "Kevin"}
+        ],
+        "squad": [
+            {"name": "锡麟", "locator": "GK"}
+            ,{"name": "王政", "locator": "LWB"}
+            ,{"name": "狄克", "locator": "LCB"}
+            ,{"name": "Casper", "locator": "RCB"}
+            ,{"name": "Ricky", "locator": "RWB"}
+            ,{"name": "Bruce", "locator": "CDM"}
+            ,{"name": "宁广涵", "locator": "LCM"}
+            ,{"name": "Xuan", "locator": "RCM"}
+            ,{"name": "张稞雨", "locator": "CAM"}
+        ]
+        ,"bench": [
+            {"name": "张自然"}
+            ,{"name": "孟祥宇"}
+            ,{"name": "张子豪"}
+            ,{"name": "Kevin"}
+            ,{"name": "肖毅捷"}
+        ]
+    },
+    "away": {
+        "key": "EBU",
+        "score": 4,
+        "events": [
+            {"type": "goal", "time": 11, "player": "??"}
+            ,{"type": "goal", "time": 19, "player": "??"}
+            ,{"type": "goal", "time": 22, "player": "??"}
+            ,{"type": "goal", "time": 88, "player": "??"}
+        ],
+        "squad": []
+    }
+}

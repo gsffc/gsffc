@@ -1,0 +1,47 @@
+{
+    "date": "2022-11-23 9:00PM",
+    "type": "#14",
+    "videos": [
+        "<iframe src=\"https://www.youtube.com/embed/y5L8Aojo9Jw\" title=\"YouTube video player\" frameborder=\"0\" allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen></iframe>"
+    ],
+    "home": {
+        "key": "GSF",
+        "score": 0,
+        "events": [
+        ],
+        "squad": [
+            {"name": "锡麟", "locator": "GK"}
+            ,{"name": "Ted", "locator": "LWB"}
+            ,{"name": "Anthony", "locator": "LCB2"}
+            ,{"name": "孟祥宇", "locator": "CB"}
+            ,{"name": "Colin", "locator": "RCB2"}
+            ,{"name": "汪星人", "locator": "RWB"}
+            ,{"name": "黄中焱", "locator": "LDM"}
+            ,{"name": "许伟凯", "locator": "RDM"}
+            ,{"name": "小耿", "locator": "CM"}
+            ,{"name": "小小杨", "locator": "LAM"}
+            ,{"name": "张稞雨", "locator": "RAM"}
+        ]
+        ,"bench": [
+            {"name": "狄克"}
+            ,{"name": "刘喆"}
+            ,{"name": "文韬"}
+            ,{"name": "杨谱"}
+            ,{"name": "荆安东"}
+            ,{"name": "小唐"}
+            ,{"name": "则博"}
+            ,{"name": "张子豪"}
+            ,{"name": "老吴"}
+            ,{"name": "吴骏"}
+        ]
+    },
+    "away": {
+        "key": "AFG",
+        "score": 2,
+        "events": [
+            {"type": "goal", "time": 31, "player": "??"}
+            ,{"type": "goal", "time": 40, "player": "??"}
+        ],
+        "squad": []
+    }
+}

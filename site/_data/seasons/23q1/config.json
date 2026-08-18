@@ -1,0 +1,36 @@
+{
+  "display_name_zh": "23春11人制",
+  "display_name": "23 Spring 11v11",
+  "description": "NCCSF 2023 11人制联赛",
+  "type": "league_table + region",
+  "link": "https://nccsf.org",
+  "rules": "*11人制\n*十轮循环赛+两轮区间内排位赛",
+  "winner": "SVTigers",
+  "interested_teams": ["GSF-U", "GSF-L"],
+  "regions": {
+    "D1": [
+      "CalBlue",
+      "SVTigers",
+      "Shoreline",
+      "ICP"
+    ],
+    "D2": [
+      "OverPower",
+      "WU",
+      "EBU",
+      "JTU"
+    ],
+    "D3": [
+      "THU",
+      "DeepSoccer",
+      "GSF-U",
+      "OX9"
+    ],
+    "D4": [
+      "BD",
+      "Hunters",
+      "GSF-L",
+      "Wolf"
+    ]
+  }
+}
