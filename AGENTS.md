@@ -55,6 +55,10 @@ runtime code.
   single place commands are defined — CI calls the same scripts. No Makefile or
   parallel interface.
 
+- **`app/` exception**: the app keeps its own `package.json` scripts
+  (`npm start`, ...) and is excluded from root Biome until @Dongminator opts
+  in (one `biome check --write` pass or stays excluded — his call, #2).
+
 - **JavaScript is linted and formatted with [Biome](https://biomejs.dev/)**
   (root `biome.json`). Run `npm run format` before pushing; CI fails on
   violations. HTML templates (Liquid/EJS) and Markdown are excluded from

@@ -48,7 +48,11 @@ package.json is advisory only on Netlify.
 
 ## Deploy triggers
 
-- Push to `main` touching `app/**` → production deploy.
+- Push to `main` → production deploy. Netlify has no commit path filtering:
+  the verbatim `netlify.toml` has no `ignore` rule, so **every** push to main
+  builds the app (site-only changes included — builds are cheap and
+  content-identical). To cut noise, add an `ignore` command later, e.g.
+  `git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- app/`.
 - Pull requests → deploy previews (once the site is connected).
 - Pre-#2, deploys fail (empty `app/`) — expected; the connection is proven
   when the first real deploy succeeds at #2.
@@ -63,8 +67,12 @@ yet. Pre-#2 (no `app/package.json`) the job skips cleanly.
 
 ## Database
 
-The app needs PostgreSQL for both data and sessions (`connect-pg-simple`).
-Schema and seed data: `app/db/schema.sql`, applied manually once per
-environment — the app never auto-creates tables. Existing Supabase instance
-is the likely home (pending the open decision above). No credentials in git;
+The app needs PostgreSQL for both data and sessions. `app/db/schema.sql` is
+applied manually (safe to re-apply: it's `IF NOT EXISTS`-idempotent); the
+session table is the one exception — `connect-pg-simple` auto-creates it at
+runtime. **First-admin bootstrap** (fresh databases only): hand-INSERT one
+user with a bcrypt hash, then `UPDATE gsffc.users SET role='ADMIN'` — the
+bulk-add-members admin page needs an existing login. The production Supabase
+instance already has users, so this matters mainly for fresh dev DBs.
+Smoke-test endpoint: `GET /healthz` reports DB connectivity + table count. Existing Supabase instance (decided, #9). No credentials in git;
 `.env` is git-ignored, variables documented in `app/README.md`.

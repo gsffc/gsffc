@@ -39,7 +39,7 @@ Setup details: `docs/runbooks/netlify.md`.
 
 ## Directory map (conventions live in each directory's README)
 
-- `db/` — schema + seeds (applied manually; app never auto-migrates)
+- `db/` — schema (applied manually, idempotent; app never auto-migrates)
 - `netlify/functions/` — the single serverless-http function
 - `public/` — static assets (CDN); `ui/` here is generated, never edited
 - `views/` — EJS templates; `partials/shared-header.ejs` is generated
