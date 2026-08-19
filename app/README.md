@@ -36,3 +36,11 @@ Netlify deploys on pushes to `main` touching `app/**`, with **base directory
 `app/`**. The whole Express app is bundled via `serverless-http` into a single
 Netlify Function; `public/` static assets are served from the CDN directly.
 Setup details: `docs/runbooks/netlify.md`.
+
+## Directory map (conventions live in each directory's README)
+
+- `db/` — schema + seeds (applied manually; app never auto-migrates)
+- `netlify/functions/` — the single serverless-http function
+- `public/` — static assets (CDN); `ui/` here is generated, never edited
+- `views/` — EJS templates; `partials/shared-header.ejs` is generated
+- `server.js`, `db.js` — app entrypoint and DB layer (arrive with #2)
