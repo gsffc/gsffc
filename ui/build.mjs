@@ -8,7 +8,7 @@
 //
 //   app/views/partials/shared-header.ejs — header shell + app nav slot
 //   app/public/ui/ui.css, login-corner.js, app/public/favicon.png
-//   (app targets only once app/ is onboarded — its views/ dir exists, #2)
+//   (app targets only once app/ is onboarded — app/package.json exists, #2)
 //
 // Each half builds standalone from the committed outputs; this script runs
 // only when ui/ changes. CI verifies outputs are fresh (ci.yml ui job).
@@ -80,7 +80,7 @@ copy("ui/login-corner.js", "site/assets/ui/login-corner.js");
 copy("ui/logo.png", "site/favicon.png");
 
 // --- app/ (Express/EJS) — only once onboarded (#2) ---
-if (existsSync(join(ROOT, "app", "views"))) {
+if (existsSync(join(ROOT, "app", "package.json"))) {
   write(
     "app/views/partials/shared-header.ejs",
     renderHeader({
