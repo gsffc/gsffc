@@ -1,6 +1,7 @@
-// Shared login corner: replaces the plain 登录 link with the signed-in
+// www's login corner: replaces the plain 登录 link with the signed-in
 // member's name (linked to their app profile). Progressive enhancement —
-// any failure leaves the 登录 link untouched.
+// any failure leaves the 登录 link untouched. The app renders its corner
+// server-side (ui/slots/app-login.ejs) and doesn't use this script.
 //
 // PROVISIONAL session-endpoint contract (finalized by the app side in #10):
 //   GET https://app.gsffc.org/api/session   (fetch with credentials: "include")
@@ -9,12 +10,7 @@
 (() => {
   const corner = document.querySelector("[data-login-corner]");
   if (!corner) return;
-  // Relative on the app itself (incl. local dev), absolute from www.
-  const endpoint =
-    location.host === "app.gsffc.org" || location.host.startsWith("localhost")
-      ? "/api/session"
-      : "https://app.gsffc.org/api/session";
-  fetch(endpoint, { credentials: "include" })
+  fetch("https://app.gsffc.org/api/session", { credentials: "include" })
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       if (!data || typeof data.name !== "string" || !data.name) return;

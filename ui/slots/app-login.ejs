@@ -1,0 +1,9 @@
+<%# App's login corner: rendered server-side — the session is already known
+    here, no probe script needed (that's www's, ui/slots/www-login.html). %>
+<div class="gsf-login-corner">
+  <% if (user) { %>
+  <a href="/profile" title="个人资料"><%= user.name %></a>
+  <% } else { %>
+  <a class="gsf-login-link<%= path === '/login' ? ' active' : '' %>" href="/login">登录</a>
+  <% } %>
+</div>

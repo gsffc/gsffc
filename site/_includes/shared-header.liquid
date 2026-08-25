@@ -34,9 +34,12 @@
       <a href="https://www.gsffc.org/">战报</a>
       <a href="https://app.gsffc.org/">活动报名</a>
     </nav>
-    <div class="gsf-login-corner" data-login-corner>
-      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
-    </div>
+    <!-- www's login corner: static 登录 link, upgraded by login-corner.js via the
+     app's session endpoint (#10 contract). The app renders its corner
+     server-side instead (ui/slots/app-login.ejs). -->
+<div class="gsf-login-corner" data-login-corner>
+  <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
+</div>
+<script src="/assets/ui/login-corner.js" defer></script>
   </div>
-  <script src="/assets/ui/login-corner.js" defer></script>
 </header>

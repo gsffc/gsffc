@@ -37,26 +37,31 @@ const copy = (from, to) => {
 
 const shell = read("ui/header.html");
 const css = `${read("ui/tokens.css")}\n${read("ui/header.css")}`;
-const SLOT = "<!-- @slot:site-nav -->";
+const SLOT_NAV = "<!-- @slot:site-nav -->";
+const SLOT_LOGIN = "<!-- @slot:login-corner -->";
 
 function renderHeader({
   slotFile,
+  loginSlotFile,
   logoUrl,
   assetPrefix,
   brandHref,
   brandName,
 }) {
   const slot = read(`ui/slots/${slotFile}`);
+  const loginSlot = read(`ui/slots/${loginSlotFile}`);
   // Replace the source-of-truth comment with a generated-file notice.
   const notice =
     "<!-- GENERATED from ui/header.html — do not edit; run `npm run ui:build` -->";
   const body = shell.replace(/<!-- Shared header shell[\s\S]*?-->/, notice);
+  // Slots first so markers inside slot files are substituted too.
   const out = body
+    .replace(SLOT_NAV, slot.trimEnd())
+    .replace(SLOT_LOGIN, loginSlot.trimEnd())
     .replaceAll("{{BRAND_HREF}}", brandHref)
     .replaceAll("{{BRAND_NAME}}", brandName)
     .replaceAll("{{LOGO_URL}}", logoUrl)
-    .replaceAll("{{UI_ASSET_PREFIX}}", assetPrefix)
-    .replace(SLOT, slot.trimEnd());
+    .replaceAll("{{UI_ASSET_PREFIX}}", assetPrefix);
   const leftover = out.match(/\{\{[A-Z_]+\}\}|@slot:/);
   if (leftover)
     throw new Error(`unsubstituted marker left in header: ${leftover[0]}`);
@@ -68,6 +73,7 @@ write(
   "site/_includes/shared-header.liquid",
   renderHeader({
     slotFile: "www-nav.html",
+    loginSlotFile: "www-login.html",
     logoUrl: "/favicon.png",
     assetPrefix: "/assets/ui",
     // Brand is www-internal: keep it language-aware (zh / vs en /en/).
@@ -85,6 +91,7 @@ if (existsSync(join(ROOT, "app", "package.json"))) {
     "app/views/partials/shared-header.ejs",
     renderHeader({
       slotFile: "app-nav.ejs",
+      loginSlotFile: "app-login.ejs",
       logoUrl: "/favicon.png",
       assetPrefix: "/ui",
       brandHref: "/",

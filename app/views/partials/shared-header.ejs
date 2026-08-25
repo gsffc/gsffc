@@ -18,9 +18,14 @@
       <a href="https://www.gsffc.org/">战报</a>
       <a href="https://app.gsffc.org/">活动报名</a>
     </nav>
-    <div class="gsf-login-corner" data-login-corner>
-      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
-    </div>
+    <%# App's login corner: rendered server-side — the session is already known
+    here, no probe script needed (that's www's, ui/slots/www-login.html). %>
+<div class="gsf-login-corner">
+  <% if (user) { %>
+  <a href="/profile" title="个人资料"><%= user.name %></a>
+  <% } else { %>
+  <a class="gsf-login-link<%= path === '/login' ? ' active' : '' %>" href="/login">登录</a>
+  <% } %>
+</div>
   </div>
-  <script src="/ui/login-corner.js" defer></script>
 </header>
