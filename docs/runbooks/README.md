@@ -6,7 +6,7 @@ doesn't belong here.
 
 All planned runbooks are authored:
 
-- `local-dev.md` — build & preview the site (app section lands with #2)
+- `local-dev.md` — build & preview the site and the app
 - `netlify.md` — Netlify site setup, base dir, env vars (#9)
 - `deploy.md` — how each half deploys, rollback (#7)
 - `routing.md` — URL structure, redirects, the gsffc.github.io redirect (#7)

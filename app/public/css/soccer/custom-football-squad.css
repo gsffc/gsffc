@@ -1,0 +1,351 @@
+.row-game {
+    display: -ms-flex; display: -webkit-flex; display: flex;
+}
+
+.row-game:after {
+    content: "";
+    display: table;
+    clear: both;
+    float: none;
+}
+
+/* .column {
+    width: 50%;
+    flex: 1;
+}
+
+.align-right {
+    text-align: right;
+}
+.align-center {
+    text-align: center;
+}
+.align-left {
+    text-align: left;
+} */
+
+
+@media all and (max-width: 600px) {
+    .column {
+        float: none;
+        width: 100%;
+    }
+}
+  
+/* Clear floats after the columns */
+.row:after {
+    content: "";
+    display: table;
+    clear: both;
+    float: none;
+}
+
+
+.block {
+    float: none;
+    width: 100%;
+    
+}
+
+
+.football_field_background {
+    background-image: url("../img/field.png")
+}
+
+.football_field {
+    position: relative;
+}
+
+.football_field img {
+    max-width: 100%;
+}
+
+.player {
+    display: inline-block;
+    position: absolute;
+    width: 19%;
+    margin: 0;
+}
+
+.player img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 50%;
+    border: 2px solid #cccccc;
+    width: 50%;
+}
+
+.player.sub {
+    position:static !important;
+}
+
+td.player-td {
+    text-align: left;
+    margin: auto;
+}
+
+.player.static {
+    /* position:static !important; */
+    font-size: 12px;
+    width: auto;
+    height: auto;
+    vertical-align: middle;
+    margin: 0.5em;
+}
+
+.player.static img {
+    width: 3em !important;
+    max-width: 3em !important;
+}
+
+.player.static img.absolute {
+    display: inline;
+    vertical-align: middle;
+    width: 1.5em !important;
+    max-width: 1.5em !important;
+    border: none;
+    border-radius: 0;
+}
+/* .player-td span {
+    margin:auto;
+} */
+
+.player.static span {
+    text-align: center;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-left: auto;
+    margin-right: 0;
+    vertical-align: middle;
+}
+
+.player-game-result {
+    color:#555;
+    font-size: smaller;
+}
+
+.team-page-squad .player p {
+    text-align: center;
+    font-size: 12px;
+    white-space: nowrap;
+    margin-bottom: 15px;
+}
+
+.game-page-squad .player p {
+    text-align: center;
+    font-size: clamp(8px, 0.8vw, 12px);
+    white-space: nowrap;
+    margin-bottom: 15px;
+}
+
+/* GK */
+.player.GK {
+    bottom: 2%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Defender */
+.player.LWB {
+    bottom: 35%;
+    left: 5%;
+}
+
+.player.LB {
+    bottom: 20%;
+    left: 8%;
+}
+
+.player.LCB2 {
+    bottom: 20%;
+    left: 20%;
+}
+
+.player.LCB {
+    bottom: 20%;
+    left: 30%;
+}
+
+.player.CB {
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player.RCB {
+    bottom: 20%;
+    right: 30%;
+}
+
+.player.RCB2 {
+    bottom: 20%;
+    right: 20%;
+}
+
+.player.RB {
+    bottom: 20%;
+    right: 8%;
+}
+
+.player.RWB {
+    bottom: 35%;
+    right: 5%;
+}
+
+/* Defending Midfielder */
+
+.player.LDM {
+    bottom: 35%;
+    left: 30%;
+}
+
+.player.CDM {
+    bottom: 35%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player.RDM {
+    bottom: 35%;
+    right: 30%;
+}
+
+/* Midfielder */
+
+.player.LM {
+    bottom: 50%;
+    left: 8%;
+}
+
+.player.LCM {
+    bottom: 50%;
+    left: 30%;
+}
+
+.player.CM {
+    bottom: 50%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player.RCM {
+    bottom: 50%;
+    right: 30%;
+}
+
+.player.RM {
+    bottom: 50%;
+    right: 8%;
+}
+
+/* Wingers, CAM */
+
+.player.LW {
+    bottom: 65%;
+    left: 10%;
+}
+
+.player.LAM {
+    bottom: 65%;
+    left: 20%;
+}
+
+.player.CAM {
+    bottom: 65%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player.RAM {
+    bottom: 65%;
+    right: 20%;
+}
+
+.player.RW {
+    bottom: 65%;
+    right: 10%;
+}
+
+/* Strikers */
+
+.player.LS {
+    bottom: 79%;
+    left: 25%;
+}
+
+.player.ST {
+    bottom: 79%;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.player.RS {
+    bottom: 79%;
+    right: 25%;
+}
+
+
+/* player list table */
+table {
+    text-align: center;
+}
+table.playerlist img {
+    width: 40px;
+}
+table.playerlist th {
+    padding: 0.3em;
+}
+table.playerlist td {
+    padding: 0.3em;
+}
+
+.tournament-logo {
+    width: 5em !important;
+}
+
+.team-logo {
+    height: 30px !important;
+    padding: 0.1em;
+    object-fit: contain;
+}
+
+.row-game .column .team-logo-large {
+    width: 70%;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+.team-page-logo {
+    width: 20%;
+    max-height: 150px;
+    object-fit: contain;
+}
+
+/* team history stats table */
+.cur-season-line {
+    font-weight: bold;
+}
+
+/* hack for embed video*/
+iframe {
+    width: 100%;
+    max-width: 600px;
+    height: auto;
+    min-height: 400px;
+}
+
+/* Game page */
+
+.team-column > .logo{
+    width: 256px;
+}
+
+/* Team page */
+
+img.team-logo-big {
+    width: 200px;
+    height: 200px;
+    margin: 2em;
+    /* max-width: 30%; */
+}

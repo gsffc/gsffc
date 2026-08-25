@@ -1,0 +1,158 @@
+/* Design tokens shared by www.gsffc.org and app.gsffc.org.
+   Single source of truth — edit here, then `npm run ui:build`.
+   Generated per-site copies are committed (see ui/build.mjs). */
+:root {
+  --gsf-brand: #263472;
+  --gsf-text: #111;
+  --gsf-background: #fdfdfd;
+  --gsf-grey: #828282;
+  --gsf-grey-light: #e8e8e8;
+  --gsf-grey-dark: #424242;
+  --gsf-font:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --gsf-spacing: 30px;
+  --gsf-content-width: 800px;
+}
+
+/* Shared header styles (gsf- namespace — must not clash with minima on www
+   or Bootstrap on the app). Edit via ui/, then `npm run ui:build`. */
+.gsf-header {
+  border-top: 5px solid var(--gsf-grey-dark);
+  border-bottom: 1px solid var(--gsf-grey-light);
+  min-height: 56px;
+  position: relative;
+  font-family: var(--gsf-font);
+}
+
+.gsf-header-inner {
+  max-width: var(--gsf-content-width);
+  margin: 0 auto;
+  padding: 0 calc(var(--gsf-spacing) / 2);
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  min-height: 56px;
+}
+
+.gsf-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 26px;
+  font-weight: 300;
+  letter-spacing: -1px;
+  color: var(--gsf-grey-dark);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.gsf-brand:visited {
+  color: var(--gsf-grey-dark);
+}
+.gsf-brand-logo {
+  height: 1.5em;
+  width: auto;
+}
+
+.gsf-cross-nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+.gsf-cross-nav a {
+  color: var(--gsf-text);
+  font-size: 15px;
+  padding: 4px 8px;
+  text-decoration: none;
+}
+.gsf-cross-nav a:hover {
+  text-decoration: underline;
+}
+
+.gsf-login-corner {
+  margin-left: 8px;
+  font-size: 15px;
+}
+.gsf-login-corner a {
+  color: var(--gsf-text);
+  text-decoration: none;
+}
+.gsf-login-corner a:hover {
+  text-decoration: underline;
+}
+
+/* Dropdowns (used by per-site nav slots, e.g. www's season/language menus). */
+.gsf-dropbtn {
+  background: none;
+  border: none;
+  padding: 5px;
+  font-size: 16px;
+  font-family: var(--gsf-font);
+  cursor: pointer;
+  color: var(--gsf-text);
+}
+.gsf-dropdown {
+  position: relative;
+}
+.gsf-dropdown-content {
+  display: none;
+  position: absolute;
+  right: 0;
+  background-color: var(--gsf-background);
+  z-index: 10;
+  border: 1px solid var(--gsf-grey-light);
+  border-radius: 5px;
+  font-size: smaller;
+}
+.gsf-dropdown-content a {
+  color: var(--gsf-text);
+  padding: 5px 10px;
+  text-align: left;
+  display: block;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.gsf-dropdown-content a:hover {
+  background-color: #f1f1f1;
+}
+.gsf-dropdown:hover .gsf-dropdown-content,
+.gsf-dropdown:focus-within .gsf-dropdown-content {
+  display: block;
+}
+
+/* Below ~480px the brand shortens so the login corner stays visible. */
+.gsf-brand-name-full {
+  display: inline;
+}
+.gsf-brand-name-short {
+  display: none;
+}
+@media screen and (max-width: 480px) {
+  .gsf-brand-name-full {
+    display: none;
+  }
+  .gsf-brand-name-short {
+    display: inline;
+  }
+  .gsf-brand {
+    font-size: 20px;
+  }
+}
+
+/* Narrow screens: tighten the bar so it wraps into two tidy rows. */
+@media screen and (max-width: 600px) {
+  .gsf-header-inner {
+    padding: 6px 10px;
+    gap: 6px;
+  }
+  .gsf-dropbtn {
+    font-size: 14px;
+    padding: 3px;
+  }
+  .gsf-cross-nav a,
+  .gsf-login-corner {
+    font-size: 14px;
+    padding: 2px 4px;
+  }
+}

@@ -1,0 +1,388 @@
+/* Member list (/members).
+   Reuses the brand tokens from main.css and the .page-head / .card-surface
+   helpers declared in calendar.css — both are loaded on every page. */
+
+.member-table {
+  margin-bottom: 0;
+}
+
+/* custom-football-squad.css centres every table cell; the member rows read far
+   better left-aligned, with only the action column pulled to the edge. */
+.member-table th,
+.member-table td {
+  text-align: left;
+}
+
+.member-table thead th {
+  border-top: 0;
+  border-bottom: 1px solid var(--gsf-line);
+  padding: .625rem .75rem;
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--gsf-ink-soft);
+}
+
+.member-table td {
+  padding: .75rem;
+  border-top: 1px solid var(--gsf-line);
+  vertical-align: middle;
+}
+
+.member-table tbody tr:hover { background: var(--gsf-tint); }
+
+.member-index {
+  width: 1%;
+  color: var(--gsf-ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+
+.member-name {
+  font-weight: 600;
+  color: var(--gsf-ink);
+}
+
+/* Only rendered on phones, where the 账号 column itself is hidden. */
+.member-email-inline {
+  margin-top: .125rem;
+  font-size: .75rem;
+  color: var(--gsf-ink-soft);
+  word-break: break-all;
+}
+
+.member-account {
+  color: var(--gsf-ink-soft);
+  word-break: break-all;
+}
+
+.position-badge {
+  display: inline-block;
+  padding: .1875rem .5rem;
+  border-radius: 999px;
+  background: var(--gsf-50);
+  color: var(--gsf-700);
+  font-size: .75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.position-badge.is-empty {
+  background: transparent;
+  color: var(--gsf-ink-faint);
+  padding-left: 0;
+}
+
+.member-joined {
+  color: var(--gsf-ink-soft);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.member-actions {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+/* Square-ish icon-only button. The label lives in aria-label/title so the
+   action column stays narrow enough for a phone. */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--gsf-line);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--gsf-ink-soft);
+  transition: background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.icon-btn:hover,
+.icon-btn:focus {
+  background: var(--gsf-50);
+  border-color: var(--gsf-300);
+  color: var(--gsf-700);
+}
+
+.icon-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77, 165, 244, .35);
+}
+
+.member-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--gsf-ink-soft);
+}
+
+/* --- profile (/profile) -------------------------------------------------
+   Same shared helpers as the member list, plus the .position-badge above:
+   the profile card shows the very fields the edit modal writes. */
+
+.profile-card {
+  max-width: 640px;
+  padding: 1.25rem;
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+.profile-avatar {
+  border-radius: 50%;
+  background: var(--gsf-50);
+  /* A member's own photo is whatever aspect ratio they uploaded, and the phone
+     rules below resize the box: crop to the circle instead of squashing it. */
+  object-fit: cover;
+  flex: none;
+}
+
+.profile-name {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gsf-ink);
+}
+
+.profile-email {
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+  word-break: break-all;
+}
+
+.profile-fields {
+  margin: 0;
+}
+
+/* Label / value pairs sit side by side at every width — stacking them doubles
+   the height of the card, which is the opposite of what a phone wants. */
+.profile-field {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: .75rem 0;
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+.profile-field:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.profile-field dt {
+  flex: 0 0 6.5rem;
+  font-weight: 600;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+.profile-field dd {
+  margin: 0;
+  color: var(--gsf-ink);
+  word-break: break-all;
+}
+
+.profile-hint {
+  margin-left: .5rem;
+  font-size: .75rem;
+  color: var(--gsf-ink-faint);
+}
+
+/* --- avatar upload (the edit-user modal) --------------------------------
+   The picture and its pencil are one positioned block, centred at the top of
+   the modal body. It is sized in px, not rem: the box has to match the
+   `width`/`height` on the <img> (which is what keeps the layout still while
+   the picture loads) and the gravatar asked for in server.js — 192, i.e. 2×. */
+
+.avatar-edit {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto 1.25rem;
+}
+
+.avatar-edit-view {
+  display: block;
+  border-radius: 50%;
+}
+
+.avatar-edit-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--gsf-50);
+  /* An uploaded photo is cropped square before it is sent, but a member may
+     still carry a URL set by hand at any aspect ratio. */
+  object-fit: cover;
+}
+
+/* The pencil sits on the rim, outside the circle's flow, so the picture keeps
+   its full width. The white ring is what separates it from a dark photo. */
+.avatar-edit-btn {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--gsf-600);
+  color: #fff;
+  font-size: .8125rem;
+  line-height: 1;
+  box-shadow: 0 1px 4px rgba(16, 42, 67, .3);
+  cursor: pointer;
+  transition: background .2s ease;
+}
+
+.avatar-edit-btn:hover {
+  background: var(--gsf-700);
+}
+
+.avatar-edit-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(77, 165, 244, .45);
+}
+
+.avatar-edit-btn:disabled {
+  opacity: 1; /* uploading is not "unavailable" — the spinner says what it is */
+}
+
+/* One icon per state, all three in the markup; the class on the button picks
+   which one shows, so nothing swaps icon classes while the upload runs. */
+.avatar-edit-btn .avatar-icon-busy,
+.avatar-edit-btn .avatar-icon-done,
+.avatar-edit-btn.is-uploading .avatar-icon-idle,
+.avatar-edit-btn.is-done .avatar-icon-idle {
+  display: none;
+}
+
+.avatar-edit-btn.is-uploading .avatar-icon-busy,
+.avatar-edit-btn.is-done .avatar-icon-done {
+  display: inline-block;
+}
+
+/* Saved. The green stays until the modal is opened again — a member who looked
+   away while it uploaded still finds the confirmation waiting. */
+.avatar-edit-btn.is-done {
+  background: #2e9e5b;
+  animation: avatar-saved .45s ease;
+}
+
+.avatar-edit-btn.is-done:hover {
+  background: #27824c;
+}
+
+@keyframes avatar-saved {
+  0%   { transform: scale(.4); }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .avatar-edit-btn.is-done {
+    animation: none;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .member-table thead th,
+  .member-table td {
+    padding: .625rem .5rem;
+  }
+
+  /* Room is the scarce thing in a phone modal, so the picture gives some back —
+     the pencil does not, it is the tap target. */
+  .avatar-edit {
+    width: 80px;
+    height: 80px;
+    margin-bottom: 1rem;
+  }
+
+  .avatar-edit-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  /* Tighten the whole card: smaller avatar, less padding, a narrower label
+     column, and no rows repeating what the identity block above already says
+     (姓名 and 账号) — the same trade the member table makes in reverse. */
+  .profile-card {
+    padding: .875rem;
+  }
+
+  .profile-header {
+    gap: .75rem;
+    padding-bottom: .75rem;
+  }
+
+  .profile-avatar {
+    width: 52px;
+    height: 52px;
+  }
+
+  .profile-name {
+    font-size: 1.0625rem;
+  }
+
+  .profile-field {
+    gap: .75rem;
+    padding: .5rem 0;
+  }
+
+  .profile-field dt {
+    flex-basis: 4.5rem;
+    font-size: .75rem;
+  }
+
+  .profile-field dd {
+    font-size: .875rem;
+  }
+
+  .profile-field-dup {
+    display: none;
+  }
+
+  .profile-hint {
+    display: none;
+  }
+
+  /* Bigger tap target on touch screens. */
+  .icon-btn {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  /* iOS zooms the whole page when a focused field is smaller than 16px. */
+  .modal .form-control {
+    font-size: 1rem;
+  }
+
+  /* Stack the modal actions full-width so they are easy to hit. The spacing is
+     `gap`, not a margin on each button: the edit-user footer hides its 删除用户
+     button on your own row, and a margin would leave that button's gap behind. */
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: .5rem;
+  }
+
+  .modal-footer .btn {
+    width: 100%;
+    margin: 0;
+    padding-top: .5625rem;
+    padding-bottom: .5625rem;
+  }
+}
