@@ -4,23 +4,22 @@
 
      Markers substituted per target by ui/build.mjs (written brace-less here
      so the generator doesn't eat this comment):
-       BRAND_HREF / BRAND_NAME — brand link target and name per site
+       BRAND_NAME — brand name per site (language-aware on www)
        LOGO_URL / UI_ASSET_PREFIX — logo URL and ui-asset prefix per host
-       slot comment (at-sign slot : site-nav) — per-site internal nav -->
+       CROSS_ACTIVE_NEWS / CROSS_ACTIVE_APP — active-state class injection
+       slot comments (at-sign slot : site-nav / login-corner) —
+       per-site internal nav and login corner (ui/slots/) -->
 <header class="gsf-header">
   <div class="gsf-header-inner">
-    <a class="gsf-brand" href="{{BRAND_HREF}}">
+    <a class="gsf-brand" href="https://www.gsffc.org/">
       <img class="gsf-brand-logo" src="{{LOGO_URL}}" alt="GSF" />
       <span class="gsf-brand-name-full">{{BRAND_NAME}}</span><span class="gsf-brand-name-short">GSF</span>
     </a>
-    <!-- @slot:site-nav -->
     <nav class="gsf-cross-nav">
-      <a href="https://www.gsffc.org/">战报</a>
-      <a href="https://app.gsffc.org/">活动报名</a>
+      <a href="https://www.gsffc.org/"{{CROSS_ACTIVE_NEWS}}>战报</a>
+      <a href="https://app.gsffc.org/"{{CROSS_ACTIVE_APP}}>会员 app</a>
     </nav>
-    <div class="gsf-login-corner" data-login-corner>
-      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
-    </div>
+    <!-- @slot:site-nav -->
+    <!-- @slot:login-corner -->
   </div>
-  <script src="{{UI_ASSET_PREFIX}}/login-corner.js" defer></script>
 </header>

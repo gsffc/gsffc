@@ -5,6 +5,9 @@ coding agents (**any tool, any model** — no specific assistant, vendor, or
 configuration is required) and is equally the contributor guide for humans.
 Read it before making changes.
 
+Scoped contributor docs may exist in subtrees (e.g. `app/AGENTS.md`). They may
+only *add* subtree-specific guidance — on any conflict, this file wins.
+
 ## What this repo is
 
 Monorepo for GSF Football Club: `site/` (Eleventy static site → GitHub Pages →

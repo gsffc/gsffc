@@ -1,10 +1,14 @@
 <!-- GENERATED from ui/header.html — do not edit; run `npm run ui:build` -->
 <header class="gsf-header">
   <div class="gsf-header-inner">
-    <a class="gsf-brand" href="{{ "/" | langUrl }}">
+    <a class="gsf-brand" href="https://www.gsffc.org/">
       <img class="gsf-brand-logo" src="/favicon.png" alt="GSF" />
       <span class="gsf-brand-name-full">{{ meta | ifield: "title" }}</span><span class="gsf-brand-name-short">GSF</span>
     </a>
+    <nav class="gsf-cross-nav">
+      <a href="https://www.gsffc.org/" class="active">战报</a>
+      <a href="https://app.gsffc.org/">会员 app</a>
+    </nav>
     <!-- www's internal nav slot: seasons dropdown (data-driven via Liquid) and
      the zh/en language switcher. Rendered by Eleventy; navLists/meta come
      from site data. -->
@@ -30,13 +34,12 @@
     {%- endfor -%}
   </div>
 </div>
-    <nav class="gsf-cross-nav">
-      <a href="https://www.gsffc.org/">战报</a>
-      <a href="https://app.gsffc.org/">活动报名</a>
-    </nav>
-    <div class="gsf-login-corner" data-login-corner>
-      <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
-    </div>
+    <!-- www's login corner: static 登录 link, upgraded by login-corner.js via the
+     app's session endpoint (#10 contract). The app renders its corner
+     server-side instead (ui/slots/app-login.ejs). -->
+<div class="gsf-login-corner" data-login-corner>
+  <a class="gsf-login-link" href="https://app.gsffc.org/login">登录</a>
+</div>
+<script src="/assets/ui/login-corner.js" defer></script>
   </div>
-  <script src="/assets/ui/login-corner.js" defer></script>
 </header>

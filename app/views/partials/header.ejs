@@ -15,50 +15,16 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/ui/ui.css">
   <link rel="stylesheet" href="/css/soccer/custom-football-squad.css">
   <link rel="stylesheet" href="/css/calendar.css">
   <link rel="stylesheet" href="/css/members.css">
   <link rel="stylesheet" href="/css/event.css">
 </head>
 <% // The calendar is a full-viewport page: the grid fills the space under the
-   // navbar and nothing scrolls. Both hooks live in calendar.css. %>
+   // shared header and nothing scrolls. Both hooks live in calendar.css. %>
 <% const fullBleed = path === '/calendar'; %>
 <body class="<%= fullBleed ? 'page-full' : '' %>">
-<div class="navbar navbar-light fixed-top navbar-expand-lg bg-light">
-  <div class="container">
-    <%# Two spellings of the brand: on a 320px screen the full one leaves the
-        member's name a stub of two characters. Which one shows is a width
-        question, so main.css decides — see .brand-full / .brand-short. %>
-    <a class="navbar-brand" href="/">⚽&nbsp;<span class="brand-full">GSF俱乐部会员App</span><span class="brand-short">GSF俱乐部</span></a>
-    <%# Below lg the nav collapses behind the hamburger, which would bury the
-        profile link two taps deep. Repeat it outside the collapse there. %>
-    <% if (user) { %>
-      <a class="navbar-profile d-lg-none" href="/profile" title="个人资料">
-        <span class="nav-user-name"><%= user.name %></span>
-      </a>
-    <% } %>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse">
-      <span class="sr-only">Toggle navigation</span>
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse">
-      <ul class="nav navbar-nav">
-        <li class="nav-item<%= path === '/calendar' ? ' active' : '' %>"><a class="nav-link" href="/calendar">活动日历</a></li>
-        <li class="nav-item<%= path === '/members' ? ' active' : '' %>"><a class="nav-link" href="/members">会员列表</a></li>
-      </ul>
-      <ul class="nav navbar-nav ml-auto">
-        <% if (user) { %>
-          <li class="nav-item d-none d-lg-block<%= path === '/profile' ? ' active' : '' %>">
-            <a class="nav-link nav-user" href="/profile" title="个人资料">
-              <span class="nav-user-name"><%= user.name %></span>
-            </a>
-          </li>
-          <li class="nav-item"><a class="nav-link" href="/logout">Logout</a></li>
-        <% } else { %>
-          <li class="nav-item<%= path === '/login' ? ' active' : '' %>"><a class="nav-link" href="/login">Login</a></li>
-        <% } %>
-      </ul>
-    </div>
-  </div>
+<%- include('shared-header') %>
 </div>
 <div class="<%= fullBleed ? 'container-fluid' : 'container' %> main-content">

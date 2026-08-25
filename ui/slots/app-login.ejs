@@ -1,0 +1,13 @@
+<%# App's login corner: rendered server-side — the session is already known
+    here, no probe script needed (that's www's, ui/slots/www-login.html).
+    登出 sits in the hover menu under the member's name. %>
+<div class="gsf-login-corner gsf-dropdown">
+  <% if (user) { %>
+  <a href="/profile" title="个人资料"><%= user.name %> ▾</a>
+  <div class="gsf-dropdown-content">
+    <a href="/logout">登出</a>
+  </div>
+  <% } else { %>
+  <a class="gsf-login-link<%= path === '/login' ? ' active' : '' %>" href="/login">登录</a>
+  <% } %>
+</div>

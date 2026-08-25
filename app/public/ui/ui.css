@@ -23,6 +23,9 @@
   min-height: 56px;
   position: relative;
   font-family: var(--gsf-font);
+  /* Pin the bar's color: each site's body background differs (minima #fdfdfd
+     on www, Bootstrap white on the app) and the bar must match on both. */
+  background-color: var(--gsf-background);
 }
 
 .gsf-header-inner {
@@ -50,6 +53,12 @@
 .gsf-brand:visited {
   color: var(--gsf-grey-dark);
 }
+/* Bootstrap on the app paints anchors blue + underlined on hover. */
+.gsf-brand:hover,
+.gsf-brand:focus {
+  color: var(--gsf-grey-dark);
+  text-decoration: none;
+}
 .gsf-brand-logo {
   height: 1.5em;
   width: auto;
@@ -58,7 +67,6 @@
 .gsf-cross-nav {
   display: flex;
   gap: 4px;
-  margin-left: auto;
 }
 .gsf-cross-nav a {
   color: var(--gsf-text);
@@ -69,9 +77,42 @@
 .gsf-cross-nav a:hover {
   text-decoration: underline;
 }
+.gsf-cross-nav a.active {
+  font-weight: 600;
+  color: var(--gsf-brand);
+}
+
+/* Login corner: hover reveals a small menu (登出) under the member's name. */
+.gsf-login-corner .gsf-dropdown-content {
+  min-width: 90px;
+}
+
+/* Per-site internal nav slot (www dropdowns use .gsf-dropdown above; the app
+   uses .gsf-app-nav). */
+.gsf-app-nav {
+  display: flex;
+  gap: 4px;
+}
+.gsf-app-nav a {
+  color: var(--gsf-text);
+  font-size: 15px;
+  padding: 4px 8px;
+  text-decoration: none;
+}
+.gsf-app-nav a:hover {
+  text-decoration: underline;
+}
+.gsf-app-nav a.active {
+  /* Second-level (current page): quiet underline, distinct from the
+     site-level active tab (bold brand color, .gsf-cross-nav a.active). */
+  text-decoration: underline;
+  text-decoration-color: var(--gsf-brand);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
 
 .gsf-login-corner {
-  margin-left: 8px;
+  margin-left: auto;
   font-size: 15px;
 }
 .gsf-login-corner a {
