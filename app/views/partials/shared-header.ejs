@@ -5,8 +5,15 @@
       <img class="gsf-brand-logo" src="/favicon.png" alt="GSF" />
       <span class="gsf-brand-name-full">GSF足球俱乐部</span><span class="gsf-brand-name-short">GSF</span>
     </a>
-    <%# App-internal nav slot — filled in by #10 (活动日历/会员列表 with active
-    state). The shared shell around this slot is generated from ui/header.html. %>
+    <%# App-internal nav, rendered inside the shared header shell (generated into
+    app/views/partials/shared-header.ejs by `npm run ui:build`). The login
+    corner is separate and script-driven (ui/login-corner.js); logout stays
+    here because it needs no state round-trip. %>
+<nav class="gsf-app-nav">
+  <a href="/calendar"<% if (path === '/calendar') { %> class="active"<% } %>>活动日历</a>
+  <a href="/members"<% if (path === '/members') { %> class="active"<% } %>>会员列表</a>
+  <% if (user) { %><a href="/logout">登出</a><% } %>
+</nav>
     <nav class="gsf-cross-nav">
       <a href="https://www.gsffc.org/">战报</a>
       <a href="https://app.gsffc.org/">活动报名</a>

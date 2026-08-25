@@ -100,6 +100,20 @@ app.use(wrap(async (req, res, next) => {
   next();
 }));
 
+// Login-corner session probe (#10 contract): www.gsffc.org's shared header
+// queries this to show the member's name. Same-site subdomains + default
+// SameSite=Lax cookie means the session cookie is sent with
+// credentials:"include"; CORS is scoped to www only (no wildcard — that
+// combination is invalid with credentials).
+app.get('/api/session', (req, res) => {
+  res.set('Access-Control-Allow-Origin', 'https://www.gsffc.org');
+  res.set('Access-Control-Allow-Credentials', 'true');
+  res.vary('Origin');
+  const user = req.session.user;
+  if (!user) return res.status(401).json({ error: 'not signed in' });
+  res.json({ name: user.name });
+});
+
 function requireLogin(req, res, next) {
   if (!req.session.user) {
     req.session.returnTo = req.originalUrl;

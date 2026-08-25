@@ -13,9 +13,18 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready" --health-interval 5s
+          --health-timeout 5s --health-retries 10
     steps:
       - uses: actions/checkout@v4
-      # Pre-#2 the directory holds only a README; nothing to build yet.
       # setup-node's npm cache needs the lockfile, so gate everything below.
       - id: onboarded
         run: |
@@ -34,3 +43,35 @@ jobs:
           npm ci
           find . -name node_modules -prune -o -name '*.js' -print0 \
             | xargs -0 -n1 node --check
+      # Boot smoke test against the service Postgres: apply the schema, start
+      # the server, expect /healthz to report a healthy DB.
+      - name: Boot smoke test
+        if: steps.onboarded.outputs.present == 'true'
+        working-directory: app
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+          SESSION_SECRET: ci-smoke-test
+        run: |
+          node -e "
+            const { Client } = require('pg');
+            const fs = require('node:fs');
+            (async () => {
+              const c = new Client(process.env.DATABASE_URL);
+              await c.connect();
+              await c.query(fs.readFileSync('db/schema.sql', 'utf8'));
+              await c.end();
+            })();
+          "
+          node server.js & SERVER_PID=$!
+          trap "kill $SERVER_PID 2>/dev/null || true" EXIT
+          for i in $(seq 1 20); do
+            sleep 1
+            if curl -sf http://localhost:3000/healthz > /tmp/healthz.json; then break; fi
+          done
+          cat /tmp/healthz.json
+          node -e "
+            const h = require('/tmp/healthz.json');
+            if (!h.ok) { console.error('healthz not ok'); process.exit(1); }
+            console.log('healthz ok, gsffc tables:', h.gsffcTables);
+          "
+          curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/api/session | grep -q 401

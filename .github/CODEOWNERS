@@ -1,0 +1,10 @@
+# Ownership courtesy from AGENTS.md hard rule 2, made mechanical.
+# GitHub auto-requests these reviews on PRs touching the paths.
+
+/app/ @Dongminator
+/site/ @aenon
+
+# Shared by both; either may review.
+/ui/ @aenon @Dongminator
+/docs/ @aenon @Dongminator
+/.github/ @aenon @Dongminator

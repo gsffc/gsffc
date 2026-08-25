@@ -9,7 +9,12 @@
 (() => {
   const corner = document.querySelector("[data-login-corner]");
   if (!corner) return;
-  fetch("https://app.gsffc.org/api/session", { credentials: "include" })
+  // Relative on the app itself (incl. local dev), absolute from www.
+  const endpoint =
+    location.host === "app.gsffc.org" || location.host.startsWith("localhost")
+      ? "/api/session"
+      : "https://app.gsffc.org/api/session";
+  fetch(endpoint, { credentials: "include" })
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       if (!data || typeof data.name !== "string" || !data.name) return;

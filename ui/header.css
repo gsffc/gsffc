@@ -53,6 +53,26 @@
   text-decoration: underline;
 }
 
+/* Per-site internal nav slot (www dropdowns use .gsf-dropdown above; the app
+   uses .gsf-app-nav). */
+.gsf-app-nav {
+  display: flex;
+  gap: 4px;
+}
+.gsf-app-nav a {
+  color: var(--gsf-text);
+  font-size: 15px;
+  padding: 4px 8px;
+  text-decoration: none;
+}
+.gsf-app-nav a:hover {
+  text-decoration: underline;
+}
+.gsf-app-nav a.active {
+  font-weight: 600;
+  color: var(--gsf-brand);
+}
+
 .gsf-login-corner {
   margin-left: 8px;
   font-size: 15px;
