@@ -41,7 +41,6 @@
 .gsf-cross-nav {
   display: flex;
   gap: 4px;
-  margin-left: auto;
 }
 .gsf-cross-nav a {
   color: var(--gsf-text);
@@ -74,7 +73,7 @@
 }
 
 .gsf-login-corner {
-  margin-left: 8px;
+  margin-left: auto;
   font-size: 15px;
 }
 .gsf-login-corner a {
