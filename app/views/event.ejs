@@ -1,0 +1,1485 @@
+<%- include('partials/header') %>
+<% const isAdmin = user && user.role === 'ADMIN'; %>
+<%# 代签到 — who an admin at the pitch could still check in. Offered only while
+    there is somebody left to check in, the event can still be checked into, and
+    it has a point to be near; empty for everyone else, which is what hides both
+    the button and the dialog. Rendering only — POST /event/:id/checkin-for
+    re-reads the role and re-applies every gate. %>
+<% const proxyTargets = isAdmin && !isPast && event.coords
+     ? participants.filter(p => !p.checkedIn) : []; %>
+<%# …and only once the check-in window is actually open. 代签到 is something an
+    admin does *standing at the pitch*, so before the window opens it is not a
+    thing they could be doing at all, and the button offered nothing but a dialog
+    saying 签到尚未开放. The window can open while the page sits there, so this is
+    the state at load only — a `setTimeout` in the block's own script reveals the
+    row at OPENS_AT rather than making the admin reload. That is also why the
+    dialog keeps its own 签到尚未开放 branch: it is what the second or so between
+    the reveal and the server's own clock is measured against. %>
+<% const proxyOpenAtLoad = serverNow >= checkinOpensAt; %>
+<%# Start and end are stored as 'YYYY-MM-DDTHH:MM', so both halves are slices:
+    the date is rendered m/dd/yy (the club's display format everywhere) and the
+    clock is taken as-is. The end repeats its date only when the event runs past
+    midnight — otherwise "6/13/26 16:00 - 18:00" says it. %>
+<% const clock = at => at.slice(11, 16); %>
+<% const mdy = at => Number(at.slice(5, 7)) + '/' + at.slice(8, 10) + '/' + at.slice(2, 4); %>
+<% const whenLabel = mdy(event.startAt) + ' ' + clock(event.startAt) + ' - '
+     + (event.endDate === event.date ? '' : mdy(event.endAt) + ' ') + clock(event.endAt); %>
+<%# What 复制 puts on the clipboard: one line per tier that actually has names,
+    "张三, 李四 罚款$5." — the shape the fines are pasted into the club's chat
+    group. A tier nobody owes contributes no line at all (unlike the panel
+    itself, which says 无). Built here rather than in script so the names are
+    escaped once, by EJS, on their way into the attribute.
+    Empty for a member and empty when nobody owes anything, and that emptiness
+    is the single test hiding both the button and its script — the same shape
+    `proxyTargets` uses. Announcing the fines is an admin's job, which is what
+    the button is for; the panel itself stays visible to everyone, so this
+    restricts who has the shortcut, not who can read the names. %>
+<% const fineCopyText = isAdmin
+     ? (fines || []).filter(f => f.names.length)
+       .map(f => f.names.join(', ') + ' 罚款$' + f.amount + '.').join('\n')
+     : ''; %>
+<%# The event's own state, and it is the one thing on this page that changes on
+    its own three times: 签到已开放 when the check-in window opens an hour before
+    kick-off, 活动已开始 at kick-off, 已结束 at the end. Before any of that it has
+    nothing to say, so it renders empty and hidden rather than absent — the
+    script at the bottom of the page moves it on without a reload, and needs the
+    element to already be there. %>
+<% const status = isPast ? ['badge-secondary', '已结束']
+     : serverNow >= eventStartsAt ? ['badge-warning', '活动已开始']
+     : serverNow >= checkinOpensAt ? ['badge-success', '签到已开放']
+     : null; %>
+<div class="pb-2 mt-2 mb-4 border-bottom">
+  <h3 class="mb-0"><%= event.title %>
+    <span class="badge event-status <%= status ? status[0] : 'd-none' %>"
+          id="event-status"><%= status ? status[1] : '' %></span>
+    <%# 报名开放时间 — 20:00 on the Wednesday before the event. Until then the
+        event is administrators-only, so only an admin ever sees this badge, and
+        it says the moment the club will be let in rather than that they are
+        shut out. %>
+    <% if (signupNote) { %>
+      <span class="badge badge-warning"><i class="fas fa-clock mr-1" aria-hidden="true"></i><%= signupNote %></span>
+    <% } %>
+  </h3>
+</div>
+
+<% if (joinedWaitlist) { %>
+  <%# Raised by the ?joined=waitlist redirect from POST /event/:id/signup — the
+      event was full, so the signup was recorded as a waitlist one instead. %>
+  <div class="alert alert-warning" role="alert">
+    活动名额已满，你已加入<strong>候补名单</strong><% if (myPlace) { %>（第 <%= myPlace %> 位）<% } %>。
+    有人取消报名时会按报名先后自动补位。
+  </div>
+<% } %>
+
+<div class="row">
+  <div class="col-md-8">
+    <table class="table table-sm table-borderless">
+      <tr><th class="text-nowrap" style="width:6rem">时间</th><td><%= whenLabel %></td></tr>
+      <tr><th>地点</th><td><%= event.location %></td></tr>
+      <tr><th>说明</th><td><%= event.description %></td></tr>
+    </table>
+
+    <%# Non-null only once the event has ended — the fines aren't settled while
+        somebody can still turn up. It sits here rather than under the roster so
+        that on a phone (details → 罚款 → 名单 → 按钮) the tally of a finished
+        event is the first thing after its details. Both tiers always render;
+        an empty one says 无 rather than vanishing, so the panel is the same
+        shape every time and "nobody owes $10" is stated, not merely implied. %>
+    <% if (fines) { %>
+      <div class="event-fines mb-4">
+        <%# The copy button sits on the heading's line rather than under the
+            tiers: it acts on the whole panel, and a full-width button below the
+            note would read as another action of the event. Admin-only, and
+            absent when nobody owes anything — both are `fineCopyText` being
+            empty. %>
+        <div class="event-fines-head">
+          <span>罚款统计</span>
+          <% if (fineCopyText) { %>
+            <button class="btn btn-sm btn-outline-danger event-fine-copy" type="button"
+                    id="fine-copy-btn" data-copy="<%= fineCopyText %>">
+              <i class="fas fa-copy" aria-hidden="true"></i><span class="event-fine-copy-label">复制</span>
+            </button>
+          <% } %>
+        </div>
+        <% fines.forEach(f => { %>
+          <p class="event-fine-row">
+            <span class="event-fine-amount<%= f.amount >= 10 ? ' is-heavy' : '' %>">$<%= f.amount %></span>罚款名单：<span class="event-fine-names<%= f.names.length ? '' : ' is-empty' %>"><%= f.names.length ? f.names.join(', ') : '无' %></span>
+          </p>
+        <% }) %>
+        <p class="event-fine-note mb-0">
+          签到时间晚于开始时间即算迟到：迟到 5 分钟以内 $5，超过 5 分钟或未签到 $10。
+        </p>
+      </div>
+    <% } %>
+
+    <% if (!isPast && signedUp && event.coords) { %>
+      <div class="mb-4">
+        <% if (checkedIn) { %>
+          <span class="badge badge-success p-2">✓ 已到场签到<% if (myCheckinAt) { %> · <%= myCheckinAt %><% } %></span>
+        <% } else { %>
+          <div id="field-map" class="rounded border mb-2" style="height: 260px;"></div>
+          <div id="position-status" class="mb-3 text-muted">正在获取你的位置…</div>
+          <%# The button and the reason it is disabled sit on one row from `sm`
+              up and stack on a phone. Both halves are rewritten by the script on
+              every countdown tick and every position fix — what is rendered here
+              is only the state at page load, so the row never appears empty. %>
+          <%# Both halves are the state at page load only — `render()` rewrites
+              them within a tick — but they have to *start* right, or an event
+              already under way flashes a calm green button before turning amber. %>
+          <% const startedAtLoad = serverNow >= eventStartsAt; %>
+          <div class="checkin-action">
+            <button class="btn <%= startedAtLoad ? 'btn-warning' : 'btn-success' %> btn-checkin"
+                    id="checkin-btn" type="button" disabled>📍 到场签到</button>
+            <div class="checkin-hint<%= startedAtLoad ? ' is-urgent' : '' %>" id="checkin-hint">
+              <% if (startedAtLoad) { %>
+                活动已开始，请赶快到场签到。不签到均按缺席处理。
+              <% } else if (serverNow < checkinOpensAt) { %>
+                签到将在活动开始前 1 小时开放
+              <% } else { %>
+                正在获取你的位置…
+              <% } %>
+            </div>
+          </div>
+          <div id="checkin-msg" class="mt-2"></div>
+        <% } %>
+      </div>
+    <% } %>
+  </div>
+
+  <div class="col-md-4">
+    <%# 自动分队, above the roster: once a member is at the pitch, who they are
+        playing with matters more than who signed up, so it comes first. Only
+        somebody who has checked in sees it — an admin always does — and everyone
+        else gets the one-line reason rather than an unexplained gap. The teams
+        are named by mark alone (♠️ / ♥️ / ♣️ / ♦️ / 🪑), which is how they are
+        called out on the pitch; the label rides in `.sr-only` for a screen reader.
+        Which rows exist is the route's decision, not this template's: the playing
+        teams are always there (empty saying 无), the 板凳 row only once somebody
+        has actually overflowed onto it — a 试训Guest counts, which is why one
+        guest and no members still raises the bench. Guests arrive in `members`
+        too, already sorted last, marked only by `isGuest`. %>
+    <% if (teams) { %>
+      <%# 队伍数量 is per event (2/3/4) and decides both how many rows there are
+          and what they are called: the 板凳 exists only in the 3-team layout,
+          where the last team is the overflow rather than a side of its own.
+          A fifth mark means adding to this map *and* to db.js TEAM_COUNTS. %>
+      <% const TEAM_MARKS = ({
+           2: [{ mark: '♠️', label: '黑桃' }, { mark: '♥️', label: '红桃' }],
+           3: [{ mark: '♠️', label: '黑桃' }, { mark: '♥️', label: '红桃' },
+               { mark: '🪑', label: '板凳' }],
+           4: [{ mark: '♠️', label: '黑桃' }, { mark: '♥️', label: '红桃' },
+               { mark: '♣️', label: '梅花' }, { mark: '♦️', label: '方片' }]
+         })[event.teamCount] || []; %>
+      <%# 每队几人 is `event.teamSizes` — 已报名人数 + 试训人数 split 队伍数量
+          ways, **one number per team** because the split is rarely even (9 in
+          four teams is 3/2/2/2). Derived on every read, so it moves as members
+          sign up or guests are approved. The heading states the one number when
+          every team has the same, and the span (每队2-3人) when they do not; each
+          row then carries its own. %>
+      <% const sizes = event.teamSizes || [];
+         const low = sizes.length ? Math.min(...sizes) : 0;
+         const high = sizes.length ? Math.max(...sizes) : 0; %>
+      <div class="teams-block mb-4">
+        <div class="roster-head">分队<% if (sizes.length) { %>（每队<%= low === high ? low : low + '-' + high %>人）<% } %></div>
+        <ul class="teams">
+          <% teams.forEach(t => { %>
+            <% const m = TEAM_MARKS[t.no - 1] || { mark: String(t.no), label: t.no + ' 队' }; %>
+            <li class="team-row">
+              <%# The mark and the team's count are one unit, so the count can
+                  never wrap away from the team it belongs to. 目前几人/每队几人:
+                  the left half counts everybody standing in this team, a
+                  试训/Guest place included — it holds a place at the event the
+                  same way a member does. The right half is **this team's own**
+                  number out of `event.teamSizes`, not a figure shared by the
+                  rows, so the ones carrying the remainder read one higher. The
+                  last team (the overflow, which is uncapped) can legitimately
+                  read past its own, and any team can sit over it after members
+                  withdrew — nobody is ever re-allocated. %>
+              <span class="team-head">
+                <span class="team-mark" aria-hidden="true"><%= m.mark %></span>
+                <span class="sr-only"><%= m.label %></span>
+                <span class="team-count">（<%= t.members.length %><% if (sizes.length) { %>/<%= sizes[t.no - 1] %><% } %>人）：</span>
+              </span>
+              <%# One span per name rather than a joined string, so the viewer's
+                  own can be marked — it is the whole question they came with.
+                  The separator is written between the spans, on one line, or
+                  EJS's own newlines would land in front of every comma. %>
+              <span class="team-names<%= t.members.length ? '' : ' is-empty' %>"><% if (!t.members.length) { %>无<% } %><% t.members.forEach((tm, i) => { %><%= i ? ', ' : '' %><span class="team-name<%= tm.isMe ? ' is-me' : '' %><%= tm.isGuest ? ' is-guest' : '' %>"><%= tm.name %><% if (tm.isMe) { %><span class="sr-only">（你）</span><% } %></span><% }) %></span>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+    <% } else if (teamsLocked) { %>
+      <p class="teams-locked mb-4">签到后可查看分队</p>
+    <% } %>
+
+    <%# The roster is an avatar grid, like the production app: gravatar over the
+        member's name, wrapping to as many rows as it takes. A check-in shows as a
+        green ring plus a tick badge rather than its own row-level label. It sits
+        in the open, with no card around it — the border and its padding cost a
+        column of avatars in this narrow sidebar. %>
+    <%# The tooltip is where the timestamps live: the grid has room for a name and
+        nothing else, but every signup and check-in now carries its own time. %>
+    <%# The fine rides in the same tooltip: the badge on the avatar says how much
+        is owed, this says why — how late the member was, or that they never
+        checked in at all. %>
+    <% const rosterTitle = p => p.name
+         + (p.position ? ' · ' + p.position : '')
+         + (p.signedUpAt ? '\n报名：' + p.signedUpAt : '')
+         + (p.checkedInAt ? '\n签到：' + p.checkedInAt : '')
+         + (p.checkedInBy ? '\n代签到：' + p.checkedInBy : '')
+         + (p.fine ? '\n罚款：$' + p.fine + '（' + (p.lateLabel || '未签到') + '）' : ''); %>
+    <div class="roster-block mb-4">
+      <%# 已报名人数 and 试训人数 on one line, the 总人数 they add up to on the
+          next: `capacity` counts the two kinds of body together now, so the
+          members' number on its own would never say how much room is left.
+          剩余名额 is the one an arriving member is actually looking for, which
+          is why it is stated rather than left to be worked out. The 试训 half
+          only appears when there is one — most events have none. %>
+      <div class="roster-head">
+        <span class="roster-count">已报名人数：<%= participants.length %> 人<% if (confirmedGuests.length) { %> · 试训 <%= confirmedGuests.length %> 人<% } %></span>
+        <span class="roster-total">总人数 <%= placesTaken %> / <%= event.capacity %> · <% if (placesLeft) { %>剩余 <%= placesLeft %> 个名额<% } else { %>名额已满<% } %></span>
+      </div>
+      <% if (participants.length === 0) { %>
+        <p class="text-muted mb-0">还没有人报名</p>
+      <% } else { %>
+        <ul class="roster">
+          <%# A late check-in is *not* a green tick: the ring turns red and the
+              badge carries the fine as dollar signs — one for $5, two for $10 —
+              so the grid says at a glance who owes what. A member who simply
+              hasn't checked in keeps the plain avatar; they are only fined once
+              the event is over, and the 罚款 panel is where that is said. %>
+          <% participants.forEach(p => { %>
+            <% const late = p.checkedIn && p.fine; %>
+            <li class="roster-item" title="<%= rosterTitle(p) %>">
+              <span class="roster-avatar<%= late ? ' is-late' : p.checkedIn ? ' is-checked-in' : '' %>">
+                <img src="<%= p.avatar %>" alt="" width="48" height="48" loading="lazy">
+                <% if (late) { %>
+                  <span class="roster-fine" aria-hidden="true"><%= p.fine >= 10 ? '$$' : '$' %></span>
+                  <span class="sr-only">迟到签到，罚款 $<%= p.fine %></span>
+                <% } else if (p.checkedIn) { %>
+                  <i class="fas fa-check roster-tick" aria-hidden="true"></i>
+                  <span class="sr-only">已签到</span>
+                <% } %>
+                <%# 代签到: an admin checked this member in at the pitch. It rides
+                    *under* the avatar rather than in a corner of it, because the
+                    two corner slots are taken (the tick or the fine) and this one
+                    carries a name as well as a mark. In normal flow inside the
+                    48px `.roster-avatar`, so `max-width: 100%` is what caps the
+                    admin's name at the avatar's width and ellipsises the rest —
+                    the full name is in the tooltip. %>
+                <% if (p.checkedInBy) { %>
+                  <span class="roster-proxy" aria-hidden="true">
+                    <span class="roster-proxy-mark">代</span>
+                    <span class="roster-proxy-by"><%= p.checkedInBy %></span>
+                  </span>
+                  <span class="sr-only">由 <%= p.checkedInBy %> 代签到</span>
+                <% } %>
+              </span>
+              <span class="roster-name"><%= p.name %></span>
+            </li>
+          <% }) %>
+        </ul>
+        <% if (participants.some(p => p.checkedIn)) { %>
+          <p class="roster-legend mb-0">
+            <i class="fas fa-check" aria-hidden="true"></i> 已到场签到
+            <% if (participants.some(p => p.checkedIn && p.fine)) { %>
+              <span class="roster-legend-sep">·</span>
+              <span class="roster-fine-sample">$</span> 迟到罚款 $5
+              <span class="roster-legend-sep">·</span>
+              <span class="roster-fine-sample">$$</span> 迟到罚款 $10
+            <% } %>
+            <% if (participants.some(p => p.checkedInBy)) { %>
+              <span class="roster-legend-sep">·</span>
+              <span class="roster-proxy-mark">代</span> 管理员代签到
+            <% } %>
+          </p>
+        <% } %>
+      <% } %>
+    </div>
+
+    <%# The waitlist, in the order it will be served. Same grid as the roster
+        above so the two read as one list, but the avatars are dimmed and the
+        tick badge is replaced by the member's place in the queue. Rendered only
+        when somebody is actually waiting. %>
+    <% if (waitlist.length) { %>
+      <div class="roster-block roster-block-waitlist mb-4">
+        <div class="roster-head">候补名单：<%= waitlist.length %> 人</div>
+        <ul class="roster">
+          <% waitlist.forEach(p => { %>
+            <li class="roster-item" title="<%= rosterTitle(p) %>">
+              <span class="roster-avatar is-waitlisted">
+                <img src="<%= p.avatar %>" alt="" width="48" height="48" loading="lazy">
+                <span class="roster-queue"><%= p.place %></span>
+                <span class="sr-only">候补第 <%= p.place %> 位</span>
+              </span>
+              <span class="roster-name"><%= p.name %></span>
+            </li>
+          <% }) %>
+        </ul>
+        <p class="roster-legend mb-0">数字为候补顺序，有人取消报名时按此顺序自动补位。</p>
+      </div>
+    <% } %>
+
+    <%# 试训/Guest — who else is coming who has no account. **The list is public**
+        and sits right under the count: it is who is actually playing, the same
+        class of fact as the roster above. The head carries the count against the
+        cap, so 名额已满 is visible without opening a dialog.
+        Nobody here can act on it: only an admin adds a 试训/Guest, and only an
+        admin removes one — from the 添加/移出 dialog in the action stack below.
+        Rendered **only when there is something in it** — the same test the
+        waitlist above uses. An event with no 试训/Guest at all is the ordinary
+        case, and a heading over an empty list says nothing the 0 / 3 note in the
+        action stack does not already say. %>
+    <% if (guestList.length) { %>
+    <div class="roster-block guest-block mb-4">
+      <div class="roster-head">试训/Guest：<%= guestList.length %> / <%= maxGuests %></div>
+      <%# One row shape for both lists, so 名单 and 候补 read as one column. The
+          row carries **no** label of its own: the heading above it already says
+          which list this is, and repeating it on every row cost a third of the
+          width in a ~300px sidebar for nothing. %>
+      <% const guestRow = g => { %>
+        <li class="guest-item">
+          <span class="guest-name"><%= g.name %></span>
+          <span class="guest-type <%= g.isTrial ? 'is-trial' : 'is-guest' %>"><%= g.typeLabel %></span>
+          <%# A 试训/Guest can be queueing rather than playing: 总人数 counts them
+              like a member, so one added to a full event joins the same waitlist
+              and carries its place in it — numbered across both lists, so 候补 3
+              here and 3 on the roster grid are never two different people. %>
+          <% if (g.waitlisted && g.place) { %>
+            <span class="guest-queue">候补 <%= g.place %></span>
+          <% } %>
+          <span class="guest-meta">由 <%= g.requestedByName %> 提交</span>
+        </li>
+      <% }; %>
+
+      <%# Two lists, in the order they matter: who holds a place, and who is
+          queueing for one — a 试训/Guest added to a full event queues exactly as a
+          member's signup does, rather than overfilling the event. %>
+      <% if (confirmedGuests.length) { %>
+        <div class="guest-section-sm">
+          <div class="guest-sub-head is-approved">名单</div>
+          <ul class="guest-list">
+            <% confirmedGuests.forEach(guestRow) %>
+          </ul>
+        </div>
+      <% } %>
+
+      <% if (waitlistedGuests.length) { %>
+        <div class="guest-section-sm">
+          <div class="guest-sub-head">候补<span class="guest-sub-count">（<%= waitlistedGuests.length %>）</span></div>
+          <ul class="guest-list">
+            <% waitlistedGuests.forEach(guestRow) %>
+          </ul>
+        </div>
+      <% } %>
+    </div>
+    <% } %>
+  </div>
+</div>
+
+<%# One stacked list of actions, divider-separated: the member's own signup
+    button first, then the admin-only ones. It lives under the whole row, below
+    the roster, so the buttons are the last thing on the page in either layout.
+    Buttons go full-width on a phone. %>
+<div class="event-actions">
+  <% if (!isPast) { %>
+    <% if (signedUp) { %>
+      <%# Once you have checked in there is no 取消报名: the check-in is the record
+          that you turned up, and withdrawing would delete it along with your 分队
+          and your line in 罚款统计. The route refuses it too — this only decides
+          what renders. The note is then the whole row. %>
+      <div class="event-action">
+        <% if (!checkedIn) { %>
+          <form method="POST" action="/event/<%= event.id %>/withdraw">
+            <button class="btn btn-outline-danger btn-action" type="submit">取消报名</button>
+          </form>
+        <% } %>
+        <span class="text-success event-action-note">
+          ✓ 你已报名<% if (checkedIn) { %>，<% if (myCheckinAt) { %><%= myCheckinAt %> <% } %>已签到，不能取消报名<% } %>
+        </span>
+      </div>
+    <% } else if (waitlisted) { %>
+      <%# Leaving the waitlist is the same POST as leaving the roster — the route
+          deletes whichever kind of signup you hold. %>
+      <div class="event-action">
+        <form method="POST" action="/event/<%= event.id %>/withdraw">
+          <button class="btn btn-outline-danger btn-action" type="submit">退出候补</button>
+        </form>
+        <span class="text-warning event-action-note">⏳ 你在候补名单第 <%= myPlace %> 位</span>
+      </div>
+    <% } else if (!signupOpen) { %>
+      <%# 报名 has not opened yet — 20:00 on the Wednesday before the event —
+          so there is no button for anybody, an admin included: the window
+          before it is for arranging 试训, not for taking places ahead of the
+          club. The route refuses it too; this only decides what renders. %>
+      <div class="event-action">
+        <span class="event-action-note text-muted">⏳ <%= signupNote %>，届时全体会员可见并可报名</span>
+      </div>
+    <% } else if (full) { %>
+      <%# 名额已满 counts 试训 as well as members — 总人数 is one number for every
+          body coming — and the waitlist is one queue for both. %>
+      <div class="event-action">
+        <form method="POST" action="/event/<%= event.id %>/signup">
+          <button class="btn btn-warning btn-action" type="submit">加入候补名单</button>
+        </form>
+        <span class="event-action-note text-muted">名额已满，有人取消时自动补位</span>
+      </div>
+    <% } else { %>
+      <div class="event-action">
+        <form method="POST" action="/event/<%= event.id %>/signup">
+          <button class="btn btn-success btn-action" type="submit">报名</button>
+        </form>
+      </div>
+    <% } %>
+  <% } %>
+
+  <% if (isAdmin) { %>
+    <%# A finished event is a record: 编辑活动, 清空报名 and 删除活动 all disappear
+        once it has ended, so its roster and check-ins stay as they happened. The
+        routes behind them enforce it too — this only decides what renders. 复制
+        stays: copying a past event onto next week is the normal way the next one
+        is made, and it writes a *new* event rather than touching this one. %>
+    <%# 代签到 comes first of the admin actions: it is the one that belongs to the
+        event as it happens, rather than to managing the record of it. It appears
+        **only once the check-in window is open** — it is done standing at the
+        pitch, so before then there is nothing an admin could be doing with it —
+        and disappears again once everybody has arrived. `d-none` rather than
+        absent when the window has not opened yet: the row is already in the DOM
+        so the block's own script can reveal it at that instant, without a reload. %>
+    <% if (proxyTargets.length) { %>
+      <div class="event-action<%= proxyOpenAtLoad ? '' : ' d-none' %>" id="proxy-action">
+        <button class="btn btn-brand btn-action" type="button"
+                data-toggle="modal" data-target="#proxy-checkin-modal">
+          <i class="fas fa-user-check mr-1" aria-hidden="true"></i>代签到
+        </button>
+        <span class="event-action-note text-muted">
+          还有 <%= proxyTargets.length %> 人未签到
+        </span>
+      </div>
+    <% } %>
+
+    <% if (!isPast) { %>
+      <%# 添加/移出 试训/Guest — the **only** way one gets onto this event or off
+          it: a member cannot ask for a place, so both halves are the admin's and
+          the label names them. It belongs with 代签到 rather than with the
+          record-management buttons below: both are about the event as it is
+          happening. Frozen with the rest once the event has ended. %>
+      <div class="event-action">
+        <button class="btn btn-brand btn-action" type="button"
+                data-toggle="modal" data-target="#guest-review-modal">
+          <i class="fas fa-user-friends mr-1" aria-hidden="true"></i>添加/移出 试训/Guest
+        </button>
+        <span class="event-action-note text-muted">
+          试训/Guest <%= guestList.length %> / <%= maxGuests %><% if (waitlistedGuests.length) { %>（候补 <%= waitlistedGuests.length %>）<% } %> · <% if (placesLeft) { %>剩余 <%= placesLeft %> 个名额<% } else { %>总人数已满<% } %>
+        </span>
+      </div>
+    <% } %>
+
+    <% if (!isPast) { %>
+      <%# Both open the one event modal; `data-event-modal` tells it whether to PUT
+          this event or POST a copy of it (prefilled, dated a week on). %>
+      <div class="event-action">
+        <button class="btn btn-brand btn-action" type="button"
+                data-event-modal="edit" data-toggle="modal" data-target="#event-modal">
+          <i class="fas fa-pen mr-1" aria-hidden="true"></i>编辑活动
+        </button>
+      </div>
+      <div class="event-action">
+        <form method="POST" action="/event/<%= event.id %>/clear-signups"
+              onsubmit="return confirm('确定清空本次活动的全部报名和签到吗？此操作无法撤销。');">
+          <button class="btn btn-danger btn-action" type="submit">
+            <i class="fas fa-trash mr-1" aria-hidden="true"></i>清空报名
+          </button>
+        </form>
+      </div>
+    <% } %>
+    <div class="event-action">
+      <button class="btn btn-brand btn-action" type="button"
+              data-event-modal="copy" data-toggle="modal" data-target="#event-modal">
+        <i class="fas fa-plus mr-1" aria-hidden="true"></i>复制
+      </button>
+    </div>
+    <% if (!isPast) { %>
+      <%# Deleting takes the roster with it, so it is confirmed in a modal rather
+          than the inline confirm() 清空报名 uses: on a phone a native dialog is a
+          one-line question with no room to spell out what is lost. The modal *is*
+          the confirmation — its 确认删除 button submits the form it contains, so
+          no arming step and no script. %>
+      <div class="event-action">
+        <button class="btn btn-outline-danger btn-action" type="button"
+                data-toggle="modal" data-target="#delete-event-modal">
+          <i class="fas fa-trash mr-1" aria-hidden="true"></i>删除活动
+        </button>
+      </div>
+    <% } %>
+  <% } %>
+</div>
+
+<% if (isAdmin) { %>
+  <%# Still included on a finished event: 复制 opens it in `copy` mode, which POSTs
+      a new event. Nothing opens it in `edit` mode there, since that button is gone. %>
+  <%- include('partials/event-modal', { formEvent: event, defaultDate: event.date }) %>
+<% } %>
+
+<% if (isAdmin && !isPast) { %>
+  <div class="modal fade" id="delete-event-modal" tabindex="-1" role="dialog"
+       aria-labelledby="delete-event-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="delete-event-title">删除活动</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="关闭">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-2">确定删除活动<strong>「<%= event.title %>」</strong>（<%= whenLabel %>）吗？</p>
+          <div class="alert alert-danger mb-0" role="alert">
+            该活动的全部报名、候补名单和签到记录都会一并删除，此操作无法撤销。
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+          <%# Admin-only route: requireAdmin re-reads the role, the `isAdmin`
+              local above only decides what renders. %>
+          <form method="POST" action="/event/<%= event.id %>/delete">
+            <button class="btn btn-danger" type="submit">确认删除</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+<% } %>
+
+<%# 添加/移出 试训/Guest. Two actions on one list — 添加 a guest outright and 移出
+    one — and both change the list and how many places are left at once. Rather
+    than moving a row by hand, each action answers with the event's **whole**
+    refreshed guest payload and the dialog redraws from it: one renderer,
+    `render()`, exactly like the check-in button and the 代签到 status line.
+
+    That is also why the list is built in script from `data-guests` rather than
+    rendered as EJS and then patched — two renderers of the same list is how they
+    come to disagree. Nothing here works without script anyway.
+
+    移出 is confirmed by **arming** the button rather than by a nested modal: a
+    second Bootstrap dialog over this one traps focus badly on a phone, and this
+    is the same treatment 删除用户 gets in the user modal. The warning says the
+    thing an admin needs to know — the row is deleted, not parked anywhere. %>
+<% if (isAdmin && !isPast) { %>
+  <div class="modal fade" id="guest-review-modal" tabindex="-1" role="dialog"
+       aria-labelledby="guest-review-title" aria-hidden="true"
+       data-guests="<%= JSON.stringify({
+         guests: guestList,
+         max: maxGuests,
+         full: guestList.length >= maxGuests,
+         placesLeft: placesLeft
+       }) %>">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="guest-review-title">添加/移出 试训/Guest</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="关闭">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div id="guest-review-msg"></div>
+
+          <div class="guest-section">
+            <div class="guest-section-head">
+              名单<span class="guest-section-count" id="guest-list-count"></span>
+            </div>
+            <ul class="guest-review-list" id="guest-list"></ul>
+          </div>
+
+          <%# 直接添加 — the only way in, so the admin is always the 添加人. 申请人
+              is the one thing they are asked: a guest an admin adds is usually
+              still coming through some member, and 由 X 提交 is what the sidebar
+              and this list show — so it is a picker over the club, defaulting to
+              the admin themselves. Deliberately not a <form>: it lives inside the
+              dialog's body and a submit would navigate away from it. %>
+          <div class="guest-section guest-add">
+            <div class="guest-section-head">直接添加</div>
+            <div class="form-group field-inline-sm">
+              <label for="guest-add-type">类型</label>
+              <select class="form-control" id="guest-add-type">
+                <% guestTypes.forEach(t => { %>
+                  <option value="<%= t.value %>"><%= t.label %></option>
+                <% }) %>
+              </select>
+            </div>
+            <div class="form-group field-inline-sm">
+              <label for="guest-add-name">姓名</label>
+              <input class="form-control" id="guest-add-name" type="text"
+                     maxlength="40" placeholder="试训/Guest 的姓名">
+            </div>
+            <%# `selected` in the markup, not from script — the default is the
+                signed-in admin, and nothing else ever moves it. %>
+            <div class="form-group field-inline-sm">
+              <label for="guest-add-by">申请人</label>
+              <select class="form-control" id="guest-add-by">
+                <% members.forEach(m => { %>
+                  <option value="<%= m.email %>"<%= m.email === user.email ? ' selected' : '' %>><%= m.name %></option>
+                <% }) %>
+              </select>
+            </div>
+            <button class="btn btn-brand btn-block" type="button" id="guest-add-btn">添加</button>
+            <p class="guest-add-hint" id="guest-add-hint"></p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modalEl = document.getElementById('guest-review-modal');
+      if (!modalEl) return;
+      var EVENT_ID = '<%= event.id %>';
+      var msgEl = document.getElementById('guest-review-msg');
+      var listEl = document.getElementById('guest-list');
+      var listCount = document.getElementById('guest-list-count');
+      var addType = document.getElementById('guest-add-type');
+      var addName = document.getElementById('guest-add-name');
+      var addBy = document.getElementById('guest-add-by');
+      var addBtn = document.getElementById('guest-add-btn');
+      var addHint = document.getElementById('guest-add-hint');
+
+      // The server's render of the same payload every action answers with, so
+      // the first paint and every redraw after it go through one code path.
+      var state = JSON.parse(modalEl.getAttribute('data-guests'));
+      var busy = false;    // a request is in flight; every button is disabled
+      var armed = null;    // id of the 移出 currently asking for a second tap
+      var changed = false; // something was written; the page reloads on close
+
+      function say(kind, text) {
+        if (!text) { msgEl.innerHTML = ''; return; }
+        msgEl.innerHTML = '';
+        var box = document.createElement('div');
+        box.className = 'alert alert-' + kind + ' py-2';
+        box.textContent = text;
+        msgEl.appendChild(box);
+      }
+
+      // Every list row. Built with textContent rather than a string of HTML: a
+      // guest's name is text somebody typed.
+      function row(g) {
+        var li = document.createElement('li');
+        li.className = 'guest-review-item';
+
+        var body = document.createElement('div');
+        body.className = 'guest-review-body';
+        var head = document.createElement('div');
+        head.className = 'guest-review-name';
+        var name = document.createElement('span');
+        name.className = 'guest-name';
+        name.textContent = g.name;
+        var type = document.createElement('span');
+        type.className = 'guest-type ' + (g.isTrial ? 'is-trial' : 'is-guest');
+        type.textContent = g.typeLabel;
+        head.appendChild(name);
+        head.appendChild(type);
+        // A row that is queueing rather than playing: 总人数 counts a 试训 like a
+        // member, so one added to a full event waits in the same queue and
+        // carries its place in it.
+        if (g.waitlisted && g.place) {
+          var queue = document.createElement('span');
+          queue.className = 'guest-queue';
+          queue.textContent = '候补 ' + g.place;
+          head.appendChild(queue);
+        }
+        var meta = document.createElement('div');
+        meta.className = 'guest-review-meta';
+        meta.textContent = '由 ' + g.requestedByName + ' 提交 · '
+          + (g.addedByName ? g.addedByName + ' 添加于 ' + g.addedAt : g.requestedAt);
+        body.appendChild(head);
+        body.appendChild(meta);
+
+        var isArmed = armed === g.id;
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'btn btn-sm guest-review-btn '
+          + (isArmed ? 'btn-danger' : 'btn-outline-danger');
+        btn.textContent = isArmed ? '确认移出' : '移出';
+        // Never disabled by the cap: 移出 is what frees a place when it is full.
+        btn.disabled = busy;
+        btn.addEventListener('click', function () {
+          if (busy) return;
+          if (armed === g.id) {
+            return post('/api/events/' + EVENT_ID + '/guests/' + g.id + '/remove', null,
+              '已移出「' + g.name + '」');
+          }
+          // First tap only arms it — and arming a second row disarms the first,
+          // since `armed` holds one id and the whole list is redrawn from it.
+          armed = g.id;
+          render();
+        });
+
+        li.appendChild(body);
+        li.appendChild(btn);
+        if (isArmed) {
+          var warn = document.createElement('p');
+          warn.className = 'guest-review-warn';
+          warn.textContent = '移出后「' + g.name + '」会被删除，名额释放给候补，'
+            + '需要时请重新添加。再点一次确认。';
+          li.appendChild(warn);
+        }
+        return li;
+      }
+
+      // The only thing that writes the list, the count or the disabled states —
+      // so what the dialog shows can never disagree with `state`.
+      function render() {
+        listCount.textContent = '：' + state.guests.length + ' / ' + state.max;
+        listEl.innerHTML = '';
+        if (!state.guests.length) {
+          var li = document.createElement('li');
+          li.className = 'guest-review-empty';
+          li.textContent = '本次活动还没有试训/Guest';
+          listEl.appendChild(li);
+        } else {
+          state.guests.forEach(function (g) { listEl.appendChild(row(g)); });
+        }
+        addBtn.disabled = busy || state.full;
+        // Two different "满" — the 试训/Guest cap, which blocks the button, and
+        // the event's own 总人数, which does not: a guest added to a full event
+        // is still recorded, as a place in the waitlist. Saying which one it is
+        // is the whole point of the line.
+        addHint.textContent = state.full
+          ? '名额已满（最多 ' + state.max + ' 位），请先移出一位再添加'
+          : state.placesLeft > 0
+            ? '添加的试训/Guest 立即占用名额（剩余 ' + state.placesLeft
+              + ' 个），记录为由所选申请人提交、由你添加。'
+            : '活动总人数已满：现在添加的试训/Guest 会进入候补名单，按时间顺序自动补位。';
+      }
+
+      function post(url, body, okMessage) {
+        busy = true;
+        render();
+        fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body || {})
+        }).then(function (r) {
+          return r.json().then(function (data) {
+            if (data.ok) {
+              // The whole payload, re-read by the server after the write — so
+              // the dialog shows what the next admin to open it would see.
+              state = data.guests;
+              armed = null;
+              changed = true;
+              say('success', okMessage);
+            } else {
+              say('danger', data.message || '操作失败');
+            }
+          });
+        }).catch(function () {
+          say('danger', '网络错误，请重试');
+        }).then(function () {
+          busy = false;
+          render();
+        });
+      }
+
+      addBtn.addEventListener('click', function () {
+        if (busy) return;
+        var name = addName.value.trim();
+        if (!name) {
+          say('danger', '请填写试训/Guest 的姓名');
+          addName.focus();
+          return;
+        }
+        post(
+          '/api/events/' + EVENT_ID + '/guests',
+          // `requestedBy` is 申请人 — who the guest is coming through. Empty (an
+          // event with no member list to pick from) means the admin themselves,
+          // which is what the server falls back to.
+          { type: addType.value, name: name, requestedBy: addBy ? addBy.value : '' },
+          '已添加「' + name + '」'
+        );
+        addName.value = '';
+      });
+
+      render();
+
+      // Bootstrap's modal events are jQuery ones and jQuery loads in the footer,
+      // so the binding waits for window load — same as the 代签到 dialog.
+      window.addEventListener('load', function () {
+        if (!window.jQuery) return;
+        window.jQuery(modalEl)
+          .on('shown.bs.modal', function () {
+            say('', '');
+            armed = null;
+            render();
+          })
+          .on('hidden.bs.modal', function () {
+            // The sidebar's 试训/Guest block, the action-stack counts and the
+            // 分队 behind the dialog are all stale now; one fresh server render
+            // is simpler and more honest than patching them.
+            if (changed) location.reload();
+          });
+      });
+    })();
+  </script>
+<% } %>
+
+<%# 代签到. The dialog carries its own geolocation rather than borrowing the
+    check-in button's: that script exists only for a signed-up member who still
+    has to arrive, and an admin doing this may well have checked in already, or
+    not be playing at all. The watch runs only while the dialog is open.
+    There is no map — the distance readout is what the admin needs, and a second
+    Leaflet map inside a modal costs a `shown.bs.modal` invalidateSize dance for
+    nothing. %>
+<% if (proxyTargets.length) { %>
+  <div class="modal fade" id="proxy-checkin-modal" tabindex="-1" role="dialog"
+       aria-labelledby="proxy-checkin-title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="proxy-checkin-title">代签到</h5>
+          <button class="close" type="button" data-dismiss="modal" aria-label="关闭">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="proxy-note">
+            为无法自己签到的成员签到。签到位置以<strong>你当前的位置</strong>为准，
+            记录中会注明由你代签，迟到罚款照常计算。
+          </p>
+          <div class="form-group field-inline-sm">
+            <label for="proxy-member">未签到成员</label>
+            <select class="form-control" id="proxy-member">
+              <% proxyTargets.forEach(p => { %>
+                <option value="<%= p.email %>"><%= p.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div id="proxy-status" class="proxy-status">正在获取你的位置…</div>
+          <div id="proxy-msg" class="mt-2"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">关闭</button>
+          <button class="btn btn-success" type="button" id="proxy-submit" disabled>签到</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      var modalEl = document.getElementById('proxy-checkin-modal');
+      var select = document.getElementById('proxy-member');
+      var statusEl = document.getElementById('proxy-status');
+      var msgEl = document.getElementById('proxy-msg');
+      var btn = document.getElementById('proxy-submit');
+
+      var FIELD = { lat: <%= event.coords.lat %>, lng: <%= event.coords.lng %> };
+      var RADIUS = <%= event.checkinRadius %>;
+      // The same three instants the member's own button is gated on, compared
+      // against the server's clock and not the phone's — an admin whose phone
+      // runs fast must not be offered a button the route will refuse.
+      var OPENS_AT = <%= checkinOpensAt %>;
+      var CLOSES_AT = <%= checkinClosesAt %>;
+      var SKEW = <%= serverNow %> - Date.now();
+
+      var pos = null;         // newest fix, null until one lands
+      var locError = '';      // set when there will be no fix at all
+      var watchId = null;
+      var ticker = null;      // 1s while the dialog is open: the window can open
+                              // or close with it sitting there
+      var sending = false;
+      var didCheckIn = false; // something changed; the page is reloaded on close
+
+      function now() { return Date.now() + SKEW; }
+
+      function distanceMeters(lat1, lng1, lat2, lng2) {
+        var R = 6371000, toRad = function (d) { return d * Math.PI / 180; };
+        var dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+        var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+          + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        return 2 * R * Math.asin(Math.sqrt(a));
+      }
+
+      function state(text, cls, ready) {
+        statusEl.className = 'proxy-status ' + cls;
+        statusEl.textContent = text;
+        btn.disabled = !ready;
+      }
+
+      // The only thing that writes the status line or the button's disabled
+      // state, exactly like `render()` on the check-in button below.
+      function render() {
+        if (sending) return;
+        if (!select.options.length) return state('所有报名成员都已签到', 'is-muted', false);
+        var t = now();
+        if (isFinite(CLOSES_AT) && t >= CLOSES_AT) return state('活动已结束，签到已关闭', 'is-muted', false);
+        if (isFinite(OPENS_AT) && t < OPENS_AT) return state('签到将在活动开始前 1 小时开放', 'is-muted', false);
+        if (locError) return state(locError, 'is-error', false);
+        if (!pos) return state('正在获取你的位置…', 'is-muted', false);
+        var d = Math.round(distanceMeters(pos.coords.latitude, pos.coords.longitude, FIELD.lat, FIELD.lng));
+        if (d > RADIUS) {
+          return state('你距签到点 ' + d + ' 米，需进入 ' + RADIUS + ' 米范围内才能代签到', 'is-error', false);
+        }
+        state('✓ 你在签到范围内（距中心 ' + d + ' 米）', 'is-ready', true);
+      }
+
+      function onPosition(p) { pos = p; locError = ''; render(); }
+
+      function onPositionError(err) {
+        // Only fatal while nothing has arrived: a dropped fix mid-dialog leaves
+        // the last known position alone rather than pulling the button.
+        if (!pos) {
+          locError = '无法获取位置：' + err.message;
+          render();
+        }
+      }
+
+      var GEO_OPTS = { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 };
+
+      function startWatch() {
+        if (!navigator.geolocation) {
+          locError = '当前浏览器不支持定位，无法代签到';
+          return;
+        }
+        if (watchId === null) {
+          watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, GEO_OPTS);
+        }
+        // A fix straight away as well: the watch's first delivery can be seconds
+        // out, and the dialog is opened to be used now.
+        navigator.geolocation.getCurrentPosition(onPosition, function () {}, {
+          enableHighAccuracy: true, timeout: 15000, maximumAge: 0
+        });
+      }
+
+      function stopWatch() {
+        if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+      }
+
+      btn.addEventListener('click', function () {
+        var option = select.options[select.selectedIndex];
+        if (!option || !pos || btn.disabled) return;
+        sending = true;
+        btn.disabled = true;
+        btn.textContent = '签到中…';
+        fetch('/event/<%= event.id %>/checkin-for', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: option.value,
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude
+          })
+        }).then(function (r) {
+          return r.json().then(function (data) {
+            msgEl.innerHTML = '<div class="alert alert-' + (data.ok ? 'success' : 'danger')
+              + ' py-2 mb-0">' + (data.ok ? option.text + '：' : '') + data.message + '</div>';
+            if (data.ok) {
+              // Stay open, minus the member just done: an admin at the pitch is
+              // usually checking in several people, and reloading between each
+              // would mean reopening the dialog every time. The roster on the
+              // page behind is stale from here, so closing reloads it.
+              didCheckIn = true;
+              option.remove();
+            }
+            sending = false;
+            btn.textContent = '签到';
+            render();
+          });
+        }).catch(function () {
+          msgEl.innerHTML = '<div class="alert alert-danger py-2 mb-0">网络错误，请重试</div>';
+          sending = false;
+          btn.textContent = '签到';
+          render();
+        });
+      });
+
+      // Bootstrap's modal events are jQuery ones and jQuery loads in the footer,
+      // so the binding waits for window load — same as the event modal's map.
+      window.addEventListener('load', function () {
+        if (!window.jQuery) return;
+        window.jQuery(modalEl)
+          .on('shown.bs.modal', function () {
+            msgEl.innerHTML = '';
+            startWatch();
+            render();
+            if (!ticker) ticker = setInterval(render, 1000);
+          })
+          .on('hidden.bs.modal', function () {
+            stopWatch();
+            if (ticker) { clearInterval(ticker); ticker = null; }
+            // The roster, the counts and the 未签到 note behind the dialog are
+            // all out of date now; one fresh server render is simpler and more
+            // honest than patching them.
+            if (didCheckIn) location.reload();
+          });
+      });
+
+      // 代签到 only exists once the check-in window is open, and the window can
+      // open while the page sits there — so the row is rendered `d-none` and
+      // revealed at OPENS_AT rather than making the admin reload. One timeout
+      // aimed at that instant, like the status badge's, clamped because
+      // setTimeout overflows past ~24.8 days; and re-read on every way the page
+      // can come back in front of the admin, since a backgrounded phone may
+      // never fire it. Measured against the server's clock, not the phone's.
+      (function () {
+        var row = document.getElementById('proxy-action');
+        if (!row) return;
+        var timer = null;
+        function apply() {
+          if (timer) { clearTimeout(timer); timer = null; }
+          var left = OPENS_AT - now();
+          if (!isFinite(OPENS_AT) || left <= 0) return row.classList.remove('d-none');
+          row.classList.add('d-none');
+          timer = setTimeout(apply, Math.min(left + 250, 2147483647));
+        }
+        apply();
+        document.addEventListener('visibilitychange', apply);
+        window.addEventListener('pageshow', apply);
+        window.addEventListener('focus', apply);
+      })();
+    })();
+  </script>
+<% } %>
+
+<%# 罚款统计 的复制按钮 — admin-only, via the same empty `fineCopyText` that
+    decides whether the button exists at all. The text is already on the button
+    as `data-copy`, so this only has to hand it to the clipboard and say that it did. `navigator.clipboard`
+    needs a secure context (which the check-in already requires) and can still be
+    refused by permission, so a hidden-textarea `execCommand` fallback stands
+    behind it — on a phone that means the paste keeps working over plain http on
+    the LAN, where the clipboard API is simply absent. %>
+<% if (fineCopyText) { %>
+<script>
+  (function () {
+    var btn = document.getElementById('fine-copy-btn');
+    if (!btn) return;
+    var label = btn.querySelector('.event-fine-copy-label');
+    var icon = btn.querySelector('i');
+    var revert = null;
+
+    function done(ok) {
+      // One state change, both halves of the button at once, so the icon and the
+      // word can never disagree. It falls back after 2s rather than staying, as
+      // the panel is copied again whenever the list is edited.
+      icon.className = ok ? 'fas fa-check' : 'fas fa-times';
+      label.textContent = ok ? '已复制' : '复制失败';
+      btn.classList.toggle('is-copied', ok);
+      if (revert) clearTimeout(revert);
+      revert = setTimeout(function () {
+        revert = null;
+        icon.className = 'fas fa-copy';
+        label.textContent = '复制';
+        btn.classList.remove('is-copied');
+      }, 2000);
+    }
+
+    // Pre-clipboard-API path, and the one that survives an insecure origin: a
+    // textarea off-screen (not `display:none`, which cannot be selected) is
+    // selected and copied, then removed.
+    function legacyCopy(text) {
+      var ta = document.createElement('textarea');
+      ta.value = text;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    btn.addEventListener('click', function () {
+      var text = btn.getAttribute('data-copy');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text)
+          .then(function () { done(true); })
+          .catch(function () { done(legacyCopy(text)); });
+        return;
+      }
+      done(legacyCopy(text));
+    });
+  })();
+</script>
+<% } %>
+
+<%# The status badge moves on its own, and it belongs to everybody looking at the
+    page — a member who has already checked in, one who never signed up, an admin
+    — so it gets its own script rather than riding on the check-in one, which
+    only exists for a signed-up member who still has to arrive. Skipped entirely
+    on a finished event (nothing left to change) and on a malformed one, where
+    the server's badge is the best answer there is. %>
+<% if (!isPast && isFinite(checkinOpensAt) && isFinite(eventStartsAt) && isFinite(checkinClosesAt)) { %>
+<script>
+  (function () {
+    var el = document.getElementById('event-status');
+    if (!el) return;
+    var OPENS_AT = <%= checkinOpensAt %>;
+    var STARTS_AT = <%= eventStartsAt %>;
+    var CLOSES_AT = <%= checkinClosesAt %>;
+    // Same correction the check-in button uses: the server's clock, not the
+    // phone's, decides which state the event is in.
+    var SKEW = <%= serverNow %> - Date.now();
+    var timer = null;
+
+    function now() { return Date.now() + SKEW; }
+
+    function apply() {
+      var t = now();
+      var state = t >= CLOSES_AT ? ['badge-secondary', '已结束']
+        : t >= STARTS_AT ? ['badge-warning', '活动已开始']
+        : t >= OPENS_AT ? ['badge-success', '签到已开放']
+        : null;
+      el.className = 'badge event-status ' + (state ? state[0] : 'd-none');
+      el.textContent = state ? state[1] : '';
+      // One timeout aimed at the next transition rather than a ticking interval:
+      // the badge changes three times in an event's life, not once a second.
+      // `setTimeout` overflows past ~24.8 days, so a distant event is woken
+      // early, re-reads the clock and simply re-arms.
+      if (timer) { clearTimeout(timer); timer = null; }
+      var next = [OPENS_AT, STARTS_AT, CLOSES_AT].filter(function (x) { return x > t; })[0];
+      if (next === undefined) return;
+      timer = setTimeout(apply, Math.min(next - t + 250, 2147483647));
+    }
+
+    apply();
+    // A backgrounded phone may never fire that timeout, so every way the page
+    // can come back in front of the member re-reads the clock — the same reason
+    // the check-in button resyncs.
+    document.addEventListener('visibilitychange', apply);
+    window.addEventListener('pageshow', apply);
+    window.addEventListener('focus', apply);
+  })();
+</script>
+<% } %>
+
+<% if (signedUp && !checkedIn && !isPast && event.coords) { %>
+<script>
+  (function () {
+    var FIELD = { lat: <%= event.coords.lat %>, lng: <%= event.coords.lng %> };
+    var RADIUS = <%= event.checkinRadius %>;
+    var btn = document.getElementById('checkin-btn');
+    var msg = document.getElementById('checkin-msg');
+    var status = document.getElementById('position-status');
+    var hint = document.getElementById('checkin-hint');
+    var lastPos = null;
+    var lastFixAt = 0;      // when that fix landed, on the corrected clock
+    var watchId = null;     // the live watchPosition registration, if any
+    var userMarker = null;
+    var accuracyCircle = null;
+
+    // The gates on the button: the check-in window opens an hour before kick-off
+    // and closes when the event ends, and the member has to be inside the
+    // field's radius. `OPENS_AT`/`CLOSES_AT` are the same absolute instants the
+    // route checks, and the clock they are compared against is the server's — a
+    // phone running a few minutes fast would otherwise enable a button the route
+    // refuses. Either may be NaN if the stored time is malformed, which every
+    // comparison below falls back through to distance alone.
+    // `STARTS_AT` gates nothing — check-in stays open past kick-off — but it is
+    // where the countdown ends and the button turns urgent.
+    var OPENS_AT = <%= checkinOpensAt %>;
+    var STARTS_AT = <%= eventStartsAt %>;
+    var CLOSES_AT = <%= checkinClosesAt %>;
+    var SKEW = <%= serverNow %> - Date.now();
+    var LABEL = '📍 到场签到';
+    var inside = null;      // null until the first position fix lands
+    var locError = '';      // set when there will be no fix at all
+    var submitting = false; // a POST is in flight; the ticker must not undo it
+    var ticker = null;      // 1s countdown, alive only until the window opens
+    var closeTimer = null;  // one-shot, fires when the window closes
+
+    function now() { return Date.now() + SKEW; }
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    // The countdown is driven by a self-rescheduling timeout, not setInterval:
+    // each tick aims at the next whole second of the *corrected* clock and reads
+    // the time afresh, so a phone that froze the page for ten minutes in the
+    // background resumes on the right second instead of resuming ten minutes'
+    // worth of missed ticks behind. (Chrome on Android throttles background
+    // timers to roughly one a minute, and stops them altogether once the tab has
+    // been hidden for a few minutes — which is exactly the lag being fixed.)
+    function stopTicker() {
+      if (ticker) { clearTimeout(ticker); ticker = null; }
+    }
+
+    function tick() {
+      ticker = null;
+      render();
+      startTicker();
+    }
+
+    // The ticker now runs through *two* countdowns without a break — down to the
+    // window opening, then down to kick-off — so its life is bounded by
+    // STARTS_AT, not OPENS_AT. After kick-off there is nothing left to count:
+    // the hint is a fixed sentence and position fixes drive the rest.
+    function startTicker() {
+      if (ticker || !(now() < STARTS_AT)) return;
+      ticker = setTimeout(tick, 1000 - (now() % 1000));
+    }
+
+    // Once the window is open the countdown has nothing left to do, but the
+    // *close* is still ahead: this is what takes the button away the moment the
+    // event ends, rather than leaving one the route answers 400 to.
+    function armCloseTimer() {
+      if (closeTimer || !isFinite(CLOSES_AT)) return;
+      var left = CLOSES_AT - now();
+      if (left <= 0) return;
+      closeTimer = setTimeout(function () { closeTimer = null; render(); }, left + 250);
+    }
+
+    function countdown(ms) {
+      var total = Math.max(0, Math.ceil(ms / 1000));
+      var hms = pad(Math.floor(total / 3600) % 24) + ':'
+        + pad(Math.floor(total / 60) % 60) + ':' + pad(total % 60);
+      var days = Math.floor(total / 86400);
+      return days ? days + ' 天 ' + hms : hms;
+    }
+
+    // Kick-off has passed and the member still isn't checked in: the button
+    // stops being a calm green affordance and becomes a warning — amber, and
+    // (once it is actually usable) pulsing 50% faster. Colour and pulse are one
+    // switch so the two can't disagree.
+    function setUrgent(on) {
+      btn.classList.toggle('btn-success', !on);
+      btn.classList.toggle('btn-warning', on);
+      btn.classList.toggle('is-urgent', on);
+    }
+
+    // Single source of truth for the button: called on every tick, every
+    // position fix and after a failed submit, never from two places at once.
+    function render() {
+      if (submitting) return;
+      var t = now();
+      if (isFinite(CLOSES_AT) && t >= CLOSES_AT) {
+        stopTicker();
+        setUrgent(false);
+        btn.disabled = true;
+        btn.classList.remove('is-ready');
+        hint.className = 'checkin-hint text-muted';
+        hint.textContent = '活动已结束，签到已关闭';
+        return;
+      }
+      var left = OPENS_AT - t;
+      if (left > 0) {
+        setUrgent(false);
+        btn.disabled = true;
+        btn.classList.remove('is-ready');
+        hint.className = 'checkin-hint';
+        hint.innerHTML = '签到将在活动开始前 1 小时开放 · 还有 '
+          + '<span class="checkin-countdown">' + countdown(left) + '</span>';
+        return;
+      }
+      // The window is open. The countdown doesn't stop here — it switches to
+      // counting down to kick-off, and *that* is where it ends: past kick-off
+      // the hint is a fixed sentence and position fixes drive the rest.
+      armCloseTimer();
+      var toStart = STARTS_AT - t;
+      var started = isFinite(STARTS_AT) && t >= STARTS_AT;
+      if (started) stopTicker();
+      setUrgent(started);
+      if (locError) {
+        btn.disabled = true;
+        btn.classList.remove('is-ready');
+        hint.className = 'checkin-hint text-danger';
+        hint.textContent = locError;
+        return;
+      }
+      var ready = inside === true;
+      btn.disabled = !ready;
+      btn.classList.toggle('is-ready', ready);
+      if (started) {
+        // Deliberately the same sentence whether or not the member is inside the
+        // circle: "请赶快到场签到" covers both, and the enabled amber button is
+        // the signal that they can act on it right now.
+        hint.className = 'checkin-hint is-urgent';
+        hint.textContent = '活动已开始，请赶快到场签到。不签到均按缺席处理。';
+        return;
+      }
+      // Empty for a malformed start time, which is the same fallback every other
+      // gate takes — no countdown rather than a line reading NaN.
+      var toKickoff = isFinite(toStart) && toStart > 0
+        ? ' · 距活动开始 <span class="checkin-countdown">' + countdown(toStart) + '</span>'
+        : '';
+      hint.className = 'checkin-hint' + (ready ? ' is-ready' : '');
+      hint.innerHTML = (ready ? '✓ 你已到达球场，现在可以签到'
+        : inside === null ? '正在获取你的位置…'
+        : '到达球场后即可签到') + toKickoff;
+    }
+
+    var map = L.map('field-map').setView([FIELD.lat, FIELD.lng], 17);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    L.marker([FIELD.lat, FIELD.lng]).addTo(map).bindPopup('⚽ 球场签到点');
+    var boundary = L.circle([FIELD.lat, FIELD.lng], {
+      radius: RADIUS, color: '#28a745', fillColor: '#28a745', fillOpacity: 0.15
+    }).addTo(map);
+    map.fitBounds(boundary.getBounds(), { maxZoom: 19, padding: [20, 20] });
+
+    function distanceMeters(lat1, lng1, lat2, lng2) {
+      var R = 6371000, toRad = function (d) { return d * Math.PI / 180; };
+      var dLat = toRad(lat2 - lat1), dLng = toRad(lng2 - lng1);
+      var a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
+        + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+      return 2 * R * Math.asin(Math.sqrt(a));
+    }
+
+    function show(text, ok) {
+      msg.innerHTML = '<div class="alert alert-' + (ok ? 'success' : 'danger') + ' py-2 mb-0">' + text + '</div>';
+    }
+
+    function onPosition(pos) {
+      lastPos = pos;
+      lastFixAt = now();
+      var lat = pos.coords.latitude, lng = pos.coords.longitude;
+      if (!userMarker) {
+        userMarker = L.circleMarker([lat, lng], {
+          radius: 7, color: '#fff', weight: 2, fillColor: '#007bff', fillOpacity: 1
+        }).addTo(map).bindPopup('你的位置');
+        accuracyCircle = L.circle([lat, lng], {
+          radius: pos.coords.accuracy, color: '#007bff', weight: 1, fillOpacity: 0.08
+        }).addTo(map);
+        map.fitBounds(L.latLngBounds([[lat, lng], [FIELD.lat, FIELD.lng]]).pad(0.3), { maxZoom: 19 });
+      } else {
+        userMarker.setLatLng([lat, lng]);
+        accuracyCircle.setLatLng([lat, lng]).setRadius(pos.coords.accuracy);
+      }
+      var d = Math.round(distanceMeters(lat, lng, FIELD.lat, FIELD.lng));
+      inside = d <= RADIUS;
+      locError = '';
+      // The line under the map is the distance readout; whether the button is
+      // usable, and why, is the hint beside it.
+      status.className = 'mb-3 ' + (inside ? 'text-success font-weight-bold' : 'text-muted');
+      status.textContent = inside
+        ? '✓ 已进入签到范围（距中心 ' + d + ' 米）'
+        : '距签到点 ' + d + ' 米，进入绿圈后可签到（定位精度 ±' + Math.round(pos.coords.accuracy) + ' 米）';
+      render();
+    }
+
+    function onPositionError(err) {
+      status.textContent = '无法获取位置：' + err.message + '（请允许定位权限后刷新页面）';
+      status.className = 'mb-3 text-danger';
+      // Only fatal while nothing has been received: a dropped fix mid-session
+      // leaves the last known state alone rather than pulling the button.
+      if (inside === null) {
+        locError = '无法获取位置，请允许定位权限后刷新页面';
+        render();
+      }
+    }
+
+    var GEO_OPTS = { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 };
+
+    function startWatch() {
+      if (!navigator.geolocation || watchId !== null) return;
+      watchId = navigator.geolocation.watchPosition(onPosition, onPositionError, GEO_OPTS);
+    }
+
+    // A watch that survived a spell in the background often survives it *silently* —
+    // still registered, no longer delivering. Tearing it down and starting a new
+    // one is the only reliable way to know it is live again.
+    function restartWatch() {
+      if (!navigator.geolocation) return;
+      if (watchId !== null) { navigator.geolocation.clearWatch(watchId); watchId = null; }
+      startWatch();
+    }
+
+    // One fix, right now, bypassing any cached one. Its failures are ignored on
+    // purpose: this runs alongside the watch, whose error handler already owns
+    // the message, and a single timed-out poll must not blank a good fix.
+    function refreshPosition() {
+      if (!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(onPosition, function () {}, {
+        enableHighAccuracy: true, timeout: 15000, maximumAge: 0
+      });
+    }
+
+    // The backup source. `watchPosition` is the primary one, but it is exactly
+    // what a phone stops servicing while the member is in another app — so
+    // whenever the page is on screen and the newest fix is older than
+    // POSITION_MAX_AGE_MS, one is asked for outright. This is what turns the
+    // button on when somebody walks into the circle after switching back, rather
+    // than waiting for a watch that may never fire again.
+    var POSITION_MAX_AGE_MS = 20000;
+    setInterval(function () {
+      if (document.hidden || locError) return;
+      if (now() - lastFixAt >= POSITION_MAX_AGE_MS) refreshPosition();
+    }, POSITION_MAX_AGE_MS / 2);
+
+    // The page is in front of the member again. Nothing on screen is trusted
+    // after a return from the background: the countdown is re-read from the
+    // clock rather than resumed, the ticker restarted, the watch rebuilt and a
+    // fresh fix requested at once — so both gates are re-evaluated immediately
+    // instead of whenever the phone gets round to the next timer or fix.
+    // Seeded to now so the `pageshow` that fires on this very load doesn't tear
+    // down the watch started just below it.
+    var lastResync = Date.now();
+    function resync() {
+      if (document.hidden) return;
+      render();
+      startTicker();
+      // `focus` and `visibilitychange` both fire on the way back to a tab; one
+      // watch rebuild between them is enough.
+      if (Date.now() - lastResync < 1000) return;
+      lastResync = Date.now();
+      restartWatch();
+      refreshPosition();
+    }
+
+    document.addEventListener('visibilitychange', resync);
+    window.addEventListener('pageshow', resync);
+    window.addEventListener('focus', resync);
+    // A phone that was offline may have had its fixes fail rather than lag.
+    window.addEventListener('online', resync);
+
+    if (!navigator.geolocation) {
+      locError = '当前浏览器不支持定位，无法签到';
+      status.textContent = locError;
+      status.className = 'mb-3 text-danger';
+    } else {
+      startWatch();
+    }
+
+    render();
+    startTicker();
+
+    btn.addEventListener('click', function () {
+      if (!lastPos || btn.disabled) return;
+      submitting = true;
+      btn.disabled = true;
+      btn.classList.remove('is-ready');
+      btn.textContent = '签到中…';
+      fetch('/event/<%= event.id %>/checkin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lat: lastPos.coords.latitude,
+          lng: lastPos.coords.longitude
+        })
+      }).then(function (r) {
+        return r.json().then(function (data) {
+          show(data.message, data.ok);
+          if (data.ok) {
+            setTimeout(function () { location.reload(); }, 500);
+          } else {
+            submitting = false;
+            btn.textContent = LABEL;
+            render();
+          }
+        });
+      }).catch(function () {
+        show('网络错误，请重试', false);
+        submitting = false;
+        btn.textContent = LABEL;
+        render();
+      });
+    });
+  })();
+</script>
+<% } %>
+<%- include('partials/footer') %>

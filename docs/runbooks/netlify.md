@@ -4,11 +4,20 @@ How `app/` (GSFFC App) deploys to Netlify → https://app.gsffc.org.
 
 ## One-time site setup
 
-1. Netlify → **Add new site → Import an existing project** → GitHub →
-   `gsffc/gsffc`.
-2. **Base directory: `app/`**. Leave build command empty (no build step;
-   the function is bundled by Netlify) — publish and functions directories
-   come from `app/netlify.toml`.
+The app moved here from `Dongminator/netlify-test`, which already had a
+Netlify site. **Relink that site rather than creating a new one** — relinking
+keeps the site ID, custom domain, environment variables, and deploy history
+(so "Publish previous deploy" still reaches pre-migration builds).
+
+1. Netlify → the existing site → **Site configuration → Build & deploy →
+   Continuous deployment → Manage repository → Link to a different
+   repository** → GitHub → `gsffc/gsffc`, production branch `main`. The
+   Netlify GitHub App must be authorized on the `gsffc` org first (an org
+   owner approves the installation).
+2. **Base directory: `app`**. Leave build command, publish directory, and
+   functions directory **empty** — there is no build step, and
+   `app/netlify.toml` supplies the rest. Settings in `netlify.toml` win over
+   the UI fields, so filling them in only creates two places to disagree.
 3. Set environment variables (**Site settings → Environment variables**):
    - `DATABASE_URL` — PostgreSQL connection string
    - `SESSION_SECRET` — random string
@@ -31,7 +40,8 @@ How `app/` (GSFFC App) deploys to Netlify → https://app.gsffc.org.
 
 ## How the pieces map (base dir `app/`)
 
-The app's `netlify.toml` (arrives with #2, from the author's original repo):
+The app's `netlify.toml` lives at `app/netlify.toml`; every path in it is
+relative to the base directory:
 
 | Setting | Value | Meaning under base dir `app/` |
 |---|---|---|
@@ -41,6 +51,7 @@ The app's `netlify.toml` (arrives with #2, from the author's original repo):
 | `external_node_modules` | `["ejs"]` | EJS is loaded via dynamic `require`; shipped in `node_modules`, not bundled |
 | `included_files` | `["views/**"]` | EJS templates read from disk at runtime |
 | redirect | `/* → /.netlify/functions/server` (200) | Everything that isn't a static file hits the Express app |
+| `ignore` | `git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- .` | Cancels the build when the commit range touched nothing in `app/` (the command runs from the base directory) |
 
 The whole Express app runs as one function via `serverless-http`. Node 22 is
 pinned via the `NODE_VERSION` env var (see setup above); `engines` in
@@ -48,14 +59,18 @@ package.json is advisory only on Netlify.
 
 ## Deploy triggers
 
-- Push to `main` → production deploy. Netlify has no commit path filtering:
-  the verbatim `netlify.toml` has no `ignore` rule, so **every** push to main
-  builds the app (site-only changes included — builds are cheap and
-  content-identical). To cut noise, add an `ignore` command later, e.g.
-  `git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- app/`.
-- Pull requests → deploy previews (once the site is connected).
-- Pre-#2, deploys fail (empty `app/`) — expected; the connection is proven
-  when the first real deploy succeeds at #2.
+- Push to `main` → production deploy, **but only when the push touched
+  `app/`**. Netlify has no commit path filtering of its own, so the `ignore`
+  command in `netlify.toml` supplies it; a site-only commit shows up as
+  "Build canceled", which is the rule working, not a failure.
+- Pull requests → deploy previews, under the same `ignore` rule. A preview
+  URL looks like `deploy-preview-<PR#>--<site>.netlify.app`.
+- `$CACHED_COMMIT_REF` is empty on a first build and after a cleared cache.
+  The command then fails and Netlify builds anyway — the safe direction.
+- **Deploy previews inherit production's environment variables** unless a
+  variable is scoped to a specific deploy context. Today that means a preview
+  talks to the production database. Scope `DATABASE_URL` per context before
+  previewing anything that writes.
 
 ## App CI
 
@@ -63,7 +78,8 @@ package.json is advisory only on Netlify.
 `npm ci` + `node --check` on the app's JS. It is intentionally standalone —
 `app/` is excluded from the root Biome/tooling until @Dongminator opts in
 (AGENTS.md hard rule 2), so the root npm-scripts interface does not cover it
-yet. Pre-#2 (no `app/package.json`) the job skips cleanly.
+yet. The job is guarded on `app/package.json` existing, so it also skips
+cleanly on a checkout that predates the app.
 
 ## Database
 
@@ -74,5 +90,5 @@ runtime. **First-admin bootstrap** (fresh databases only): hand-INSERT one
 user with a bcrypt hash, then `UPDATE gsffc.users SET role='ADMIN'` — the
 bulk-add-members admin page needs an existing login. The production Supabase
 instance already has users, so this matters mainly for fresh dev DBs.
-Smoke-test endpoint: `GET /healthz` reports DB connectivity + table count. Existing Supabase instance (decided, #9). No credentials in git;
+Health-check endpoint: `GET /healthz` reports DB connectivity + table count. Existing Supabase instance (decided, #9). No credentials in git;
 `.env` is git-ignored, variables documented in `app/README.md`.

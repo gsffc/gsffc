@@ -1,0 +1,618 @@
+<%
+  // Admin event form, shared by the "添加活动" button on /calendar and the "编辑"
+  // and "复制" buttons on an event page. `formEvent` is null when creating; when
+  // it is set the fields come in pre-filled and the form PUTs to that event —
+  // unless the button that opened it asked for copy mode, which keeps every
+  // field but POSTs a new event dated a week on (see `setMode` in the script).
+  // Leaflet itself is loaded once, in partials/header.ejs.
+  const isEdit = !!formEvent;
+  const point = isEdit && formEvent.coords ? formEvent.coords : null;
+  const val = key => (isEdit && formEvent[key] != null ? formEvent[key] : '');
+
+  // `startAt`/`endAt` are stored in exactly the form an <input type="datetime-local">
+  // carries ('YYYY-MM-DDTHH:MM'), so they go into the fields and come back out of
+  // them untouched — no stitching, no parsing. A new event opens at 10:00 on
+  // `defaultDate` and runs the same two hours the end field defaults to.
+  const startValue = isEdit ? formEvent.startAt : defaultDate + 'T10:00';
+  const endValue = isEdit ? formEvent.endAt : defaultDate + 'T12:00';
+
+  // 队伍数量 — 2, 3 or 4, defaulting to 3 both for a new event and for one
+  // written before the column existed. `selected` is in the markup rather than
+  // set from the script, because `form.reset()` in `setMode` restores exactly
+  // what was rendered, which is what makes the prefill and the copy work.
+  const teamCount = (isEdit && Number(formEvent.teamCount)) || 3;
+%>
+<div class="modal fade" id="event-modal" tabindex="-1" role="dialog" aria-labelledby="event-modal-title" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="event-modal-title"><%= isEdit ? '编辑活动' : '添加活动' %></h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="关闭"><span aria-hidden="true">&times;</span></button>
+      </div>
+      <form id="event-form" novalidate>
+        <div class="modal-body">
+          <div id="event-form-error" class="alert alert-danger py-2 d-none" role="alert"></div>
+
+          <div class="form-group field-inline-sm">
+            <label for="ev-title">活动名称</label>
+            <input class="form-control" id="ev-title" name="title" type="text" maxlength="80" required
+                   placeholder="例如：周六例行训练赛 11v11" value="<%= val('title') %>">
+          </div>
+
+          <%# Two halves of one decision, so they sit side by side from sm up and
+              stack on a phone — where .field-inline-sm puts each label on the
+              same line as its input, keeping the pair two rows rather than four.
+              结束时间 follows 开始时间 at +2h until it is edited by hand; see
+              `syncEnd` in the script. %>
+          <div class="form-row">
+            <div class="form-group field-inline-sm col-sm-6">
+              <label for="ev-start">开始时间</label>
+              <input class="form-control" id="ev-start" name="start" type="datetime-local" required
+                     value="<%= startValue %>">
+            </div>
+            <div class="form-group field-inline-sm col-sm-6">
+              <label for="ev-end">结束时间</label>
+              <input class="form-control" id="ev-end" name="end" type="datetime-local" required
+                     value="<%= endValue %>">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <%# 地点 is both the stored location text and the geocoder box: typing in it
+                searches Nominatim, and picking a result fills it and drops the pin. The
+                results list is a sibling of .field-inline-sm, not a child — under sm that
+                class turns its children into one flex row, and the list would join it. %>
+            <div class="form-group col-12">
+              <div class="field-inline-sm">
+                <label for="ev-location">地点</label>
+                <input class="form-control" id="ev-location" name="location" type="text" maxlength="120"
+                       autocomplete="off" role="combobox" aria-expanded="false" aria-autocomplete="list"
+                       aria-controls="ev-search-results"
+                       placeholder="搜索或输入地点，如 Flushing Meadows" value="<%= val('location') %>">
+              </div>
+              <div class="ev-search-results d-none" id="ev-search-results"></div>
+            </div>
+          </div>
+
+          <%# 总人数 is **every body coming** — the members who sign up and the
+              approved 试训/Guest together — and it is the number the waitlist is
+              measured against, so approving a 试训 takes a place off the members
+              rather than adding one. It is still the only headcount on this
+              form: the team size is not typed in at all, it is derived from
+              已报名人数 + 试训人数.
+              队伍数量 shares its row: it is the other half of the same decision —
+              how many places there are, and how many ways they are split. It is
+              a `<select>` with `selected` in the markup rather than set from
+              script, because `form.reset()` is what restores the prefill (a copy
+              keeps the original's team count, which is what a copy is for). %>
+          <div class="form-row">
+            <div class="form-group field-inline-sm col-sm-6">
+              <label for="ev-capacity">总人数</label>
+              <input class="form-control" id="ev-capacity" name="capacity" type="number" min="0" step="1" required
+                     title="含试训/Guest 的总名额，报名满后自动进入候补名单"
+                     value="<%= isEdit ? formEvent.capacity : 27 %>">
+            </div>
+            <div class="form-group field-inline-sm col-sm-6">
+              <label for="ev-team-count">队伍数量</label>
+              <select class="form-control" id="ev-team-count" name="teamCount">
+                <% [2, 3, 4].forEach(n => { %>
+                  <option value="<%= n %>" <%= teamCount === n ? 'selected' : '' %>><%= n %> 队</option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="ev-description">活动描述</label>
+            <textarea class="form-control" id="ev-description" name="description" rows="3" maxlength="500"
+                      placeholder="集合时间、装备要求、报名截止…"><%= val('description') %></textarea>
+          </div>
+
+          <div class="ev-map-head">
+            <span class="ev-section-label">签到点 &amp; 签到半径</span>
+            <button class="btn btn-sm btn-outline-secondary ml-auto" id="ev-locate" type="button">📍 我的位置</button>
+            <button class="btn btn-sm btn-light" id="ev-clear-point" type="button">清除</button>
+          </div>
+          <div class="ev-map" id="ev-map"></div>
+          <div class="form-row mt-2">
+            <div class="form-group col-4 mb-0">
+              <label for="ev-lat">纬度</label>
+              <input class="form-control form-control-sm" id="ev-lat" name="lat" type="number" step="any"
+                     value="<%= point ? point.lat : '' %>">
+            </div>
+            <div class="form-group col-4 mb-0">
+              <label for="ev-lng">经度</label>
+              <input class="form-control form-control-sm" id="ev-lng" name="lng" type="number" step="any"
+                     value="<%= point ? point.lng : '' %>">
+            </div>
+            <div class="form-group col-4 mb-0">
+              <label for="ev-radius">签到半径（米）</label>
+              <input class="form-control form-control-sm" id="ev-radius" name="radius" type="number" min="1" step="1"
+                     value="<%= isEdit ? formEvent.checkinRadius : 10 %>">
+            </div>
+          </div>
+          <small class="form-text text-muted">在上方「地点」里搜索并选择，或直接点击地图选择签到点，拖动图钉微调，拖动绿色圆点调整签到半径；留空表示线上活动，无需到场签到。</small>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-light" type="button" data-dismiss="modal">取消</button>
+          <button class="btn btn-brand" type="submit" id="ev-submit"><%= isEdit ? '保存修改' : '确认添加' %></button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var form = document.getElementById('event-form');
+    if (!form) return;
+
+    // What the form is doing *right now*. On an event page one modal serves two
+    // buttons: 编辑 PUTs this event, 复制 POSTs a new one with every field carried
+    // over (the roster isn't part of the form, and `db.createEvent` always starts
+    // a copy with empty signup/check-in lists), landing on the copy afterwards.
+    var MODES = {
+      create: { endpoint: '/api/events', method: 'POST', title: '添加活动', submit: '确认添加', after: 'calendar' }
+      <% if (isEdit) { %>
+      , edit: { endpoint: '/api/events/<%= formEvent.id %>', method: 'PUT', title: '编辑活动', submit: '保存修改', after: 'reload' }
+      , copy: { endpoint: '/api/events', method: 'POST', title: '复制活动', submit: '确认复制', after: 'event' }
+      <% } %>
+    };
+    var mode = MODES.<%= isEdit ? 'edit' : 'create' %>;
+
+    var submit = document.getElementById('ev-submit');
+    var error = document.getElementById('event-form-error');
+    var titleEl = document.getElementById('event-modal-title');
+    var startInput = document.getElementById('ev-start');
+    var endInput = document.getElementById('ev-end');
+    var latInput = document.getElementById('ev-lat');
+    var lngInput = document.getElementById('ev-lng');
+    var radiusInput = document.getElementById('ev-radius');
+
+    // The datetimes the page was rendered with, i.e. what `form.reset()` puts back.
+    var RENDERED_START = startInput.value;
+    var RENDERED_END = endInput.value;
+
+    // How long an event runs unless it is told otherwise.
+    var DEFAULT_HOURS = 2;
+    var DT_RE = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/;
+
+    function fail(message) {
+      error.textContent = message;
+      error.classList.remove('d-none');
+      submit.disabled = false;
+      submit.textContent = mode.submit;
+    }
+
+    function pad2(n) { return (n < 10 ? '0' : '') + n; }
+
+    // A week on, keeping the clock time. Local-time arithmetic like everywhere
+    // else here: `new Date('YYYY-MM-DD')` parses as UTC and lands a day early
+    // west of Greenwich.
+    function addWeek(value) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})(T\d{2}:\d{2})?/.exec(value);
+      if (!m) return value;
+      var d = new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]) + 7);
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()) + (m[4] || '');
+    }
+
+    // `hours` on from a 'YYYY-MM-DDTHH:MM' value, rolling over midnight — an
+    // evening kick-off plus two hours is legitimately the next day. Same
+    // local-time arithmetic as `addWeek` above, and '' for anything unparseable.
+    function addHours(value, hours) {
+      var m = DT_RE.exec(value);
+      if (!m) return '';
+      var d = new Date(Number(value.slice(0, 4)), Number(value.slice(5, 7)) - 1, Number(value.slice(8, 10)),
+                       Number(value.slice(11, 13)) + hours, Number(value.slice(14, 16)));
+      return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate())
+        + 'T' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    }
+
+    // 结束时间 trails 开始时间 by DEFAULT_HOURS until the admin sets it themselves:
+    // the end is "theirs" from the moment it stops being exactly that far after
+    // the start, and is then left alone as the start moves. The exception is a
+    // start pushed past its own end, which no event can be saved with — that gets
+    // the default back rather than an error the admin has to fix by hand.
+    // `lastStart` is what the auto value is measured against, so a hand-set end
+    // survives however many times the start is nudged afterwards.
+    var lastStart = startInput.value;
+
+    function syncEnd() {
+      if (!DT_RE.test(startInput.value)) return;
+      var untouched = !endInput.value
+        || endInput.value === addHours(lastStart, DEFAULT_HOURS)
+        || endInput.value <= startInput.value;
+      if (untouched) endInput.value = addHours(startInput.value, DEFAULT_HOURS);
+      lastStart = startInput.value;
+    }
+
+    // `input` fires per segment as the picker is typed into (and the value reads
+    // as '' until every segment is filled, hence the guard above); `change` is
+    // what a click through the native calendar raises. Running both is harmless —
+    // the second pass computes the same value.
+    startInput.addEventListener('input', syncEnd);
+    startInput.addEventListener('change', syncEnd);
+
+    // Switch what the form will submit. `form.reset()` restores every field to
+    // the value the server rendered — that is the whole prefill for a copy, so
+    // only the date has to be moved on. Resetting also means a cancelled copy
+    // doesn't leave its edits behind in the 编辑 form, and vice versa.
+    function setMode(name) {
+      if (!MODES[name]) return;
+      mode = MODES[name];
+      form.reset();
+      hideResults();
+      // A copy keeps the event's length: both ends move by the same week.
+      if (name === 'copy') {
+        startInput.value = addWeek(RENDERED_START);
+        endInput.value = addWeek(RENDERED_END);
+      }
+      // Whatever the fields now hold is the baseline the auto-end is judged
+      // against, so a reset never leaves the previous mode's start behind.
+      lastStart = startInput.value;
+      titleEl.textContent = mode.title;
+      submit.textContent = mode.submit;
+      submit.disabled = false;
+      error.classList.add('d-none');
+      drawPoint(false);
+    }
+
+    // Buttons declare the mode they want with `data-event-modal`. The listener is
+    // on the button itself, so it runs before Bootstrap's document-level data-api
+    // handler shows the dialog — the title and the date are already right when it
+    // appears. A button without the attribute (e.g. 添加活动 on /calendar) leaves
+    // the render-time mode alone.
+    Array.prototype.forEach.call(document.querySelectorAll('[data-event-modal]'), function (btn) {
+      btn.addEventListener('click', function () { setMode(btn.getAttribute('data-event-modal')); });
+    });
+
+    // Check-in point picker. Same Leaflet setup as the event page, except the
+    // point is being chosen rather than checked against: click (or drag the
+    // pin) to move it, and the green circle previews the check-in radius.
+    var MAP_CENTER = { lat: <%= mapCenter.lat %>, lng: <%= mapCenter.lng %> };
+    var map = null, marker = null, circle = null, handle = null;
+
+    // Where the radius handle sits on the rim, in degrees clockwise from north.
+    // Kept from drag to drag so the handle stays under the hand instead of
+    // jumping back east every time the radius changes.
+    var handleBearing = 90;
+    var draggingHandle = false;
+
+    var EARTH_R = 6371000;
+    function toRad(d) { return d * Math.PI / 180; }
+    function toDeg(r) { return r * 180 / Math.PI; }
+
+    // Point `dist` metres from (lat,lng) along `bearingDeg`, and the inverse.
+    function destination(lat, lng, bearingDeg, dist) {
+      var d = dist / EARTH_R, b = toRad(bearingDeg), p1 = toRad(lat), l1 = toRad(lng);
+      var p2 = Math.asin(Math.sin(p1) * Math.cos(d) + Math.cos(p1) * Math.sin(d) * Math.cos(b));
+      var l2 = l1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(p1),
+                               Math.cos(d) - Math.sin(p1) * Math.sin(p2));
+      return { lat: toDeg(p2), lng: toDeg(l2) };
+    }
+
+    function bearingTo(lat1, lng1, lat2, lng2) {
+      var p1 = toRad(lat1), p2 = toRad(lat2), dl = toRad(lng2 - lng1);
+      var y = Math.sin(dl) * Math.cos(p2);
+      var x = Math.cos(p1) * Math.sin(p2) - Math.sin(p1) * Math.cos(p2) * Math.cos(dl);
+      return (toDeg(Math.atan2(y, x)) + 360) % 360;
+    }
+
+    function readPoint() {
+      var lat = parseFloat(latInput.value), lng = parseFloat(lngInput.value);
+      if (!isFinite(lat) || !isFinite(lng)) return null;
+      if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
+      return { lat: lat, lng: lng };
+    }
+
+    function readRadius() {
+      var r = Math.round(Number(radiusInput.value));
+      return isFinite(r) && r > 0 ? r : 0;
+    }
+
+    function drawPoint(pan) {
+      if (!map) return;
+      var point = readPoint();
+      if (!point) {
+        if (marker) {
+          map.removeLayer(marker);
+          map.removeLayer(circle);
+          map.removeLayer(handle);
+          marker = null; circle = null; handle = null;
+        }
+        return;
+      }
+      var radius = readRadius() || 10;
+      if (!marker) {
+        marker = L.marker([point.lat, point.lng], { draggable: true }).addTo(map).bindPopup('⚽ 签到点');
+        marker.on('dragend', function () {
+          var p = marker.getLatLng();
+          setPoint(p.lat, p.lng, false);
+        });
+        circle = L.circle([point.lat, point.lng], {
+          radius: radius, color: '#28a745', fillColor: '#28a745', fillOpacity: 0.15
+        }).addTo(map);
+        handle = L.marker([point.lat, point.lng], {
+          draggable: true,
+          keyboard: false,
+          zIndexOffset: 500,
+          icon: L.divIcon({ className: 'ev-radius-handle', iconSize: [16, 16], iconAnchor: [8, 8] })
+        }).addTo(map).bindTooltip('拖动调整签到半径', { direction: 'right', offset: [8, 0] });
+        // Dragging the rim resizes the circle live; the centre stays put. The
+        // radius box is written directly (setting .value fires no input event,
+        // so this can't loop back through drawPoint and fight the drag).
+        handle.on('dragstart', function () { draggingHandle = true; });
+        handle.on('drag', function () {
+          var c = circle.getLatLng(), h = handle.getLatLng();
+          var r = Math.max(1, Math.round(map.distance(c, h)));
+          radiusInput.value = r;
+          circle.setRadius(r);
+        });
+        handle.on('dragend', function () {
+          var c = circle.getLatLng(), h = handle.getLatLng();
+          handleBearing = bearingTo(c.lat, c.lng, h.lat, h.lng);
+          draggingHandle = false;
+          placeHandle(c.lat, c.lng, readRadius() || 10);
+        });
+      } else {
+        marker.setLatLng([point.lat, point.lng]);
+        circle.setLatLng([point.lat, point.lng]).setRadius(radius);
+      }
+      if (!draggingHandle) placeHandle(point.lat, point.lng, radius);
+      // Frame the circle rather than the point: at a 10–25m radius a fixed
+      // zoom leaves the rim handle sitting on top of the pin, too small to
+      // grab. Capped short of the tile layer's maxZoom of 19.
+      if (pan) map.fitBounds(circle.getBounds().pad(0.8), { maxZoom: 18 });
+    }
+
+    // Snap the handle back onto the rim, at whatever bearing it was last left.
+    function placeHandle(lat, lng, radius) {
+      if (!handle) return;
+      var edge = destination(lat, lng, handleBearing, radius);
+      handle.setLatLng([edge.lat, edge.lng]);
+    }
+
+    function setPoint(lat, lng, pan) {
+      latInput.value = lat.toFixed(7);
+      lngInput.value = lng.toFixed(7);
+      drawPoint(pan);
+    }
+
+    function initMap() {
+      var start = readPoint() || MAP_CENTER;
+      map = L.map('ev-map').setView([start.lat, start.lng], 16);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      map.on('click', function (e) { setPoint(e.latlng.lat, e.latlng.lng, false); });
+      drawPoint(false);
+    }
+
+    latInput.addEventListener('input', function () { drawPoint(false); });
+    lngInput.addEventListener('input', function () { drawPoint(false); });
+    radiusInput.addEventListener('input', function () { drawPoint(false); });
+
+    document.getElementById('ev-clear-point').addEventListener('click', function () {
+      latInput.value = '';
+      lngInput.value = '';
+      drawPoint(false);
+    });
+
+    // Place search, geocoded by OpenStreetMap's Nominatim — same data as the
+    // tiles, no key needed. There is no separate search box: 地点 *is* the
+    // geocoder input, so what the member types to find the pitch is what gets
+    // stored, and picking a result both fills the field and drops the pin.
+    // It runs as you type, 300ms after the last keystroke. Nominatim's public
+    // instance asks for at most one request a second and its policy discourages
+    // type-ahead, so the guards below matter: at least MIN_QUERY characters, the
+    // same text is never queried twice in a row, and an in-flight request is
+    // aborted when a newer one starts.
+    var SEARCH_DEBOUNCE_MS = 300;
+    var MIN_QUERY = 2;
+    var searchInput = document.getElementById('ev-location');
+    var searchResults = document.getElementById('ev-search-results');
+    var searchTimer = null, searchSeq = 0, searchAbort = null, lastQuery = '';
+
+    function showResults(html) {
+      searchResults.innerHTML = html;
+      searchResults.classList.remove('d-none');
+      searchInput.setAttribute('aria-expanded', 'true');
+    }
+
+    function hideResults() {
+      searchResults.innerHTML = '';
+      searchResults.classList.add('d-none');
+      searchInput.setAttribute('aria-expanded', 'false');
+      // Nothing on screen, so the next identical query is a new one again.
+      lastQuery = '';
+    }
+
+    // What goes in 地点. `display_name` is the full postal chain ("…, Queens,
+    // New York County, …, United States"), too long to read on a chip or a
+    // phone, so keep the name and the two components that place it; the list
+    // itself still shows the whole thing for disambiguation.
+    function placeLabel(place) {
+      var parts = String(place.display_name || '').split(',').map(function (s) {
+        return s.trim();
+      }).filter(Boolean);
+      var name = String(place.name || '').trim();
+      if (name && parts[0] !== name) parts.unshift(name);
+      return parts.slice(0, 3).join(', ').slice(0, 120);
+    }
+
+    function pickResult(place) {
+      hideResults();
+      // The member chose this place, so it replaces whatever was typed to find it.
+      searchInput.value = placeLabel(place);
+      setPoint(parseFloat(place.lat), parseFloat(place.lon), true);
+    }
+
+    // `force` comes from Enter: it re-runs a query the debounced path would
+    // skip as unchanged.
+    function runSearch(force) {
+      clearTimeout(searchTimer);
+      var q = searchInput.value.trim();
+      if (q.length < MIN_QUERY) return hideResults();
+      if (q === lastQuery && !force) return;
+      lastQuery = q;
+
+      // Only the newest request may write to the list: aborting is best-effort
+      // (a response can already be in flight), so the sequence number is what
+      // actually keeps a slow earlier reply from overwriting a later one.
+      if (searchAbort) searchAbort.abort();
+      searchAbort = window.AbortController ? new AbortController() : null;
+      var seq = ++searchSeq;
+      var opts = searchAbort ? { signal: searchAbort.signal } : {};
+
+      showResults('<div class="ev-search-note">搜索中…</div>');
+
+      var url = 'https://nominatim.openstreetmap.org/search?format=jsonv2&limit=6&q=' + encodeURIComponent(q);
+      // Prefer hits near the area already on screen, without excluding others.
+      if (map) {
+        var b = map.getBounds();
+        url += '&viewbox=' + [b.getWest(), b.getNorth(), b.getEast(), b.getSouth()].join(',');
+      }
+
+      fetch(url, opts).then(function (r) {
+        if (!r.ok) throw new Error('bad status');
+        return r.json();
+      }).then(function (places) {
+        if (seq !== searchSeq) return;
+        if (!places.length) return showResults('<div class="ev-search-note">没有找到该地点，换个关键词试试。</div>');
+        searchResults.innerHTML = '';
+        places.forEach(function (place) {
+          var item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'ev-search-item';
+          item.textContent = place.display_name;
+          item.addEventListener('click', function () { pickResult(place); });
+          searchResults.appendChild(item);
+        });
+        searchResults.classList.remove('d-none');
+        searchInput.setAttribute('aria-expanded', 'true');
+      }).catch(function (err) {
+        // An abort is this code superseding itself, not a failure to report.
+        if (seq !== searchSeq || (err && err.name === 'AbortError')) return;
+        showResults('<div class="ev-search-note">搜索失败，请稍后重试。</div>');
+      });
+    }
+
+    searchInput.addEventListener('input', function () {
+      clearTimeout(searchTimer);
+      if (searchInput.value.trim().length < MIN_QUERY) return hideResults();
+      searchTimer = setTimeout(runSearch, SEARCH_DEBOUNCE_MS);
+    });
+
+    searchInput.addEventListener('keydown', function (e) {
+      // The box lives inside the form, where Enter would otherwise submit it.
+      if (e.key === 'Enter') { e.preventDefault(); runSearch(true); }
+      if (e.key === 'Escape') { clearTimeout(searchTimer); hideResults(); }
+    });
+
+    // 地点 is an ordinary text field too, so the list has to get out of the way
+    // once the member moves on. Suppressing the mousedown keeps focus in the
+    // input while a result is clicked — Safari doesn't focus a button on click,
+    // so a bare focusout handler would tear the list down before the click landed.
+    searchResults.addEventListener('mousedown', function (e) { e.preventDefault(); });
+    searchInput.addEventListener('blur', function () {
+      clearTimeout(searchTimer);
+      hideResults();
+    });
+
+    var locate = document.getElementById('ev-locate');
+    locate.addEventListener('click', function () {
+      if (!navigator.geolocation) return fail('当前浏览器不支持定位');
+      locate.disabled = true;
+      locate.textContent = '定位中…';
+      navigator.geolocation.getCurrentPosition(function (pos) {
+        setPoint(pos.coords.latitude, pos.coords.longitude, true);
+        locate.disabled = false;
+        locate.textContent = '📍 我的位置';
+      }, function (err) {
+        fail('无法获取位置：' + err.message);
+        locate.disabled = false;
+        locate.textContent = '📍 我的位置';
+      }, { enableHighAccuracy: true, timeout: 15000 });
+    });
+
+    // Leaflet measures the container, so the map can only be built once the
+    // modal is actually on screen. Bootstrap's shown event is a jQuery one and
+    // jQuery loads in the footer, hence waiting for window load.
+    window.addEventListener('load', function () {
+      if (!window.jQuery) return;
+      window.jQuery('#event-modal').on('shown.bs.modal', function () {
+        if (!map) initMap();
+        map.invalidateSize();
+        drawPoint(false);
+      });
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      // Read through form.elements: a form's own `title`/`action` properties
+      // would otherwise shadow the inputs of the same name.
+      var f = form.elements;
+      // The pickers' values are already the stored format; the slice only drops
+      // the ':00' seconds some browsers append. `date`/`time` are derived from
+      // these server-side, so they are not sent.
+      var body = {
+        title: f.title.value.trim(),
+        startAt: f.start.value.slice(0, 16),
+        endAt: f.end.value.slice(0, 16),
+        location: f.location.value.trim(),
+        description: f.description.value.trim(),
+        capacity: Number(f.capacity.value),
+        // The <select> only offers 2/3/4; the server normalizes it again and
+        // refuses anything else, so a hand-crafted body can't reach the column.
+        teamCount: Number(f.teamCount.value)
+      };
+      if (!body.title) return fail('请填写活动名称');
+      if (!DT_RE.test(body.startAt)) return fail('请选择开始日期和时间');
+      if (!DT_RE.test(body.endAt)) return fail('请选择结束日期和时间');
+      // Fixed-width and same format, so string order is time order — the same
+      // comparison the server and the SQL CHECK make.
+      if (body.endAt <= body.startAt) return fail('结束时间必须晚于开始时间');
+
+      // No point picked = an online event; the server stores coords as null and
+      // the event page then hides the check-in card entirely.
+      var hasLat = latInput.value.trim() !== '', hasLng = lngInput.value.trim() !== '';
+      if (hasLat !== hasLng) return fail('请同时填写纬度和经度，或清除签到点');
+      var point = readPoint();
+      if (hasLat && !point) return fail('签到点坐标无效（纬度 -90~90，经度 -180~180）');
+      var radius = readRadius();
+      if (!radius) return fail('签到半径必须为正整数（米）');
+      body.coords = point;
+      body.checkinRadius = radius;
+
+      error.classList.add('d-none');
+      submit.disabled = true;
+      submit.textContent = '提交中…';
+
+      fetch(mode.endpoint, {
+        method: mode.method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      }).then(function (r) {
+        return r.json().then(function (data) {
+          if (!r.ok) return fail(data.message || '保存失败，请重试');
+          if (mode.after === 'reload') {
+            // Re-render the event page rather than patching the DOM: the date,
+            // the check-in card and the map all move with the change.
+            submit.textContent = '已保存 ✓';
+            window.location.reload();
+          } else if (mode.after === 'event') {
+            // A copy is a new event with its own roster to fill; go to it.
+            window.location = '/event/' + data.id;
+          } else {
+            // Land on the month the event falls in, so it is on screen straight
+            // away even when it isn't in the month currently being viewed.
+            window.location = '/calendar?month=' + data.date.slice(0, 7) + '&created=1';
+          }
+        });
+      }).catch(function () {
+        fail('网络错误，请重试');
+      });
+    });
+  })();
+</script>

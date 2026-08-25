@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 800">
+  <rect width="600" height="800" fill="#5da344"/>
+  <g fill="#67ad4e">
+    <rect y="0" width="600" height="100"/>
+    <rect y="200" width="600" height="100"/>
+    <rect y="400" width="600" height="100"/>
+    <rect y="600" width="600" height="100"/>
+  </g>
+  <g fill="none" stroke="#ffffff" stroke-width="4" stroke-opacity="0.9">
+    <rect x="30" y="30" width="540" height="740"/>
+    <line x1="30" y1="400" x2="570" y2="400"/>
+    <circle cx="300" cy="400" r="60"/>
+    <!-- top penalty area + goal area -->
+    <rect x="160" y="30" width="280" height="90"/>
+    <rect x="230" y="30" width="140" height="35"/>
+    <path d="M 252 120 A 60 60 0 0 0 348 120"/>
+    <!-- bottom penalty area + goal area -->
+    <rect x="160" y="680" width="280" height="90"/>
+    <rect x="230" y="735" width="140" height="35"/>
+    <path d="M 252 680 A 60 60 0 0 1 348 680"/>
+    <!-- corner arcs -->
+    <path d="M 30 42 A 12 12 0 0 0 42 30"/>
+    <path d="M 558 30 A 12 12 0 0 0 570 42"/>
+    <path d="M 570 758 A 12 12 0 0 0 558 770"/>
+    <path d="M 42 770 A 12 12 0 0 0 30 758"/>
+  </g>
+  <g fill="#ffffff" fill-opacity="0.9">
+    <circle cx="300" cy="400" r="5"/>
+    <circle cx="300" cy="108" r="5"/>
+    <circle cx="300" cy="692" r="5"/>
+  </g>
+</svg>

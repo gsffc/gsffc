@@ -1,0 +1,34 @@
+# Netlify deployment config for the GSFFC member app.
+# The Express app runs as a single serverless function; static assets in
+# public/ are served directly from the CDN.
+#
+# Netlify's base directory is app/, so every path below is relative to it.
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+  # This lives in a monorepo alongside site/, and Netlify has no path
+  # filtering of its own — without this, every site-only commit on main
+  # would rebuild and redeploy the app. The command runs from the base
+  # directory, so "." is app/; exit 0 (no diff) cancels the build.
+  # $CACHED_COMMIT_REF is empty on a first build or after a cleared cache;
+  # the command then fails and Netlify builds, which is the safe direction.
+  ignore = "git diff --quiet $CACHED_COMMIT_REF $COMMIT_REF -- ."
+
+[functions]
+  node_bundler = "esbuild"
+  # Express loads the template engine via a dynamic require('ejs') at render
+  # time, which esbuild can't trace — bundling drops it and the function throws
+  # "Cannot find module 'ejs'". Mark it external so Netlify ships the real
+  # package in the function's node_modules instead of inlining it.
+  external_node_modules = ["ejs"]
+  # EJS templates are read from disk at runtime, so esbuild can't trace them
+  # automatically — ship them alongside the function.
+  included_files = ["views/**"]
+
+# Serve everything that isn't a static file through the Express app.
+# force = false (default) lets real files in public/ win first.
+[[redirects]]
+  from = "/*"
+  to = "/.netlify/functions/server"
+  status = 200

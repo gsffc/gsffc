@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+<div class="pb-2 mt-2 mb-4 border-bottom"><h3>Sign in</h3></div>
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+<form method="POST" action="/login">
+  <div class="form-group row">
+    <label class="col-md-3 col-form-label font-weight-bold text-right" for="email">Account</label>
+    <div class="col-md-7">
+      <input class="form-control" type="email" name="email" id="email" placeholder="youraccount@gsffc.org" autofocus autocomplete="email" required>
+    </div>
+  </div>
+  <div class="form-group row">
+    <label class="col-md-3 col-form-label font-weight-bold text-right" for="password">Password</label>
+    <div class="col-md-7">
+      <input class="form-control" type="password" name="password" id="password" placeholder="Password" autocomplete="current-password" required>
+    </div>
+  </div>
+  <div class="form-group">
+    <div class="offset-md-3 col-md-7 pl-2">
+      <button class="col-md-3 btn btn-primary" type="submit">Login</button>
+    </div>
+  </div>
+  <div class="offset-md-3 col-md-7 pl-2">
+    <p></p>会员账号和密码在微信群里给出，暂不开放公开注册。
+    账号为形式为youraccount@gsffc.org，首次登录后记得修改密码
+  </div>
+</form>
+<%- include('partials/footer') %>

@@ -1,0 +1,377 @@
+<%# Edit-user form, shared by the admin's per-row pencil on /members and the
+    member's own "编辑" button on /profile. Any button with class `edit-user` and
+    data-email / data-name / data-position / data-role / data-photo / data-fallback
+    opens it; the PUT target is that email and the route decides whether the
+    caller may write it (self, or ADMIN). data-photo is the member's stored
+    picture ('' when they have none) and data-fallback their gravatar, which can
+    only be built server-side.
+    On success the modal dispatches a `user-updated` event on `document` with
+    `detail.user`, and the including page updates whatever it renders. %>
+<%# data-self-email is on the modal, not on the 删除用户 button, because that
+    button only renders for admins and the password/name lock below needs the
+    viewer's own address on every page. %>
+<div class="modal fade" id="edit-user-modal" tabindex="-1" role="dialog"
+     aria-labelledby="edit-user-title" aria-hidden="true"
+     data-self-email="<%= user ? user.email : '' %>">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+    <div class="modal-content">
+      <form id="edit-user-form">
+        <div class="modal-header">
+          <h5 class="modal-title" id="edit-user-title"><%= typeof editUserTitle === 'undefined' ? '编辑会员' : editUserTitle %></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="关闭">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div id="edit-user-alert" class="alert d-none" role="alert"></div>
+          <%# Shown by the open handler when the row belongs to another admin:
+              the photo, the password and the name are all locked there, and the
+              routes behind them refuse those writes anyway. %>
+          <div id="edit-user-locked-note" class="alert alert-info d-none" role="alert">
+            管理员的头像、密码和姓名只能由本人修改，这里只能修改场上位置。
+          </div>
+
+          <%# The avatar and the one control that changes it. Tapping the picture
+              opens it full size; tapping the pencil opens the file picker and
+              the upload starts on its own, the pencil turning into a spinner
+              and then a green tick. The bytes go to POST /api/users/:email/photo
+              — not through this form's PUT, which carries no photo key. %>
+          <div class="avatar-edit">
+            <a class="avatar-edit-view" id="edit-user-photo-link" href="#"
+               target="_blank" rel="noopener" title="查看大图">
+              <img class="avatar-edit-img" id="edit-user-photo" src="" alt="头像"
+                   width="96" height="96">
+            </a>
+            <%# Three icons, one per state; the class on the button decides which
+                one is shown, so nothing has to swap icon classes at runtime. %>
+            <button class="avatar-edit-btn" id="edit-user-photo-btn" type="button"
+                    title="更换头像" aria-label="更换头像">
+              <i class="fas fa-pen avatar-icon-idle" aria-hidden="true"></i>
+              <i class="fas fa-spinner fa-spin avatar-icon-busy" aria-hidden="true"></i>
+              <i class="fas fa-check avatar-icon-done" aria-hidden="true"></i>
+            </button>
+            <%# `accept` only filters the picker; the type check in the script and
+                the magic-byte sniff on the server are what actually hold. %>
+            <input class="d-none" id="edit-user-photo-input" type="file"
+                   accept="image/png, image/jpeg, image/webp, image/gif">
+          </div>
+
+          <div class="form-group field-inline-sm">
+            <label for="edit-user-email">账号</label>
+            <input class="form-control text-monospace" id="edit-user-email" type="text" readonly>
+          </div>
+          <div class="form-group field-inline-sm">
+            <label for="edit-user-password">密码</label>
+            <input class="form-control" id="edit-user-password" type="password"
+                   autocomplete="new-password" placeholder="留空表示不修改密码">
+            <small class="form-text text-muted">留空则保持原密码不变。</small>
+          </div>
+          <div class="form-group field-inline-sm">
+            <label for="edit-user-name">姓名</label>
+            <input class="form-control" id="edit-user-name" type="text" required>
+          </div>
+          <%# Still no 头像链接 field: the picture is changed by uploading one
+              from the avatar above, which writes the column through its own
+              endpoint. Omitting `profilePhoto` from this PUT body leaves the
+              column as it is — db.updateUser only writes keys that are present,
+              so saving the form never undoes an upload. %>
+          <div class="form-group field-inline-sm mb-0">
+            <label for="edit-user-position">场上位置</label>
+            <input class="form-control" id="edit-user-position" type="text"
+                   placeholder="如 前锋 / 中场 / 后卫 / 门将">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <%# Rendering-only check, like every other admin control: DELETE
+              /api/users/:email re-reads the role from the database. Under sm the
+              footer is column-reverse, so this first child is the bottom button. %>
+          <% if (user && user.role === 'ADMIN') { %>
+            <button class="btn btn-outline-danger mr-auto" id="edit-user-delete"
+                    type="button">删除用户</button>
+          <% } %>
+          <button class="btn btn-secondary" type="button" data-dismiss="modal">取消</button>
+          <button class="btn btn-brand" id="edit-user-save" type="submit">保存</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Deferred to DOMContentLoaded because jQuery and bootstrap's JS load from
+  // the footer partial, after this block is parsed.
+  document.addEventListener('DOMContentLoaded', function () {
+    var modal = document.getElementById('edit-user-modal');
+    var form = document.getElementById('edit-user-form');
+    var alertBox = document.getElementById('edit-user-alert');
+    var saveBtn = document.getElementById('edit-user-save');
+    var emailField = document.getElementById('edit-user-email');
+    var passwordField = document.getElementById('edit-user-password');
+    var nameField = document.getElementById('edit-user-name');
+    var positionField = document.getElementById('edit-user-position');
+    var deleteBtn = document.getElementById('edit-user-delete'); // admins only
+    var lockedNote = document.getElementById('edit-user-locked-note');
+    var photoImg = document.getElementById('edit-user-photo');
+    var photoLink = document.getElementById('edit-user-photo-link');
+    var photoBtn = document.getElementById('edit-user-photo-btn');
+    var photoInput = document.getElementById('edit-user-photo-input');
+    var selfEmail = modal.dataset.selfEmail || '';
+    var closeTimer = null;
+    // The row the modal was opened from, so an upload can put the new URL back
+    // on its data-photo — reopening it must not show the replaced picture.
+    var opener = null;
+    var photoFallback = '';   // the row's gravatar, shown when it has no photo
+    var photoCurrent = '';    // the committed avatar, restored if an upload fails
+    var previewUrl = null;    // object URL of the picture currently being sent
+    // First click on 删除用户 arms it, the second one sends the request — a
+    // native confirm() would sit on top of the modal and reads badly on a phone.
+    var deleteArmed = false;
+
+    function resetDelete() {
+      if (!deleteBtn) return;
+      deleteArmed = false;
+      deleteBtn.disabled = false;
+      deleteBtn.textContent = '删除用户';
+      deleteBtn.classList.remove('btn-danger');
+      deleteBtn.classList.add('btn-outline-danger');
+    }
+
+    function showAlert(kind, message) {
+      alertBox.className = 'alert alert-' + kind;
+      alertBox.textContent = message;
+    }
+
+    function hideAlert() {
+      alertBox.className = 'alert d-none';
+      alertBox.textContent = '';
+    }
+
+    // --- avatar ------------------------------------------------------------
+    // Downscale to a square before uploading: a phone camera JPEG is several
+    // megabytes and this picture is never drawn above 96px. The crop is from
+    // the centre, which is what `object-fit: cover` does to it everywhere it is
+    // rendered — so what is stored is what the member saw when they picked it.
+    var PHOTO_MAX_DIM = 512;
+
+    function squareJpeg(file) {
+      return new Promise(function (resolve, reject) {
+        var url = URL.createObjectURL(file);
+        var img = new Image();
+        img.onload = function () {
+          URL.revokeObjectURL(url);
+          var w = img.naturalWidth;
+          var h = img.naturalHeight;
+          if (!w || !h) return reject(new Error('无法读取该图片'));
+          var side = Math.min(w, h);
+          var size = Math.min(side, PHOTO_MAX_DIM);
+          var canvas = document.createElement('canvas');
+          canvas.width = size;
+          canvas.height = size;
+          canvas.getContext('2d')
+            .drawImage(img, (w - side) / 2, (h - side) / 2, side, side, 0, 0, size, size);
+          canvas.toBlob(function (blob) {
+            if (blob) resolve(blob); else reject(new Error('图片处理失败'));
+          }, 'image/jpeg', .85);
+        };
+        img.onerror = function () {
+          URL.revokeObjectURL(url);
+          reject(new Error('无法读取该图片'));
+        };
+        img.src = url;
+      });
+    }
+
+    // Both the <img> and the link to the full-size picture, which are always the
+    // same URL. onerror is re-armed every time: it clears itself after one
+    // failure, and a stored photo is a URL that can 404.
+    function showPhoto(url) {
+      photoImg.onerror = function () {
+        this.onerror = null;
+        this.src = photoFallback;
+        photoLink.href = photoFallback;
+      };
+      photoImg.src = url;
+      photoLink.href = url;
+    }
+
+    // One object URL at a time: the preview shown while an upload is in flight
+    // is released as soon as the saved picture (or the old one) replaces it.
+    function preview(url) {
+      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      previewUrl = url;
+      return url;
+    }
+
+    // idle -> uploading -> done. The tick stays green until the modal is opened
+    // again, so a member who looks away still sees that it worked.
+    function setPhotoState(state) {
+      photoBtn.classList.toggle('is-uploading', state === 'uploading');
+      photoBtn.classList.toggle('is-done', state === 'done');
+      photoBtn.disabled = state === 'uploading';
+    }
+
+    photoBtn.addEventListener('click', function () {
+      // Clearing it first is what lets the same file be picked twice running:
+      // `change` doesn't fire when the value is unchanged.
+      photoInput.value = '';
+      photoInput.click();
+    });
+
+    photoInput.addEventListener('change', function () {
+      var file = photoInput.files && photoInput.files[0];
+      if (!file) return;
+      // The picker's `accept` is a hint only — a member can still pick anything
+      // on some platforms, and the server sniffs the bytes regardless.
+      if (file.type.indexOf('image/') !== 0) {
+        return showAlert('danger', '只能上传图片文件');
+      }
+      var email = emailField.value;
+      hideAlert();
+      setPhotoState('uploading');
+      squareJpeg(file).then(function (blob) {
+        // Show it straight away: the request is the slow part, and the member
+        // has already chosen this picture.
+        showPhoto(preview(URL.createObjectURL(blob)));
+        return fetch('/api/users/' + encodeURIComponent(email) + '/photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'image/jpeg' },
+          body: blob
+        });
+      }).then(function (res) {
+        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.body.message || '上传失败');
+        var saved = r.body.user;
+        photoCurrent = saved.profilePhoto || photoFallback;
+        showPhoto(photoCurrent);
+        preview(null);
+        if (opener) opener.dataset.photo = saved.profilePhoto || '';
+        // Same contract as the save below: the including page owns whatever it
+        // rendered from this row and patches it from the event.
+        document.dispatchEvent(new CustomEvent('user-updated', { detail: { user: saved } }));
+        setPhotoState('done');
+      }).catch(function (err) {
+        showPhoto(photoCurrent);
+        preview(null);
+        setPhotoState('idle');
+        showAlert('danger', err.message);
+      });
+    });
+
+    document.querySelectorAll('.edit-user').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        // A pending auto-close from the previous save must not fire on the
+        // row the admin just opened.
+        clearTimeout(closeTimer);
+        hideAlert();
+        saveBtn.disabled = false;
+        resetDelete();
+        opener = btn;
+        // A row with no picture of its own shows the gravatar, exactly as the
+        // page it was opened from does.
+        photoFallback = btn.dataset.fallback || '';
+        photoCurrent = btn.dataset.photo || photoFallback;
+        preview(null);
+        showPhoto(photoCurrent);
+        setPhotoState('idle');
+        emailField.value = btn.dataset.email;
+        passwordField.value = '';
+        nameField.value = btn.dataset.name;
+        positionField.value = btn.dataset.position;
+        var isSelf = btn.dataset.email === selfEmail;
+        var isAdminRow = (btn.dataset.role || '').toUpperCase() === 'ADMIN';
+        // Someone else's admin row: password and name are off limits, 场上位置
+        // is not. Rendering only — the PUT re-reads the role and refuses them.
+        var locked = isAdminRow && !isSelf;
+        passwordField.disabled = locked;
+        nameField.disabled = locked;
+        // The picture is part of that identity, so the pencil goes with them —
+        // rendering only, like the fields: the upload route refuses it too.
+        photoBtn.classList.toggle('d-none', locked);
+        lockedNote.classList.toggle('d-none', !locked);
+        if (deleteBtn) {
+          // Deleting your own account would kill the session doing it, and no
+          // admin may be deleted at all — the route rejects both anyway, so this
+          // only keeps a button that can't work off the screen.
+          deleteBtn.classList.toggle('d-none', isSelf || isAdminRow);
+        }
+        $(modal).modal('show');
+      });
+    });
+
+    $(modal).on('hidden.bs.modal', function () {
+      clearTimeout(closeTimer);
+      passwordField.value = '';
+      resetDelete();
+      // An upload closed over mid-flight still resolves and still dispatches
+      // `user-updated`; only its preview URL is dropped here.
+      preview(null);
+    });
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var email = emailField.value;
+      hideAlert();
+      saveBtn.disabled = true;
+      // The locked fields are left out of the body entirely rather than sent
+      // unchanged: db.updateUser only writes the keys it is given.
+      var payload = { position: positionField.value };
+      if (!passwordField.disabled) payload.password = passwordField.value;
+      if (!nameField.disabled) payload.name = nameField.value;
+      fetch('/api/users/' + encodeURIComponent(email), {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function (res) {
+        return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+      }).then(function (r) {
+        if (!r.ok) throw new Error(r.body.message || '保存失败');
+        passwordField.value = '';
+        // The page that included this partial owns whatever it rendered from
+        // the user row, so hand it the saved values instead of reaching into
+        // markup this partial can't see.
+        document.dispatchEvent(new CustomEvent('user-updated', { detail: { user: r.body.user } }));
+        showAlert('success', 'Saved successfully');
+        closeTimer = setTimeout(function () { $(modal).modal('hide'); }, 5000);
+      }).catch(function (err) {
+        showAlert('danger', err.message);
+        saveBtn.disabled = false;
+      });
+    });
+
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', function () {
+        var email = emailField.value;
+        if (!deleteArmed) {
+          deleteArmed = true;
+          deleteBtn.textContent = '确认删除';
+          deleteBtn.classList.remove('btn-outline-danger');
+          deleteBtn.classList.add('btn-danger');
+          showAlert('warning', '删除后该会员的账号、报名和签到记录都会被移除，且无法恢复。再次点击“确认删除”继续。');
+          return;
+        }
+        clearTimeout(closeTimer);
+        hideAlert();
+        deleteBtn.disabled = true;
+        saveBtn.disabled = true;
+        fetch('/api/users/' + encodeURIComponent(email), {
+          method: 'DELETE'
+        }).then(function (res) {
+          return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+        }).then(function (r) {
+          if (!r.ok) throw new Error(r.body.message || '删除失败');
+          // Same contract as the save above: the including page owns whatever it
+          // rendered from this row and decides what to do with the news.
+          document.dispatchEvent(new CustomEvent('user-deleted', { detail: { email: email } }));
+          $(modal).modal('hide');
+        }).catch(function (err) {
+          showAlert('danger', err.message);
+          resetDelete();
+          saveBtn.disabled = false;
+        });
+      });
+    }
+  });
+</script>

@@ -1,0 +1,564 @@
+/* Month-grid calendar viewer (/calendar).
+   Built on the brand tokens declared in main.css. */
+
+.page-head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin: .5rem 0 1.25rem;
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+.page-head h3 {
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  color: var(--gsf-ink);
+}
+
+.page-head-sub {
+  font-size: .875rem;
+  color: var(--gsf-ink-soft);
+}
+
+/* Brand button, used for the admin "添加活动" action and the modal's confirm. */
+.btn-brand {
+  background: var(--gsf-600);
+  border: 1px solid var(--gsf-600);
+  color: #fff;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(16, 42, 67, .12);
+}
+
+.btn-brand:hover,
+.btn-brand:focus {
+  background: var(--gsf-700);
+  border-color: var(--gsf-700);
+  color: #fff;
+}
+
+.btn-brand:focus,
+.btn-brand.focus {
+  box-shadow: 0 0 0 3px var(--gsf-200);
+}
+
+.btn-brand:disabled { opacity: .65; }
+
+/* Success banner shown after an event is created; it fades itself out after
+   five seconds (see the script in calendar.ejs). */
+.flash-banner {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+  margin-bottom: 1rem;
+  padding: .75rem 1rem;
+  border: 1px solid #b7e4c7;
+  border-left: 4px solid #1f9254;
+  border-radius: 10px;
+  background: #eaf7ef;
+  color: #135c36;
+  font-size: .9375rem;
+  opacity: 1;
+  transition: opacity .4s ease, transform .4s ease;
+}
+
+.flash-banner i { color: #1f9254; }
+
+/* Same banner, deletion's colours: a green tick over "活动已删除" reads wrong. */
+.flash-banner.is-removed {
+  border-color: #f1c7c7;
+  border-left-color: #b02a37;
+  background: #fdf0f0;
+  color: #7a2029;
+}
+
+.flash-banner.is-removed i { color: #b02a37; }
+
+.flash-banner.is-leaving {
+  opacity: 0;
+  transform: translateY(-4px);
+}
+
+.card-surface {
+  background: #fff;
+  border: 1px solid var(--gsf-line);
+  border-radius: var(--gsf-radius);
+  box-shadow: var(--gsf-shadow);
+  overflow: hidden;
+}
+
+/* --- month bar ---------------------------------------------------------- */
+
+.cal-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: .875rem 1.125rem;
+  background: linear-gradient(135deg, var(--gsf-700), var(--gsf-500));
+  color: #fff;
+}
+
+.cal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: .01em;
+}
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: .375rem;
+}
+
+.cal-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 .625rem;
+  border-radius: 999px;
+  font-size: .8125rem;
+  line-height: 1;
+  color: #fff;
+  background: rgba(255, 255, 255, .14);
+  transition: background .15s ease, transform .15s ease;
+}
+
+.cal-btn:hover,
+.cal-btn:focus {
+  background: rgba(255, 255, 255, .28);
+  color: #fff;
+  text-decoration: none;
+}
+
+.cal-btn:active { transform: translateY(1px); }
+
+.cal-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* Already looking at the current month — keep the control visible but inert. */
+.cal-btn-today.is-disabled {
+  opacity: .5;
+  pointer-events: none;
+}
+
+/* --- grid --------------------------------------------------------------- */
+
+/* 1px of the container's background shows between cells, which gives hairline
+   rules without doubling borders where cells meet. */
+.cal-grid {
+  background: var(--gsf-line);
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  border-top: 1px solid var(--gsf-line);
+}
+
+.cal-weekdays,
+.cal-week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 1px;
+}
+
+.cal-weekday {
+  padding: .5rem .25rem;
+  background: var(--gsf-50);
+  color: var(--gsf-700);
+  font-size: .75rem;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+/* Weekends carry most of the club's fixtures, so the columns are tinted rather
+   than de-emphasised — the header labels stay in the same brand colour. */
+
+.cal-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-height: 108px;
+  padding: .375rem .375rem .5rem;
+  background: #fff;
+}
+
+.cal-day.is-weekend { background: var(--gsf-tint); }
+
+.cal-day.is-outside {
+  background: var(--gsf-outside);
+  color: var(--gsf-ink-faint);
+}
+
+.cal-day.is-outside .cal-date { color: var(--gsf-ink-faint); }
+
+.cal-date {
+  align-self: flex-end;
+  min-width: 1.625rem;
+  height: 1.625rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: .8125rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--gsf-ink-soft);
+}
+
+.cal-day.is-today { box-shadow: inset 0 0 0 2px var(--gsf-400); }
+
+.cal-day.is-today .cal-date {
+  background: var(--gsf-600);
+  color: #fff;
+}
+
+/* --- event chips -------------------------------------------------------- */
+
+.cal-event {
+  display: block;
+  padding: .25rem .4375rem .3125rem;
+  border-left: 3px solid var(--gsf-500);
+  border-radius: 5px;
+  background: var(--gsf-50);
+  color: var(--gsf-800);
+  font-size: .75rem;
+  line-height: 1.25;
+  transition: background .15s ease, transform .15s ease;
+}
+
+.cal-event:hover,
+.cal-event:focus {
+  background: var(--gsf-100);
+  color: var(--gsf-900);
+  text-decoration: none;
+  transform: translateX(1px);
+}
+
+.cal-event-time {
+  display: block;
+  font-size: .6875rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--gsf-600);
+}
+
+/* Titles are member-authored and can be long; clamp instead of stretching the
+   row, and keep the full text in the link's title attribute. */
+.cal-event-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  font-weight: 500;
+}
+
+/* An event not everyone can see. The amber edge is the whole signal — the chip
+   keeps its size and its layout, since a restricted event is still an ordinary
+   one to the member looking at it. */
+.cal-event.is-restricted {
+  border-left-color: #d39e00;
+  background: #fff8e6;
+}
+
+.cal-event-lock {
+  margin-right: .25rem;
+  font-size: .625rem;
+  color: #b07d00;
+}
+
+.cal-event.is-past {
+  border-left-color: var(--gsf-ink-faint);
+  background: #f1f3f5;
+  color: var(--gsf-ink-soft);
+}
+
+.cal-event.is-past .cal-event-time { color: var(--gsf-ink-faint); }
+
+.cal-event.is-past:hover,
+.cal-event.is-past:focus {
+  background: #e9ecef;
+  color: var(--gsf-ink);
+}
+
+.badge-brand {
+  background: var(--gsf-50);
+  color: var(--gsf-700);
+}
+
+/* --- full-viewport page --------------------------------------------------
+   /calendar is the whole screen: the month grid stretches to the bottom edge
+   and the page itself never scrolls. header.ejs puts .page-full on <body> and
+   swaps the wrapper to .container-fluid for that path. Every element between
+   the body and the week rows needs min-height:0 — the flex default of `auto`
+   makes them refuse to shrink below their content, which pushes the last week
+   out of sight instead of squeezing the rows. */
+.page-full {
+  height: 100vh;
+  height: 100dvh; /* mobile: don't count the collapsing address bar */
+  overflow: hidden;
+}
+
+.page-full .main-content {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding-bottom: 1rem;
+}
+
+/* The site footer would cost a row of days, and there is nowhere left to
+   scroll to it. */
+.page-full footer { display: none; }
+
+.page-full .page-head { margin-bottom: .75rem; }
+
+.page-full .cal {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.page-full .cal-grid {
+  flex: 1;
+  min-height: 0;
+}
+
+/* The six rows split whatever height is left, so cells no longer set it. */
+.page-full .cal-week {
+  flex: 1;
+  min-height: 0;
+}
+
+.page-full .cal-day {
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* A day with more events than fit scrolls inside its own cell rather than
+   compressing the chips — the cell is a flex column and they would otherwise
+   shrink to nothing. */
+.page-full .cal-day > * { flex: none; }
+
+/* --- event form modal (create + edit) ----------------------------------- */
+
+#event-modal .modal-content {
+  border: none;
+  border-radius: var(--gsf-radius);
+  box-shadow: 0 24px 64px rgba(16, 42, 67, .22);
+}
+
+#event-modal .modal-header {
+  align-items: center;
+  border-bottom: 1px solid var(--gsf-line);
+  background: var(--gsf-50);
+  border-radius: var(--gsf-radius) var(--gsf-radius) 0 0;
+}
+
+#event-modal .modal-title {
+  font-weight: 600;
+  color: var(--gsf-800);
+}
+
+#event-modal label {
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--gsf-ink-soft);
+  margin-bottom: .25rem;
+}
+
+#event-modal .form-control {
+  border-color: var(--gsf-line);
+  border-radius: 8px;
+}
+
+#event-modal .form-control:focus {
+  border-color: var(--gsf-400);
+  box-shadow: 0 0 0 3px var(--gsf-100);
+}
+
+#event-modal .modal-footer { border-top: 1px solid var(--gsf-line); }
+
+/* The <form> sits between .modal-content and .modal-body, so Bootstrap's
+   .modal-dialog-scrollable pair of rules (max-height + overflow:hidden on the
+   content, overflow-y:auto on the body) never meet: the form is the flex item,
+   and with the default min-height:auto it refuses to shrink, so the content
+   clips the footer instead of the body scrolling. Make the form the missing
+   link in the chain. */
+#event-modal .modal-dialog-scrollable .modal-content > form {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+#event-modal .modal-dialog-scrollable .modal-body { min-height: 0; }
+
+/* Check-in point picker inside the modal. */
+.ev-map-head {
+  display: flex;
+  align-items: center;
+  gap: .375rem;
+  margin-bottom: .375rem;
+}
+
+.ev-section-label {
+  font-size: .8125rem;
+  font-weight: 600;
+  color: var(--gsf-ink-soft);
+}
+
+.ev-map {
+  height: 240px;
+  border: 1px solid var(--gsf-line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--gsf-50);
+}
+
+/* Leaflet ships its own font stack; keep the map's labels on the page's. */
+.ev-map .leaflet-container { font: inherit; }
+
+/* Geocoder results, hanging under the 地点 field — which is the search box.
+   The list is in normal flow rather than an absolutely positioned dropdown:
+   the modal body is itself a scroll container, which would clip an overlay
+   hanging past its bottom edge. */
+.ev-search-results {
+  margin-top: .375rem;
+  max-height: 168px;
+  overflow-y: auto;
+  border: 1px solid var(--gsf-line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.ev-search-item {
+  display: block;
+  width: 100%;
+  padding: .4375rem .625rem;
+  border: 0;
+  border-bottom: 1px solid var(--gsf-line);
+  background: none;
+  text-align: left;
+  font-size: .8125rem;
+  line-height: 1.35;
+  color: var(--gsf-ink-soft);
+}
+
+.ev-search-item:last-child { border-bottom: 0; }
+
+.ev-search-item:hover,
+.ev-search-item:focus {
+  background: var(--gsf-50);
+  color: var(--gsf-800);
+}
+
+.ev-search-note {
+  padding: .4375rem .625rem;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+/* Drag target on the rim of the radius circle. Leaflet supplies the size and
+   the centring margins from the divIcon options. */
+.ev-radius-handle {
+  box-sizing: border-box;
+  border: 3px solid #28a745;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(16, 42, 67, .35);
+  cursor: nesw-resize;
+}
+
+/* A 16px dot is a poor finger target; widen the hit area without touching the
+   marker's own transform, which Leaflet owns for positioning. */
+.ev-radius-handle::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  bottom: -8px;
+  left: -8px;
+  border-radius: 50%;
+}
+
+/* --- narrow screens ------------------------------------------------------ */
+
+@media (max-width: 767.98px) {
+  .cal-day {
+    min-height: 84px;
+    padding: .25rem .25rem .375rem;
+  }
+
+  .cal-date {
+    min-width: 1.375rem;
+    height: 1.375rem;
+    font-size: .75rem;
+  }
+
+  .cal-event {
+    padding: .1875rem .25rem;
+    border-left-width: 2px;
+    font-size: .625rem;
+  }
+
+  /* Times don't survive the column width; the lists below carry the detail. */
+  .cal-event-time { display: none; }
+  .cal-event-title { -webkit-line-clamp: 2; }
+
+  .ev-map { height: 200px; }
+}
+
+/* Below sm a short form field puts its label on the same line as the input,
+   which buys back roughly a third of the form's height — used by both modals
+   (event and user). Only below sm: at 576px .form-row's columns go side by
+   side and the labels need the full width of their column again. */
+@media (max-width: 575.98px) {
+  .field-inline-sm {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+  }
+
+  /* A fixed label column keeps the inputs left-aligned with each other; the
+     four-character labels (活动名称, 人数上限, 场上位置) set the width. */
+  .field-inline-sm > label {
+    flex: 0 0 4.25rem;
+    margin-bottom: 0;
+    white-space: nowrap;
+  }
+
+  /* min-width:0 or a long placeholder pushes the input past the flex line. */
+  .field-inline-sm > .form-control {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  /* The hint under a field would land inside that flex row; the placeholders
+     say the same thing, so it is dropped rather than wrapped. */
+  .field-inline-sm > .form-text {
+    display: none;
+  }
+
+  /* The page title is the single biggest block of dead height on a phone:
+     a bootstrap h3 plus the rule under it costs ~70px before any content.
+     Shared by every page that uses .page-head. */
+  .page-head {
+    margin: .25rem 0 .75rem;
+    padding-bottom: .5rem;
+    gap: .5rem;
+  }
+
+  .page-head h3 {
+    font-size: 1.25rem;
+  }
+}

@@ -1,0 +1,90 @@
+<%- include('partials/header') %>
+<div class="page-head">
+  <h3>个人资料</h3>
+  <button class="btn btn-brand ml-auto edit-user"
+          type="button"
+          data-email="<%= profile.email %>"
+          data-name="<%= profile.name %>"
+          data-position="<%= profile.position || '' %>"
+          data-role="<%= profile.role %>"
+          data-photo="<%= profile.profilePhoto %>"
+          data-fallback="<%= avatarFallback %>">
+    <i class="fas fa-pen mr-1" aria-hidden="true"></i>编辑
+  </button>
+</div>
+
+<div class="card-surface profile-card">
+  <div class="profile-header">
+    <%# A stored photo is any URL the member typed, so it may 404 or be the wrong
+        shape: onerror drops back to the gravatar, and the CSS crops to the square. %>
+    <img class="profile-avatar" src="<%= avatar %>" alt="" width="72" height="72"
+         data-fallback="<%= avatarFallback %>"
+         onerror="this.onerror=null;this.src=this.dataset.fallback;">
+    <div class="profile-identity">
+      <div class="profile-name"><%= profile.name %></div>
+      <div class="profile-email text-monospace"><%= profile.email %></div>
+    </div>
+  </div>
+
+  <dl class="profile-fields">
+    <%# 账号 and 姓名 repeat the identity block above, so both rows drop on
+        phones (.profile-field-dup) where the card has no height to spare. %>
+    <div class="profile-field profile-field-dup">
+      <dt>账号</dt>
+      <dd class="profile-email-value text-monospace"><%= profile.email %></dd>
+    </div>
+    <div class="profile-field">
+      <dt>密码</dt>
+      <dd class="text-muted">••••••••<span class="profile-hint">在“编辑”里修改</span></dd>
+    </div>
+    <div class="profile-field profile-field-dup">
+      <dt>姓名</dt>
+      <dd class="profile-name-value"><%= profile.name %></dd>
+    </div>
+    <div class="profile-field">
+      <dt>场上位置</dt>
+      <dd>
+        <span class="position-badge profile-position<%= profile.position ? '' : ' is-empty' %>"><%= profile.position || '—' %></span>
+      </dd>
+    </div>
+    <div class="profile-field">
+      <dt>加入时间</dt>
+      <dd><%= profile.joined %></dd>
+    </div>
+    <div class="profile-field">
+      <dt>身份</dt>
+      <dd><%= profile.role === 'ADMIN' ? '管理员' : '会员' %></dd>
+    </div>
+  </dl>
+</div>
+
+<%- include('partials/user-edit-modal', { editUserTitle: '编辑个人资料' }) %>
+
+<script>
+  // Reflect the save into the card, the navbar name and the edit button's
+  // dataset, so a second edit starts from the new values without a reload.
+  document.addEventListener('user-updated', function (e) {
+    var saved = e.detail.user;
+    var position = saved.position || '';
+    document.querySelector('.profile-name').textContent = saved.name;
+    document.querySelector('.profile-name-value').textContent = saved.name;
+    var badge = document.querySelector('.profile-position');
+    badge.textContent = position || '—';
+    badge.classList.toggle('is-empty', !position);
+    var photo = saved.profilePhoto || '';
+    var avatar = document.querySelector('.profile-avatar');
+    // Re-arm onerror: it clears itself after one failure, and this is a new URL.
+    avatar.onerror = function () { this.onerror = null; this.src = this.dataset.fallback; };
+    avatar.src = photo || avatar.dataset.fallback;
+    var btn = document.querySelector('.edit-user');
+    btn.dataset.name = saved.name;
+    btn.dataset.position = position;
+    btn.dataset.photo = photo;
+    // Two copies of the name in the navbar: one in the collapse, one beside
+    // the hamburger for the widths where the collapse is closed.
+    document.querySelectorAll('.nav-user-name').forEach(function (el) {
+      el.textContent = saved.name;
+    });
+  });
+</script>
+<%- include('partials/footer') %>

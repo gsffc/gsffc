@@ -1,0 +1,833 @@
+/* Event page — the stacked action list under the event details.
+   Phone first, like the production app: one full-width button per row separated
+   by hairlines, so every action is a comfortable thumb target and nothing has to
+   share a line. From `sm` up the buttons fall back to their natural width, since
+   a full-bleed bar across a desktop column looks broken. Tokens come from the
+   top of main.css. */
+
+/* Signup roster — avatar over name, auto-filled into as many columns as fit.
+   `auto-fill` rather than a fixed count so the same grid works in the narrow
+   md+ sidebar and across a full-width phone screen.
+
+   No card around it: the border plus `.card-body`'s padding was ~2rem of the
+   sidebar's width, i.e. a whole column of avatars. The count is a plain heading
+   with a hairline under it instead of a `.card-header`. */
+.roster-head {
+  padding-bottom: .5rem;
+  margin-bottom: .75rem;
+  border-bottom: 1px solid var(--gsf-line);
+  font-size: .9375rem;
+  color: var(--gsf-ink-soft);
+}
+
+/* 自动分队 — one row per team above the roster, reusing `.roster-head` so the two
+   blocks read as one column. A row is [mark][names] on a single flex line with
+   only the names wrapping: the mark holds its size, so a long team never pushes
+   it out of alignment down the three rows. Sized for the ~300px col-md-4
+   sidebar, which is also what a phone gives it full width. */
+/* A hairline closes the block, the mirror of the one `.roster-head` opens 报名名单
+   with, so 分队 reads as a section of its own rather than running into the roster
+   below it. The padding keeps the rule nearer the last team than the heading it
+   separates them from. */
+.teams-block {
+  padding-bottom: .75rem;
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+.teams {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-row {
+  display: flex;
+  align-items: baseline;
+  gap: .25rem;
+  margin-bottom: .5rem;
+  font-size: .875rem;
+}
+
+.team-row:last-child {
+  margin-bottom: 0;
+}
+
+/* Mark + count, held together so the count never wraps onto a line without the
+   team it counts. `flex: none` — the names are the half that wraps. */
+.team-head {
+  display: inline-flex;
+  align-items: baseline;
+  flex: none;
+  gap: .25rem;
+}
+
+/* The emoji is the team's name, so it is the one thing set larger than the row. */
+.team-mark {
+  flex: none;
+  font-size: 1.125rem;
+  line-height: 1;
+}
+
+/* 目前几人/每队几人. Softened and set small: it qualifies the names, which are what
+   the block is read for. The 「：」 it ends with is the separator, which is why the
+   row's own gap is only .25rem — a full-width colon already carries space of its
+   own. */
+.team-count {
+  flex: none;
+  color: var(--gsf-ink-soft);
+  font-size: .8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* `min-width: 0` so a long list wraps inside the row instead of widening it —
+   names are comma-joined and can run to several lines on a phone. */
+.team-names {
+  min-width: 0;
+  overflow-wrap: break-word;
+}
+
+/* The viewer's own name, so "which team am I in" is answered by glance rather
+   than by reading the lists. A tinted chip on the brand ramp — 100 is a
+   background step, and the ink stays the 700 text step, which clears 4.5:1 over
+   it. Deliberately louder than bold alone: this is read at the pitch, outdoors,
+   on a phone, by somebody who is looking for exactly one word. */
+.team-name.is-me {
+  padding: .0625rem .375rem;
+  border-radius: 999px;
+  background: var(--gsf-100);
+  color: var(--gsf-700);
+  font-weight: 700;
+}
+
+/* A 试训/guest place — a body the club is expecting, not a member who signed up.
+   Softened rather than badged: it already sits last in its team and carries its
+   type in the name (张三（试训）), so the only job left is to keep it from being
+   mistaken for a member at a glance. Same treatment the waitlist gets on the
+   roster grid. */
+.team-name.is-guest {
+  color: var(--gsf-ink-soft);
+}
+
+.team-names.is-empty,
+.teams-locked {
+  color: var(--gsf-ink-soft);
+}
+
+.teams-locked {
+  font-size: .875rem;
+}
+
+/* Its own line rather than part of a wrapped sentence — the block sits in the
+   ~300px col-md-4 sidebar, where one count is already close to the full width. */
+.roster-count {
+  display: block;
+}
+
+/* 总人数 — the event's whole headcount, members and 试训 together, on its own
+   line under the members' count. It is the second-order number (the first line
+   is who is on the grid below it), so it is smaller and softer; 剩余名额 rides
+   with it because that is the half somebody deciding whether to sign up is
+   actually reading. */
+.roster-total {
+  display: block;
+  margin-top: .125rem;
+  font-size: .8125rem;
+  color: var(--gsf-ink-faint);
+}
+
+.roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr));
+  gap: .875rem .25rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.roster-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 0; /* grid items default to min-content; without this a long name widens the column */
+  text-align: center;
+}
+
+/* Width pinned to the image's, not left to shrink-wrap: the 代签到 strip below
+   is an in-flow child of this box and caps itself at `max-width: 100%`, so this
+   is what "no wider than the avatar" actually resolves against. */
+.roster-avatar {
+  position: relative;
+  display: block;
+  width: 48px;
+}
+
+/* `object-fit` matters: a member's own profile_photo is an arbitrary URL at an
+   arbitrary aspect ratio, unlike the square gravatar fallback. */
+.roster-avatar img {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--gsf-outside);
+  border: 1px solid var(--gsf-line);
+}
+
+.roster-avatar.is-checked-in img {
+  border-color: #28a745;
+  box-shadow: 0 0 0 2px rgba(40, 167, 69, .3);
+}
+
+.roster-tick {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  background: #28a745;
+  color: #fff;
+  font-size: .5rem;
+}
+
+/* A late check-in takes the green ring's slot, in red: the member did turn up,
+   so the avatar is still marked — just not as a clean arrival. */
+.roster-avatar.is-late img {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 2px rgba(220, 53, 69, .3);
+}
+
+/* The fine, as dollar signs. Red *signs* on white rather than a solid red pill:
+   at 10px a glyph knocked out of a red badge is much harder to count, and one
+   vs two signs is the whole message. The white ring is a box-shadow, not a
+   border, so the red outline stays hairline-thin at this size. `$$` is wider
+   than `$`, hence the pill shape shared with `.roster-queue`. */
+.roster-fine {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 .1875rem;
+  border-radius: .5625rem;
+  border: 1px solid #dc3545;
+  box-shadow: 0 0 0 2px #fff;
+  background: #fff;
+  color: #dc3545;
+  font-size: .625rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+
+/* 代签到 — an admin checked this member in for them. Both corner slots of the
+   avatar are already spoken for (a proxy check-in is still a check-in, so it
+   always carries the tick or the fine), and this mark has a name attached
+   rather than being a glyph, so it sits under the avatar at its left edge
+   instead of on it: in normal flow inside the 48px `.roster-avatar`, which is
+   what `max-width: 100%` below measures against. The circle holds its size and
+   the name is the half that gives way — one line, ellipsised — so the whole
+   strip can never be wider than the avatar and no name can widen the column.
+   Blue rather than the green of an arrival or the red of a fine: it says *how*
+   the check-in happened, not whether it counts. */
+.roster-proxy {
+  display: flex;
+  align-items: center;
+  gap: .125rem;
+  max-width: 100%;
+  /* Clears the tick/fine badge, which dips 1px past the avatar's bottom edge. */
+  margin-top: .1875rem;
+  font-size: .5625rem;
+  line-height: 1;
+  color: var(--gsf-ink-soft);
+}
+
+/* `inline-flex`, because this same mark is reused inline in the legend below. */
+.roster-proxy-mark {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: .875rem;
+  height: .875rem;
+  border-radius: 50%;
+  background: var(--gsf-600);
+  color: #fff;
+  font-size: .5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.roster-proxy-by {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A waitlisted member is on the same grid, one block below, but has no place at
+   the event yet — the avatar is dimmed and the tick badge's slot carries their
+   number in the queue instead. Dimming is `opacity` on the image alone, so the
+   badge and the name stay at full contrast. */
+.roster-avatar.is-waitlisted img {
+  opacity: .55;
+  border-style: dashed;
+}
+
+.roster-queue {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.125rem;
+  height: 1.125rem;
+  padding: 0 .1875rem;
+  border-radius: .5625rem;
+  border: 2px solid #fff;
+  background: var(--gsf-600);
+  color: #fff;
+  font-size: .625rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.roster-block-waitlist .roster-name {
+  color: var(--gsf-ink-soft);
+}
+
+/* Two lines, then clip: names run from "kzx" to "Xiangyu Meng" and a single
+   ellipsised line loses too much of the long ones. */
+.roster-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-top: .3125rem;
+  font-size: .75rem;
+  line-height: 1.25;
+  color: var(--gsf-600);
+  overflow-wrap: anywhere;
+}
+
+.roster-legend {
+  margin-top: 1rem;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+.roster-legend .fa-check {
+  color: #28a745;
+}
+
+/* The legend gains a second and third entry once anybody is fined, and it lives
+   in the ~300px sidebar — so the entries wrap as a sentence rather than sitting
+   on a row that would overflow. */
+.roster-legend-sep {
+  color: var(--gsf-line);
+}
+
+.roster-fine-sample {
+  color: #dc3545;
+  font-weight: 700;
+}
+
+/* 试训/Guest — the sidebar block under the roster. A list rather than the avatar
+   grid the roster uses: a guest has no account and so no picture, and the thing
+   worth reading is the name plus who is bringing them. It reuses `.roster-head`
+   so it reads as another section of the same column. */
+.guest-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* One line per guest, wrapping inside itself on a phone rather than widening the
+   ~300px sidebar. `baseline` so the name, its type chip and the meta text sit on
+   one optical line when they do fit. */
+.guest-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .25rem .375rem;
+  margin-bottom: .375rem;
+  font-size: .875rem;
+}
+
+.guest-item:last-child {
+  margin-bottom: 0;
+}
+
+.guest-name {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* 试训 or Guest — a chip rather than parentheses, because the two kinds are read
+   against each other down a list and the name is what should carry the weight.
+   The two kinds are **not** the same weight: a 试训 is somebody the club is
+   looking at and is what the 待批准 queue is sorted to put first, so its chip is
+   the amber one (the same amber a restricted event's chip carries on the
+   calendar) and reads as a mark, while a Guest keeps a plain grey chip that says
+   only which kind it is. Colour is the whole difference — the chip's size and
+   position are identical, so a list of them still reads as one column. */
+.guest-type {
+  flex: none;
+  padding: 0 .375rem;
+  border-radius: 999px;
+  background: #eef1f5;
+  color: var(--gsf-ink-soft);
+  font-size: .75rem;
+  line-height: 1.5;
+}
+
+.guest-type.is-trial {
+  background: #fff3d1;
+  color: #8a6100;
+  font-weight: 600;
+}
+
+.guest-meta {
+  min-width: 0;
+  color: var(--gsf-ink-soft);
+  font-size: .8125rem;
+  overflow-wrap: anywhere;
+}
+
+/* 名单 and 候补, stacked in the one block. The second is separated by a dashed
+   rule rather than sitting in a box of its own: they are two halves of one list,
+   and the sidebar has no room for a second bordered card. Only the *second* one
+   takes the rule, so whichever is rendered first runs straight on from the head
+   — which is what keeps it from stranding itself under the heading when there is
+   only one list to show. */
+.guest-section-sm + .guest-section-sm {
+  margin-top: .75rem;
+  padding-top: .625rem;
+  border-top: 1px dashed var(--gsf-line);
+}
+
+/* The heading is the only thing that says 名单 / 候补 — the rows under it do not
+   repeat themselves. 名单 is green because it is the half that means a real place
+   at the event; 候补 stays muted, like the queue it names. */
+.guest-sub-head {
+  margin-bottom: .375rem;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+.guest-sub-head.is-approved {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.guest-sub-count {
+  color: var(--gsf-ink-faint);
+}
+
+/* A 试训/Guest waiting for a place rather than holding one. It is the
+   same fact the roster grid's `.roster-queue` badge carries for a member, and it
+   is deliberately the same blue: the queue is one queue, so 候补 3 in this list
+   and 3 on the avatar grid are the same position in the same line. A chip rather
+   than a corner badge, because this list has no avatar to hang one on. */
+.guest-queue {
+  flex: none;
+  padding: 0 .375rem;
+  border-radius: 999px;
+  background: var(--gsf-600);
+  color: #fff;
+  font-size: .6875rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* 添加/移出 试训/Guest dialog. Two stacked sections — the list and 直接添加 — each
+   headed and ruled off, so they never read as one. */
+.guest-section + .guest-section {
+  margin-top: 1.25rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--gsf-line);
+}
+
+.guest-section-head {
+  margin-bottom: .5rem;
+  font-size: .9375rem;
+  font-weight: 600;
+  color: var(--gsf-ink);
+}
+
+.guest-section-count {
+  font-weight: 400;
+  color: var(--gsf-ink-soft);
+}
+
+.guest-review-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* [name + who/when][action], with the action holding its size at the end of the
+   row and the text half being the one that shrinks — so no name can push the
+   button off a 320px screen. The armed warning is a third child and takes the
+   full width under both. */
+.guest-review-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  padding: .625rem 0;
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+.guest-review-item:first-child {
+  padding-top: 0;
+}
+
+.guest-review-item:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+/* `flex-basis: 0`, not `auto`: with `flex-wrap: wrap` on the row, an `auto` basis
+   makes the browser weigh this half at its *max-content* width and drop the
+   button onto its own line the moment the "由 X 提交 · Y 批准于 …" line gets long
+   — which it does as soon as a member has a three-character name. A zero basis
+   never asks for that width, so the button stays at the end of the row and the
+   text is the half that wraps. The armed warning still takes a line of its own,
+   through its own `flex: 0 0 100%`. */
+.guest-review-body {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.guest-review-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: .375rem;
+}
+
+.guest-review-meta {
+  margin-top: .125rem;
+  color: var(--gsf-ink-soft);
+  font-size: .8125rem;
+  overflow-wrap: anywhere;
+}
+
+.guest-review-btn {
+  flex: none;
+  min-width: 4.5rem;
+}
+
+/* The armed 移出's warning — the whole width of the row, under both halves, so
+   an admin reads what the second tap will do before making it. */
+.guest-review-warn {
+  flex: 0 0 100%;
+  margin: .375rem 0 0;
+  padding: .5rem .625rem;
+  border-radius: .25rem;
+  background: rgba(220, 53, 69, .08);
+  color: #a71d2a;
+  font-size: .8125rem;
+  line-height: 1.5;
+}
+
+.guest-review-empty {
+  color: var(--gsf-ink-soft);
+  font-size: .875rem;
+}
+
+.guest-add-hint {
+  margin: .5rem 0 0;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+/* 罚款统计 — the tally of a finished event, one line per tier. Deliberately a
+   tinted panel rather than a `.card`: it is a verdict on the roster above, not
+   another section of the page, and the red wash is what makes it read that way
+   at a glance on a phone. */
+.event-fines {
+  padding: .875rem 1rem;
+  border: 1px solid rgba(220, 53, 69, .25);
+  border-left: 3px solid #dc3545;
+  border-radius: .375rem;
+  background: rgba(220, 53, 69, .04);
+}
+
+/* The title and the 复制 button share this line — the button acts on the whole
+   panel, so it belongs at its head rather than under the tiers. */
+.event-fines-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .5rem;
+  margin-bottom: .5rem;
+  font-size: .9375rem;
+  font-weight: 600;
+  color: var(--gsf-ink-soft);
+}
+
+/* Compact, but never below the 44px touch target on a phone — it sits on a
+   heading line, so the height comes from padding rather than a fixed box. */
+.event-fine-copy {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: .375rem;
+  padding: .25rem .625rem;
+  font-size: .8125rem;
+  font-weight: 600;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+/* Success keeps the button's own colours rather than turning green: it is the
+   tick and the word that report the copy, and a second colour in a red panel
+   reads as a different kind of message. */
+.event-fine-copy.is-copied {
+  background: rgba(220, 53, 69, .1);
+}
+
+@media (hover: none) {
+  .event-fine-copy {
+    min-height: 2.25rem;
+    padding-right: .75rem;
+    padding-left: .75rem;
+  }
+}
+
+/* The name lists wrap freely; the tier is what must never break off its line. */
+.event-fine-row {
+  margin-bottom: .375rem;
+  font-size: .9375rem;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.event-fine-amount {
+  display: inline-block;
+  min-width: 2.25rem;
+  margin-right: .25rem;
+  color: #dc3545;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* $10 is the heavier of the two, and the pair are read against each other. */
+.event-fine-amount.is-heavy {
+  color: #a71d2a;
+}
+
+.event-fine-names.is-empty {
+  color: var(--gsf-ink-soft);
+}
+
+.event-fine-note {
+  margin-top: .625rem;
+  font-size: .8125rem;
+  color: var(--gsf-ink-soft);
+}
+
+/* Check-in row: the button and the reason it is (not) usable. Phone first — the
+   button takes the full width with its hint underneath, and the two share a line
+   from `sm` up, where a full-bleed button in the details column looks broken. */
+.checkin-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+}
+
+.btn-checkin {
+  width: 100%;
+  padding-top: .625rem;
+  padding-bottom: .625rem;
+  font-size: 1.0625rem;
+}
+
+/* Both gates are open: a ring pulsing out from behind the button. It is a
+   `box-shadow`, not a scaled pseudo-element — a shadow paints outside the box
+   without ever widening it, so a full-width button on a 320px screen can't push
+   the page into horizontal scroll. */
+.btn-checkin.is-ready {
+  animation: checkin-pulse 1.8s ease-out infinite;
+}
+
+@keyframes checkin-pulse {
+  0%   { box-shadow: 0 0 0 0 rgba(40, 167, 69, .55); }
+  70%  { box-shadow: 0 0 0 .875rem rgba(40, 167, 69, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+}
+
+/* Past kick-off and still not checked in. The button is already amber by then
+   (Bootstrap's `btn-warning`, swapped in by `setUrgent`); this is the other half
+   of the same signal — the ring goes amber to match, and 50% faster, which is
+   1.2s against the calm state's 1.8s. Only the duration and the colour change:
+   the geometry stays identical so the two states read as one thing speeding up
+   rather than as two different animations. */
+.btn-checkin.is-urgent.is-ready {
+  animation-name: checkin-pulse-urgent;
+  animation-duration: 1s;
+}
+
+@keyframes checkin-pulse-urgent {
+  0%   { box-shadow: 0 0 0 0 rgba(255, 193, 7, .7); }
+  70%  { box-shadow: 0 0 0 .875rem rgba(255, 193, 7, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 193, 7, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .btn-checkin.is-ready {
+    animation: none;
+    box-shadow: 0 0 0 .1875rem rgba(40, 167, 69, .4);
+  }
+
+  /* No animation to speed up, so urgency is carried by the ring's colour alone. */
+  .btn-checkin.is-urgent.is-ready {
+    animation: none;
+    box-shadow: 0 0 0 .1875rem rgba(255, 193, 7, .65);
+  }
+}
+
+.checkin-hint {
+  flex: 1 1 12rem;
+  min-width: 0;
+  font-size: .875rem;
+  color: var(--gsf-ink-soft);
+}
+
+.checkin-hint.is-ready {
+  color: #28a745;
+  font-weight: 600;
+}
+
+/* "活动已开始，请赶快到场签到" — a warning, so it is weighted and coloured like
+   one. Bootstrap's own `warning` amber is too pale to read as body text on
+   white; this is the darker text tone from its warning alert. */
+.checkin-hint.is-urgent {
+  color: #856404;
+  font-weight: 600;
+}
+
+/* Tabular figures so the seconds ticking down don't shuffle the line's width. */
+.checkin-countdown {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  color: var(--gsf-600);
+  white-space: nowrap;
+}
+
+@media (min-width: 576px) {
+  .btn-checkin {
+    width: auto;
+    min-width: 11rem;
+    font-size: 1rem;
+  }
+}
+
+.event-actions {
+  margin-top: 1.5rem;
+}
+
+.event-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem .75rem;
+  padding: .875rem 0;
+  border-top: 1px solid var(--gsf-line);
+}
+
+.event-action:last-child {
+  border-bottom: 1px solid var(--gsf-line);
+}
+
+/* The forms are only there to carry the POST; they must not add layout. */
+.event-action form {
+  width: 100%;
+  margin: 0;
+}
+
+.btn-action {
+  width: 100%;
+  padding-top: .625rem;
+  padding-bottom: .625rem;
+  font-size: 1.0625rem;
+}
+
+.event-action-note {
+  font-size: .9375rem;
+}
+
+/* 代签到 dialog. The status line is the whole gate made visible — why the 签到
+   button is or isn't usable — so it gets the same three tones the check-in hint
+   uses, and enough padding to read as a panel rather than a caption. */
+.proxy-note {
+  margin-bottom: 1rem;
+  font-size: .8125rem;
+  line-height: 1.5;
+  color: var(--gsf-ink-soft);
+}
+
+.proxy-status {
+  padding: .5rem .625rem;
+  border-radius: .25rem;
+  background: var(--gsf-outside);
+  font-size: .875rem;
+  color: var(--gsf-ink-soft);
+}
+
+.proxy-status.is-ready {
+  background: rgba(40, 167, 69, .1);
+  color: #28a745;
+  font-weight: 600;
+}
+
+.proxy-status.is-error {
+  background: rgba(220, 53, 69, .08);
+  color: #dc3545;
+}
+
+/* 确认删除 sits in a <form> so it can POST, but the footer's flex layout — and
+   the full-width stacking members.css does to it below sm — only reach direct
+   `.btn` children. The form has to carry both itself, or the button is a lone
+   auto-width island in a column of full-width ones. */
+#delete-event-modal .modal-footer form {
+  margin: 0;
+}
+
+@media (max-width: 575.98px) {
+  #delete-event-modal .modal-footer form,
+  #delete-event-modal .modal-footer form .btn {
+    width: 100%;
+  }
+
+  #delete-event-modal .modal-footer form .btn {
+    padding-top: .5625rem;
+    padding-bottom: .5625rem;
+  }
+}
+
+@media (min-width: 576px) {
+  .event-action {
+    padding: .75rem 0;
+  }
+
+  .event-action form {
+    width: auto;
+  }
+
+  .btn-action {
+    width: auto;
+    min-width: 11rem;
+    font-size: 1rem;
+  }
+}

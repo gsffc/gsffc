@@ -1,0 +1,22 @@
+{
+  "name": "app.gsffc.org",
+  "version": "1.0.0",
+  "description": "GSF俱乐部会员App  - event signup web app",
+  "main": "server.js",
+  "engines": {
+    "node": "22.x"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-pg-simple": "^10.0.0",
+    "dotenv": "^17.4.2",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "express-session": "^1.18.1",
+    "pg": "^8.21.0",
+    "serverless-http": "^4.0.0"
+  }
+}
