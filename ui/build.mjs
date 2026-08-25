@@ -45,8 +45,8 @@ function renderHeader({
   loginSlotFile,
   logoUrl,
   assetPrefix,
-  brandHref,
   brandName,
+  crossActive, // "news" on www, "app" on the app
 }) {
   const slot = read(`ui/slots/${slotFile}`);
   const loginSlot = read(`ui/slots/${loginSlotFile}`);
@@ -58,10 +58,17 @@ function renderHeader({
   const out = body
     .replace(SLOT_NAV, slot.trimEnd())
     .replace(SLOT_LOGIN, loginSlot.trimEnd())
-    .replaceAll("{{BRAND_HREF}}", brandHref)
     .replaceAll("{{BRAND_NAME}}", brandName)
     .replaceAll("{{LOGO_URL}}", logoUrl)
-    .replaceAll("{{UI_ASSET_PREFIX}}", assetPrefix);
+    .replaceAll("{{UI_ASSET_PREFIX}}", assetPrefix)
+    .replaceAll(
+      "{{CROSS_ACTIVE_NEWS}}",
+      crossActive === "news" ? ' class="active"' : "",
+    )
+    .replaceAll(
+      "{{CROSS_ACTIVE_APP}}",
+      crossActive === "app" ? ' class="active"' : "",
+    );
   const leftover = out.match(/\{\{[A-Z_]+\}\}|@slot:/);
   if (leftover)
     throw new Error(`unsubstituted marker left in header: ${leftover[0]}`);
@@ -76,9 +83,8 @@ write(
     loginSlotFile: "www-login.html",
     logoUrl: "/favicon.png",
     assetPrefix: "/assets/ui",
-    // Brand is www-internal: keep it language-aware (zh / vs en /en/).
-    brandHref: '{{ "/" | langUrl }}',
     brandName: '{{ meta | ifield: "title" }}',
+    crossActive: "news",
   }),
 );
 write("site/assets/ui/ui.css", css);
@@ -94,8 +100,8 @@ if (existsSync(join(ROOT, "app", "package.json"))) {
       loginSlotFile: "app-login.ejs",
       logoUrl: "/favicon.png",
       assetPrefix: "/ui",
-      brandHref: "/",
       brandName: "GSF足球俱乐部",
+      crossActive: "app",
     }),
   );
   write("app/public/ui/ui.css", css);

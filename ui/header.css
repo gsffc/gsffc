@@ -51,6 +51,15 @@
 .gsf-cross-nav a:hover {
   text-decoration: underline;
 }
+.gsf-cross-nav a.active {
+  font-weight: 600;
+  color: var(--gsf-brand);
+}
+
+/* Login corner: hover reveals a small menu (登出) under the member's name. */
+.gsf-login-corner .gsf-dropdown-content {
+  min-width: 90px;
+}
 
 /* Per-site internal nav slot (www dropdowns use .gsf-dropdown above; the app
    uses .gsf-app-nav). */

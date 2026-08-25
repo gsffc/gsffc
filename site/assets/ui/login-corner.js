@@ -14,10 +14,19 @@
     .then((res) => (res.ok ? res.json() : null))
     .then((data) => {
       if (!data || typeof data.name !== "string" || !data.name) return;
+      // Signed in: name with a hover menu holding 登出 (mirrors the app's
+      // server-rendered corner, ui/slots/app-login.ejs).
       const link = document.createElement("a");
       link.href = "https://app.gsffc.org/profile";
-      link.textContent = data.name;
-      corner.replaceChildren(link);
+      link.textContent = `${data.name} ▾`;
+      const menu = document.createElement("div");
+      menu.className = "gsf-dropdown-content";
+      const logout = document.createElement("a");
+      logout.href = "https://app.gsffc.org/logout";
+      logout.textContent = "登出";
+      menu.appendChild(logout);
+      corner.classList.add("gsf-dropdown");
+      corner.replaceChildren(link, menu);
     })
     .catch(() => {
       // Endpoint absent/unreachable (pre-#10, app down, CORS) — keep the link.

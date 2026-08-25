@@ -1,9 +1,7 @@
 <%# App-internal nav, rendered inside the shared header shell (generated into
-    app/views/partials/shared-header.ejs by `npm run ui:build`). The login
-    corner is separate and script-driven (ui/login-corner.js); logout stays
-    here because it needs no state round-trip. %>
+    app/views/partials/shared-header.ejs by `npm run ui:build`). 登出 lives in
+    the login corner's hover menu (ui/slots/app-login.ejs), not here. %>
 <nav class="gsf-app-nav">
   <a href="/calendar"<% if (path === '/calendar') { %> class="active"<% } %>>活动日历</a>
   <a href="/members"<% if (path === '/members') { %> class="active"<% } %>>会员列表</a>
-  <% if (user) { %><a href="/logout">登出</a><% } %>
 </nav>
