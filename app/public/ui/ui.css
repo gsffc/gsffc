@@ -103,8 +103,12 @@
   text-decoration: underline;
 }
 .gsf-app-nav a.active {
-  font-weight: 600;
-  color: var(--gsf-brand);
+  /* Second-level (current page): quiet underline, distinct from the
+     site-level active tab (bold brand color, .gsf-cross-nav a.active). */
+  text-decoration: underline;
+  text-decoration-color: var(--gsf-brand);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
 }
 
 .gsf-login-corner {
