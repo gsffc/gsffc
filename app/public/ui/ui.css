@@ -23,6 +23,9 @@
   min-height: 56px;
   position: relative;
   font-family: var(--gsf-font);
+  /* Pin the bar's color: each site's body background differs (minima #fdfdfd
+     on www, Bootstrap white on the app) and the bar must match on both. */
+  background-color: var(--gsf-background);
 }
 
 .gsf-header-inner {
@@ -49,6 +52,12 @@
 }
 .gsf-brand:visited {
   color: var(--gsf-grey-dark);
+}
+/* Bootstrap on the app paints anchors blue + underlined on hover. */
+.gsf-brand:hover,
+.gsf-brand:focus {
+  color: var(--gsf-grey-dark);
+  text-decoration: none;
 }
 .gsf-brand-logo {
   height: 1.5em;
