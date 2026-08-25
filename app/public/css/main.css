@@ -29,6 +29,9 @@ body {
   display: flex;
   min-height: 100vh;
   flex-direction: column;
+  /* Shared with www (ui/tokens.css, linked via /ui/ui.css): one page color
+     across both sites. */
+  background-color: var(--gsf-background);
 }
 
 .main-content {
