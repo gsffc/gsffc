@@ -860,8 +860,10 @@ to name — and `/event/:id` hangs `fine`/`lateLabel` off each participant. The 
   seconds, but `checked_in_at` is a real timestamp that has them, so "on time" has to be a span rather
   than an instant: anything inside the starting minute counts as punctual (for a 19:50 kick-off, up to
   19:50:58). The club states it as "19:50:59 前签到都不算迟到".
-- Past that there is one boundary, **`FINE_TIER_MS` (5 minutes) after kick-off, and that instant is still
-  the cheaper side of it** (`late <= FINE_TIER_MS`): ≤5 min late is $5, beyond it $10.
+- Past that there is one boundary, **`FINE_TIER_MS` (5 minutes + `FINE_GRACE_MS`) after kick-off, and
+  that instant is still the cheaper side of it** (`late <= FINE_TIER_MS`). The boundary carries the same
+  whole-minute grace the start does — the fifth minute is $5 all the way through — so for a 19:50
+  kick-off 19:55:59 owes $5 and 19:56:00 owes $10.
 - **Absence costs the same as the far tier**, which is why both are `FINE_VERY_LATE` — but only once the
   event is over. `lateness` takes `ended` (the route's `hasEnded`) for exactly that: before the end a
   member who has not checked in has simply not arrived yet, and fining them would be a live accusation

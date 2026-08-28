@@ -446,10 +446,13 @@ function atTheField(event, body) {
 // a check-in anywhere inside the starting minute is still on time (the club's
 // rule: for a 19:50 kick-off, up to 19:50:58 is not late). Past that there is
 // one boundary, FINE_TIER_MS after kick-off, and that instant itself is still
-// the cheaper side of it. A member who never checked in owes the higher fine
-// too, which is why absence and the far tier share FINE_VERY_LATE.
+// the cheaper side of it. That boundary carries the same whole-minute grace as
+// FINE_GRACE_MS — the club counts the fifth minute as $5 all the way through,
+// so for a 19:50 kick-off 19:55:59 still owes $5 and 19:56:00 owes $10. A
+// member who never checked in owes the higher fine too, which is why absence
+// and the far tier share FINE_VERY_LATE.
 const FINE_GRACE_MS = 59 * 1000;
-const FINE_TIER_MS = 5 * 60 * 1000;
+const FINE_TIER_MS = 5 * 60 * 1000 + FINE_GRACE_MS;
 const FINE_LATE = 5;
 const FINE_VERY_LATE = 10;
 
