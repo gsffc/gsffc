@@ -14,9 +14,9 @@ How each half deploys, and how to roll back.
 - **Rollback**: revert the offending commit on `main` (a revert PR redeploys
   in ~2 min), or re-run the last good Pages workflow run (Actions → run →
   Re-run jobs). For a full stop, remove the custom domain in Pages settings.
-- **Deploy job gating**: the deploy job is skipped while the repo is private
-  (GitHub Free has no Pages on private repos; see #17). Public repo = deploys
-  just happen.
+- **Public repo required**: GitHub Free serves Pages only on public repos — if
+  the repo is ever flipped back to private, the deploy job starts failing
+  (this is why the job was gated pre-cutover, #17).
 
 ## app/ → Netlify → app.gsffc.org
 
