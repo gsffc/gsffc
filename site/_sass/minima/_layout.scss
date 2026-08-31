@@ -98,6 +98,11 @@
   color: $grey-color;
 }
 
+.post-pinned {
+  color: $brand-color;
+  font-weight: bold;
+}
+
 .post-link {
   display: block;
   @include relative-font-size(1.5);

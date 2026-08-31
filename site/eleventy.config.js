@@ -37,11 +37,18 @@ export default function (eleventyConfig) {
   eleventyConfig.addGlobalData("gamesFlat", gamesFlat);
   eleventyConfig.addGlobalData("teamsFlat", teamsFlat);
 
+  // Posts with `pinned: true` in front matter float to the top of the home
+  // page list; everything else stays reverse-chronological. Tag pages (below)
+  // deliberately ignore pinning.
   eleventyConfig.addCollection("posts", (api) =>
     api
       .getFilteredByGlob("_posts/*.md")
       .filter((item) => item.data.validPost)
-      .sort((a, b) => b.date - a.date),
+      .sort(
+        (a, b) =>
+          Number(Boolean(b.data.pinned)) - Number(Boolean(a.data.pinned)) ||
+          b.date - a.date,
+      ),
   );
 
   eleventyConfig.addCollection("tagPages", (api) => {

@@ -12,6 +12,9 @@ layout: default
     <ul class="post-list">
       {%- for post in collections.posts -%}
       <li>
+        {%- if post.data.pinned -%}
+          <span class="post-meta post-pinned">置顶</span>
+        {%- endif -%}
         <span class="post-meta">
           {{ post.date | date: meta.dateFormat }}
         </span>
