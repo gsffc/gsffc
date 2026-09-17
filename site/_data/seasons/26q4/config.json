@@ -1,0 +1,30 @@
+{
+  "display_name_zh": "26-27 11人制",
+  "display_name": "26-27 11v11",
+  "description": "NCCSF 2026秋 11人制联赛（Open 组）",
+  "type": "division",
+  "link": "https://nccsf.org",
+  "rules": "*11人制\n*14 队单循环",
+  "interested_teams": [
+    "GSFUnited",
+    "GSFLocomotive"
+  ],
+  "divisions": {
+    "Open": [
+      "AthleticCapybara",
+      "CalBlue",
+      "EBURangers",
+      "GSFLocomotive",
+      "GSFUnited",
+      "HeHeFC",
+      "Hunters",
+      "JTU",
+      "OverPower",
+      "OX9FC",
+      "PPUnited",
+      "DeepShoreline",
+      "SouthBayFC",
+      "THUWest"
+    ]
+  }
+}

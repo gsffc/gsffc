@@ -1,0 +1,10 @@
+{
+  "display_name": "GSF-Locomotive",
+  "display_name_zh": "GSF-Locomotive",
+  "description": "",
+  "players": {
+    "starting": [],
+    "subs": []
+  },
+  "logo": "teams/GSF/logo.png"
+}

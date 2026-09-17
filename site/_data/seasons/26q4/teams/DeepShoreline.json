@@ -1,0 +1,10 @@
+{
+  "display_name": "Deep Shoreline",
+  "display_name_zh": "Deep Shoreline",
+  "description": "原 Deep Soccer 与 Shoreline 合并",
+  "players": {
+    "starting": [],
+    "subs": []
+  },
+  "logo": "teams/DeepShoreline/logo.png"
+}
