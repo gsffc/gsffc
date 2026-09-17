@@ -1,1 +1,12 @@
 @import "minima";
+
+/* Standings table: no grid, keep zebra striping */
+.standings table {
+  border: none;
+  th, td {
+    border: none;
+  }
+  th {
+    background-color: transparent;
+  }
+}
