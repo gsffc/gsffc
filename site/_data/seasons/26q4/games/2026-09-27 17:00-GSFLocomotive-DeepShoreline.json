@@ -2,10 +2,11 @@
   "date": "2026-09-27 17:00 00:00",
   "type": "Sun Open-3",
   "home": {
-    "key": "GSFLocomotive"
+    "key": "GSFLocomotive",
+    "score": 1
   },
   "away": {
-    "key": "DeepShoreline"
-  },
-  "schedule": true
+    "key": "DeepShoreline",
+    "score": 5
+  }
 }

@@ -2,10 +2,11 @@
   "date": "2026-09-27 20:00 00:00",
   "type": "Sun Open-3",
   "home": {
-    "key": "OverPower"
+    "key": "OverPower",
+    "score": 0
   },
   "away": {
-    "key": "PPUnited"
-  },
-  "schedule": true
+    "key": "PPUnited",
+    "score": 2
+  }
 }

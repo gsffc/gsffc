@@ -2,10 +2,11 @@
   "date": "2026-09-20 18:00 00:00",
   "type": "Sun Open-2",
   "home": {
-    "key": "OX9FC"
+    "key": "OX9FC",
+    "score": 1
   },
   "away": {
-    "key": "Hunters"
-  },
-  "schedule": true
+    "key": "Hunters",
+    "score": 2
+  }
 }

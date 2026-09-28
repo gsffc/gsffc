@@ -2,10 +2,11 @@
   "date": "2026-09-27 20:00 00:00",
   "type": "Sun Open-3",
   "home": {
-    "key": "SouthBayFC"
+    "key": "SouthBayFC",
+    "score": 3
   },
   "away": {
-    "key": "AthleticCapybara"
-  },
-  "schedule": true
+    "key": "AthleticCapybara",
+    "score": 0
+  }
 }

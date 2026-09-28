@@ -2,10 +2,11 @@
   "date": "2026-09-27 19:00 00:00",
   "type": "Sun Open-3",
   "home": {
-    "key": "JTU"
+    "key": "JTU",
+    "score": 2
   },
   "away": {
-    "key": "OX9FC"
-  },
-  "schedule": true
+    "key": "OX9FC",
+    "score": 1
+  }
 }
