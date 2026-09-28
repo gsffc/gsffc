@@ -2,10 +2,11 @@
   "date": "2026-09-20 19:00 00:00",
   "type": "Sun Open-2",
   "home": {
-    "key": "GSFLocomotive"
+    "key": "GSFLocomotive",
+    "score": 0
   },
   "away": {
-    "key": "GSFUnited"
-  },
-  "schedule": true
+    "key": "GSFUnited",
+    "score": 2
+  }
 }

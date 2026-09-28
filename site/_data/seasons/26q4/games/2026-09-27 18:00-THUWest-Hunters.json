@@ -2,10 +2,11 @@
   "date": "2026-09-27 18:00 00:00",
   "type": "Sun Open-3",
   "home": {
-    "key": "THUWest"
+    "key": "THUWest",
+    "score": 1
   },
   "away": {
-    "key": "Hunters"
-  },
-  "schedule": true
+    "key": "Hunters",
+    "score": 7
+  }
 }
