@@ -2,10 +2,11 @@
   "date": "2026-10-04 19:00 00:00",
   "type": "Sun Open-4",
   "home": {
-    "key": "GSFUnited"
+    "key": "GSFUnited",
+    "score": 7
   },
   "away": {
-    "key": "OverPower"
-  },
-  "schedule": true
+    "key": "OverPower",
+    "score": 1
+  }
 }

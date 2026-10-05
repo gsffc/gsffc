@@ -2,10 +2,11 @@
   "date": "2026-10-03 20:00 00:00",
   "type": "Sat Open-4",
   "home": {
-    "key": "EBURangers"
+    "key": "SouthBayFC",
+    "score": 5
   },
   "away": {
-    "key": "DeepShoreline"
-  },
-  "schedule": true
+    "key": "THUWest",
+    "score": 0
+  }
 }

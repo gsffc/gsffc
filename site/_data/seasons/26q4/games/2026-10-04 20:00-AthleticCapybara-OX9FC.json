@@ -2,10 +2,11 @@
   "date": "2026-10-04 20:00 00:00",
   "type": "Sun Open-4",
   "home": {
-    "key": "AthleticCapybara"
+    "key": "AthleticCapybara",
+    "score": 1
   },
   "away": {
-    "key": "OX9FC"
-  },
-  "schedule": true
+    "key": "OX9FC",
+    "score": 0
+  }
 }

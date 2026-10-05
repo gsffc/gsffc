@@ -2,10 +2,11 @@
   "date": "2026-10-04 20:00 00:00",
   "type": "Sun Open-4",
   "home": {
-    "key": "Hunters"
+    "key": "Hunters",
+    "score": 4
   },
   "away": {
-    "key": "PPUnited"
-  },
-  "schedule": true
+    "key": "PPUnited",
+    "score": 2
+  }
 }
