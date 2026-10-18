@@ -2,10 +2,11 @@
   "date": "2026-10-11 20:00 00:00",
   "type": "Sun Open-5",
   "home": {
-    "key": "PPUnited"
+    "key": "PPUnited",
+    "score": 2
   },
   "away": {
-    "key": "AthleticCapybara"
-  },
-  "schedule": true
+    "key": "AthleticCapybara",
+    "score": 1
+  }
 }
