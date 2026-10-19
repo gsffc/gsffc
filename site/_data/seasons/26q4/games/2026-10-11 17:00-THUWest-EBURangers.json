@@ -2,10 +2,11 @@
   "date": "2026-10-11 17:00 00:00",
   "type": "Sun Open-5",
   "home": {
-    "key": "THUWest"
+    "key": "THUWest",
+    "score": 1
   },
   "away": {
-    "key": "EBURangers"
-  },
-  "schedule": true
+    "key": "EBURangers",
+    "score": 2
+  }
 }

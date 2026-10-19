@@ -2,10 +2,11 @@
   "date": "2026-10-17 19:00 00:00",
   "type": "Sat Open-6",
   "home": {
-    "key": "GSFUnited"
+    "key": "GSFUnited",
+    "score": 2
   },
   "away": {
-    "key": "DeepShoreline"
-  },
-  "schedule": true
+    "key": "DeepShoreline",
+    "score": 1
+  }
 }

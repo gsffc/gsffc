@@ -2,10 +2,11 @@
   "date": "2026-10-10 20:00 00:00",
   "type": "Sat Open-5",
   "home": {
-    "key": "JTU"
+    "key": "JTU",
+    "score": 1
   },
   "away": {
-    "key": "GSFUnited"
-  },
-  "schedule": true
+    "key": "GSFUnited",
+    "score": 3
+  }
 }

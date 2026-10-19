@@ -2,10 +2,11 @@
   "date": "2026-10-18 18:00 00:00",
   "type": "Sun Open-6",
   "home": {
-    "key": "HeHeFC"
+    "key": "HeHeFC",
+    "score": 2
   },
   "away": {
-    "key": "Hunters"
-  },
-  "schedule": true
+    "key": "Hunters",
+    "score": 1
+  }
 }
