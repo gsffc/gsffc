@@ -2,10 +2,11 @@
   "date": "2026-10-25 20:00 00:00",
   "type": "Sun Open-7",
   "home": {
-    "key": "AthleticCapybara"
+    "key": "AthleticCapybara",
+    "score": 1
   },
   "away": {
-    "key": "DeepShoreline"
-  },
-  "schedule": true
+    "key": "DeepShoreline",
+    "score": 2
+  }
 }

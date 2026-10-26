@@ -2,10 +2,11 @@
   "date": "2026-10-24 19:00 00:00",
   "type": "Sat Open-7",
   "home": {
-    "key": "CalBlue"
+    "key": "CalBlue",
+    "score": 1
   },
   "away": {
-    "key": "JTU"
-  },
-  "schedule": true
+    "key": "JTU",
+    "score": 0
+  }
 }
