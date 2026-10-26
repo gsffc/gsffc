@@ -2,10 +2,11 @@
   "date": "2026-10-24 20:00 00:00",
   "type": "Sat Open-7",
   "home": {
-    "key": "GSFUnited"
+    "key": "GSFUnited",
+    "score": 8
   },
   "away": {
-    "key": "OX9FC"
-  },
-  "schedule": true
+    "key": "OX9FC",
+    "score": 0
+  }
 }
