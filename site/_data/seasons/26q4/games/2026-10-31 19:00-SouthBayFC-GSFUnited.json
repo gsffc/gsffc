@@ -2,10 +2,11 @@
   "date": "2026-10-31 19:00 00:00",
   "type": "Sat Open-8",
   "home": {
-    "key": "SouthBayFC"
+    "key": "SouthBayFC",
+    "score": 0
   },
   "away": {
-    "key": "GSFUnited"
-  },
-  "schedule": true
+    "key": "GSFUnited",
+    "score": 2
+  }
 }

@@ -2,10 +2,11 @@
   "date": "2026-11-01 20:00 00:00",
   "type": "Sun Open-8",
   "home": {
-    "key": "GSFLocomotive"
+    "key": "GSFLocomotive",
+    "score": 2
   },
   "away": {
-    "key": "AthleticCapybara"
-  },
-  "schedule": true
+    "key": "AthleticCapybara",
+    "score": 2
+  }
 }
