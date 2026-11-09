@@ -2,10 +2,11 @@
   "date": "2026-11-08 20:00 00:00",
   "type": "Sun Open-9",
   "home": {
-    "key": "HeHeFC"
+    "key": "HeHeFC",
+    "score": 12
   },
   "away": {
-    "key": "EBURangers"
-  },
-  "schedule": true
+    "key": "EBURangers",
+    "score": 1
+  }
 }

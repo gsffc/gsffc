@@ -2,10 +2,11 @@
   "date": "2026-11-08 20:00 00:00",
   "type": "Sun Open-9",
   "home": {
-    "key": "THUWest"
+    "key": "THUWest",
+    "score": 3
   },
   "away": {
-    "key": "PPUnited"
-  },
-  "schedule": true
+    "key": "PPUnited",
+    "score": 4
+  }
 }
