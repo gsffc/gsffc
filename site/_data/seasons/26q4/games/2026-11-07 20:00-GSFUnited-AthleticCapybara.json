@@ -2,10 +2,11 @@
   "date": "2026-11-07 20:00 00:00",
   "type": "Sat Open-9",
   "home": {
-    "key": "GSFUnited"
+    "key": "GSFUnited",
+    "score": 3
   },
   "away": {
-    "key": "AthleticCapybara"
-  },
-  "schedule": true
+    "key": "AthleticCapybara",
+    "score": 2
+  }
 }
