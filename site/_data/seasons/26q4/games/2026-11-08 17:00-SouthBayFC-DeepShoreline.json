@@ -2,10 +2,11 @@
   "date": "2026-11-08 17:00 00:00",
   "type": "Sun Open-9",
   "home": {
-    "key": "SouthBayFC"
+    "key": "SouthBayFC",
+    "score": 1
   },
   "away": {
-    "key": "DeepShoreline"
-  },
-  "schedule": true
+    "key": "DeepShoreline",
+    "score": 0
+  }
 }
