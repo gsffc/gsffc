@@ -12,6 +12,10 @@ rule 4).
 - `/calendar` — upcoming and past events
 - `/event/:id` — details, signup and cancellation (with a capacity limit),
   the attendee list, and comments
+- **Location preflight before signup** — members must allow location access
+  before signing up or joining a waitlist, so they can resolve permission or
+  device-location issues before event day. The check does not save their
+  location.
 - **GPS check-in** — a signed-up member taps 📍 签到, the browser reports its
   location, and the server accepts it only if the distance to the pitch is
   within the event's check-in radius (stored per event, default 10 m).
