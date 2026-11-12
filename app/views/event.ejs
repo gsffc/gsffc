@@ -420,16 +420,22 @@
       <%# 名额已满 counts 试训 as well as members — 总人数 is one number for every
           body coming — and the waitlist is one queue for both. %>
       <div class="event-action">
-        <form method="POST" action="/event/<%= event.id %>/signup">
+        <form method="POST" action="/event/<%= event.id %>/signup" class="js-location-gated-signup">
           <button class="btn btn-warning btn-action" type="submit">加入候补名单</button>
         </form>
         <span class="event-action-note text-muted">名额已满，有人取消时自动补位</span>
+        <span class="event-action-note text-muted js-location-status" role="status" aria-live="polite">
+          报名前请先允许定位，确保活动当天可使用签到。
+        </span>
       </div>
     <% } else { %>
       <div class="event-action">
-        <form method="POST" action="/event/<%= event.id %>/signup">
+        <form method="POST" action="/event/<%= event.id %>/signup" class="js-location-gated-signup">
           <button class="btn btn-success btn-action" type="submit">报名</button>
         </form>
+        <span class="event-action-note text-muted js-location-status" role="status" aria-live="polite">
+          报名前请先允许定位，确保活动当天可使用签到。
+        </span>
       </div>
     <% } %>
   <% } %>
@@ -1482,4 +1488,49 @@
   })();
 </script>
 <% } %>
+<script>
+  (function () {
+    document.querySelectorAll('.js-location-gated-signup').forEach(function (form) {
+      var button = form.querySelector('button[type="submit"]');
+      var status = form.parentElement.querySelector('.js-location-status');
+      var originalLabel = button.textContent;
+      var locationConfirmed = false;
+
+      form.addEventListener('submit', function (event) {
+        if (locationConfirmed) return;
+        event.preventDefault();
+
+        if (!navigator.geolocation) {
+          status.textContent = '此浏览器不支持定位，无法报名。请使用支持定位的浏览器。';
+          status.classList.add('text-danger');
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = '正在确认定位…';
+        status.textContent = '请在弹窗中允许此网站使用你的位置。';
+        status.classList.remove('text-danger');
+
+        navigator.geolocation.getCurrentPosition(function () {
+          locationConfirmed = true;
+          status.textContent = '定位已开启，正在提交报名…';
+          form.requestSubmit();
+        }, function (error) {
+          if (error.code === 1) {
+            status.textContent = '定位权限未开启。请在浏览器的网站设置中允许此网站使用位置，然后重试。';
+          } else if (error.code === 2) {
+            status.textContent = '无法获取位置。请开启设备的定位服务并重试。';
+          } else if (error.code === 3) {
+            status.textContent = '获取位置超时。请检查设备定位服务后重试。';
+          } else {
+            status.textContent = '定位检查失败。请开启定位服务后重试。';
+          }
+          status.classList.add('text-danger');
+          button.disabled = false;
+          button.textContent = originalLabel;
+        }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 0 });
+      });
+    });
+  })();
+</script>
 <%- include('partials/footer') %>
