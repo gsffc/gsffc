@@ -2,10 +2,11 @@
   "date": "2026-11-14 19:00 00:00",
   "type": "Sat Open-10",
   "home": {
-    "key": "JTU"
+    "key": "JTU",
+    "score": 3
   },
   "away": {
-    "key": "GSFLocomotive"
-  },
-  "schedule": true
+    "key": "GSFLocomotive",
+    "score": 0
+  }
 }
