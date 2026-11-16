@@ -2,10 +2,11 @@
   "date": "2026-11-15 18:00 00:00",
   "type": "Sun Open-10",
   "home": {
-    "key": "Hunters"
+    "key": "Hunters",
+    "score": 0
   },
   "away": {
-    "key": "GSFUnited"
-  },
-  "schedule": true
+    "key": "GSFUnited",
+    "score": 2
+  }
 }
