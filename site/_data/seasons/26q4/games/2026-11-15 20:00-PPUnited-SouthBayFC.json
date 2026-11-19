@@ -2,10 +2,11 @@
   "date": "2026-11-15 20:00 00:00",
   "type": "Sun Open-10",
   "home": {
-    "key": "PPUnited"
+    "key": "PPUnited",
+    "score": 1
   },
   "away": {
-    "key": "SouthBayFC"
-  },
-  "schedule": true
+    "key": "SouthBayFC",
+    "score": 3
+  }
 }

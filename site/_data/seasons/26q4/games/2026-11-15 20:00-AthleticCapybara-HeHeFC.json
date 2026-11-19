@@ -2,10 +2,11 @@
   "date": "2026-11-15 20:00 00:00",
   "type": "Sun Open-10",
   "home": {
-    "key": "AthleticCapybara"
+    "key": "AthleticCapybara",
+    "score": 2
   },
   "away": {
-    "key": "HeHeFC"
-  },
-  "schedule": true
+    "key": "HeHeFC",
+    "score": 1
+  }
 }

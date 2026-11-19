@@ -2,10 +2,11 @@
   "date": "2026-11-15 19:00 00:00",
   "type": "Sun Open-10",
   "home": {
-    "key": "OX9FC"
+    "key": "OX9FC",
+    "score": 0
   },
   "away": {
-    "key": "THUWest"
-  },
-  "schedule": true
+    "key": "THUWest",
+    "score": 2
+  }
 }
